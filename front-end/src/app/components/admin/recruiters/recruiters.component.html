@@ -1,0 +1,62 @@
+<div class="recruiters">
+  <div class="page-header">
+    <h1>Manage Recruiters</h1>
+    <div class="header-actions">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search recruiters..." 
+          (input)="onSearch($event)"
+        >
+        <i class="fas fa-search"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="recruiters-table-container">
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading recruiters...</p>
+    </div>
+
+    <div *ngIf="!(recruiters$ | async)?.length && !loading" class="empty-state">
+      <i class="fas fa-users"></i>
+      <p>No recruiters to manage</p>
+    </div>
+
+    <table *ngIf="(recruiters$ | async)?.length" class="recruiters-table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Company</th>
+          <th>Registration Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let recruiter of (recruiters$ | async)">
+          <td>
+            <div class="recruiter-email">
+              <i class="fas fa-user-tie"></i>
+              {{ recruiter.email }}
+            </div>
+          </td>
+          <td>{{ recruiter.companyName || 'N/A' }}</td>
+          <td>{{ recruiter.registrationDate | date:'medium' }}</td>
+          <td>
+            <span class="status-badge">{{ recruiter.isApproved }}</span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-view" (click)="viewDetails(recruiter)" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-block" (click)="blockRecruiter(recruiter)" title="Block">
+              <i class="fas fa-ban"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

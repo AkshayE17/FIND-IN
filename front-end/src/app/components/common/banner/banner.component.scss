@@ -1,0 +1,14 @@
+.banner-container {
+  background-image: url('/assets/banner1.jpg'); /* Set your background image */
+  background-size: cover; /* Ensure the image covers the entire container */
+  background-position: center; /* Center the background image */
+  background-repeat: no-repeat; /* Prevent repeating the image */
+  height: 600px; /* Adjust the height as needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-center {
+  color: #1a237e; /* Make sure the text stands out */
+}

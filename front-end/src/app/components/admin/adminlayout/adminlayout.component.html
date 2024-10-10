@@ -1,0 +1,9 @@
+<div class="admin-layout">
+  <app-header (logout)="handleLogout()"></app-header>
+  <div class="admin-container">
+    <app-side-bar></app-side-bar>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+/* otp-verification.component.css */
+.otp-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 400px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.otp-input-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+input[type="text"] {
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  text-align: center;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.error-message {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.verify-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.verify-button:hover {
+  background-color: #0056b3;
+}
+
+.verify-button:disabled {
+  background-color: #b3d7ff;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.cancel-button:hover {
+  background-color: #e2e6ea;
+}
+
+.resend-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.resend-button {
+  background-color: transparent;
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.resend-button:hover {
+  color: #0056b3;
+}
+.timer {
+  margin-top: 10px;
+  text-align: center;
+  font-weight: bold;
+}

@@ -1,0 +1,32 @@
+<div class="login-container">
+  <h1 class="main-header">Admin Login</h1>
+  <div class="login-box">
+    <div class="form-side">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" formControlName="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" formControlName="password" required>
+        </div>
+
+        <button type="submit" [disabled]="loading$ | async">Login</button>
+
+        <div *ngIf="loading$ | async" class="loading-spinner">
+          Logging in...
+        </div>
+      </form>
+
+      <div *ngIf="error$ | async as errorMessage" class="error-message">
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <div class="additional-options">
+        <a href="#">Forgot Password?</a>
+      </div>
+    </div>
+  </div>
+</div>

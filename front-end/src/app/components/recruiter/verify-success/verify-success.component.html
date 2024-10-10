@@ -1,0 +1,17 @@
+<!-- otp-success.component.html -->
+<div class="success-container">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    </div>
+    <h1>OTP Verified Successfully!</h1>
+    <p>Your OTP has been successfully verified. You can now proceed further.</p>
+    <div class="button-group">
+      <button mat-flat-button color="primary" (click)="goToHome()">Go to Home</button>
+      <button mat-stroked-button color="accent" (click)="goToLogin()">Go to Login</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,84 @@
+<!-- login.component.html -->
+<app-header></app-header>
+
+<div class="login-container">
+  <div class="login-content">
+    <div class="login-box">
+      <div class="image-side">
+        <div class="overlay">
+          <div class="brand-content">
+            <div class="brand">
+              <span class="brand-name">FINDY</span>
+              <span class="hand-icon">✋</span>
+            </div>
+            <h2>Welcome Back!</h2>
+            <p>Find your dream job and take the next step in your career journey.</p>
+          </div>
+        </div>
+        <img src="/assets/jobseeker.jpg" alt="Job Seeker Login" class="background-image">
+      </div>
+      
+      <div class="form-side">
+        <div class="form-header">
+          <h1>Job Seeker Login</h1>
+          <p>Please enter your details to continue</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <div class="input-wrapper">
+              <i class="far fa-envelope input-icon"></i>
+              <input 
+                type="email" 
+                id="email" 
+                formControlName="email" 
+                placeholder="Enter your email"
+                required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="far fa-lock input-icon"></i>
+              <input 
+                type="password" 
+                id="password" 
+                formControlName="password" 
+                placeholder="Enter your password"
+                required>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox">
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="forgot-password">Forgot Password?</a>
+          </div>
+
+          <button type="submit" [disabled]="loading$ | async" class="submit-button">
+            <span *ngIf="!(loading$ | async)">Login</span>
+            <div *ngIf="loading$ | async" class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Logging in...</span>
+            </div>
+          </button>
+        </form>
+
+        <div *ngIf="error$ | async as errorMessage" class="error-alert">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="sign-up-prompt">
+          <p>Don't have an account? <a [routerLink]="['/user/register']">Sign Up</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

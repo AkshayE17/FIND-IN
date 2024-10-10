@@ -1,0 +1,15 @@
+<div class="search-container flex justify-center items-center gap-4 my-8">
+  <div class="relative">
+    <input 
+      type="text" 
+      [(ngModel)]="searchTerm"
+      placeholder="JOB TITLE" 
+      class="px-4 py-2 rounded border w-64"
+    >
+  </div>
+  <button 
+    (click)="onSearch()"
+    class="bg-navy-900 text-white px-6 py-2 rounded">
+    SEARCH JOB
+  </button>
+</div>

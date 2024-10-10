@@ -1,0 +1,28 @@
+.admin-sidebar {
+  width: 250px;
+  background-color: #34495e;
+  color: white;
+  padding: 1rem;
+  height: 100%;
+  cursor: pointer;
+}
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.admin-sidebar ul li {
+  margin: 0.5rem 0;
+}
+.admin-sidebar ul li a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+.admin-sidebar ul li a:hover,
+.admin-sidebar ul li a.active {
+  background-color: #2c3e50;
+}

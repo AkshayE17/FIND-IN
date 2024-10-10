@@ -1,0 +1,58 @@
+<div class="manage-users">
+  <div class="page-header">
+    <h1>Manage Users</h1>
+    <div class="header-actions">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search users..." 
+          (input)="onSearch($event)"
+        >
+        <i class="fas fa-search"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="users-table-container">
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading users...</p>
+    </div>
+
+    <div *ngIf="!(users$ | async)?.length && !loading" class="empty-state">
+      <i class="fas fa-users"></i>
+      <p>No users available</p>
+    </div>
+
+    <table *ngIf="(users$ | async)?.length" class="users-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Mobile</th>
+          <th>Gender</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of (users$ | async)">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.mobile }}</td>
+          <td>{{ user.gender }}</td>
+          <td class="actions-cell">
+            <button class="btn-view" (click)="viewUserDetails(user)" title="View Details">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-edit" (click)="editUser(user)" title="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-delete" (click)="blockUser(user)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

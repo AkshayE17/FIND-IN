@@ -1,0 +1,249 @@
+<app-header></app-header>
+
+<div class="login-container">
+  <div class="login-content">
+    <div class="login-box">
+      <div class="image-side">
+        <div class="overlay">
+          <div class="brand-content">
+            <div class="brand">
+              <span class="brand-name">FINDY</span>
+              <span class="hand-icon">✋</span>
+            </div>
+            <h2>Join as a Recruiter</h2>
+            <p>Connect with top talent and build your dream team with our professional recruiting platform.</p>
+          </div>
+        </div>
+        <img src="/assets/Recruiter.jpg" alt="Recruiter Register" class="background-image">
+      </div>
+      
+      <div class="form-side">
+        <div class="form-header">
+          <h1>Create Recruiter Account</h1>
+          <p>Please fill in your professional details</p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <div class="input-wrapper">
+              <i class="far fa-user input-icon"></i>
+              <input 
+                type="text" 
+                id="name" 
+                formControlName="name" 
+                placeholder="Enter your full name"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.dirty || registerForm.get('name')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('name')?.errors?.['required']">Name is required.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Personal Email</label>
+            <div class="input-wrapper">
+              <i class="far fa-envelope input-icon"></i>
+              <input 
+                type="email" 
+                id="email" 
+                formControlName="email" 
+                placeholder="Enter your personal email"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty || registerForm.get('email')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email address.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="officialEmail">Company Email</label>
+            <div class="input-wrapper">
+              <i class="far fa-envelope input-icon"></i>
+              <input 
+                type="email" 
+                id="officialEmail" 
+                formControlName="officialEmail" 
+                placeholder="Enter your company email"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('officialEmail')?.invalid && (registerForm.get('officialEmail')?.dirty || registerForm.get('officialEmail')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('officialEmail')?.errors?.['required']">Company email is required.</span>
+              <span *ngIf="registerForm.get('officialEmail')?.errors?.['email']">Please enter a valid email address.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mobile">Mobile Number</label>
+            <div class="input-wrapper">
+              <i class="far fa-phone input-icon"></i>
+              <input 
+                type="tel" 
+                id="mobile" 
+                formControlName="mobile" 
+                placeholder="Enter your mobile number"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('mobile')?.invalid && (registerForm.get('mobile')?.dirty || registerForm.get('mobile')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('mobile')?.errors?.['required']">Mobile number is required.</span>
+              <span *ngIf="registerForm.get('mobile')?.errors?.['pattern']">Please enter a valid mobile number.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="companyName">Company Name</label>
+            <div class="input-wrapper">
+              <i class="far fa-building input-icon"></i>
+              <input 
+                type="text" 
+                id="companyName" 
+                formControlName="companyName" 
+                placeholder="Enter your company name"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('companyName')?.invalid && (registerForm.get('companyName')?.dirty || registerForm.get('companyName')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('companyName')?.errors?.['required']">Company name is required.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="einNumber">EIN Number</label>
+            <div class="input-wrapper">
+              <i class="far fa-id-card input-icon"></i>
+              <input 
+                type="text" 
+                id="einNumber" 
+                formControlName="einNumber" 
+                placeholder="Enter company EIN number"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('einNumber')?.invalid && (registerForm.get('einNumber')?.dirty || registerForm.get('einNumber')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('einNumber')?.errors?.['required']">EIN number is required.</span>
+              <span *ngIf="registerForm.get('einNumber')?.errors?.['pattern']">Please enter a valid EIN number.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="companyWebsite">Company Website</label>
+            <div class="input-wrapper">
+              <i class="far fa-globe input-icon"></i>
+              <input 
+                type="url" 
+                id="companyWebsite" 
+                formControlName="companyWebsite" 
+                placeholder="Enter company website"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('companyWebsite')?.invalid && (registerForm.get('companyWebsite')?.dirty || registerForm.get('companyWebsite')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('companyWebsite')?.errors?.['required']">Company website is required.</span>
+              <span *ngIf="registerForm.get('companyWebsite')?.errors?.['pattern']">Please enter a valid URL.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="jobTitle">Job Title</label>
+            <div class="input-wrapper">
+              <i class="far fa-briefcase input-icon"></i>
+              <input 
+                type="text" 
+                id="jobTitle" 
+                formControlName="jobTitle" 
+                placeholder="Enter your job title"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('jobTitle')?.invalid && (registerForm.get('jobTitle')?.dirty || registerForm.get('jobTitle')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('jobTitle')?.errors?.['required']">Job title is required.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <div class="input-wrapper">
+              <i class="far fa-user input-icon"></i>
+              <select 
+                id="gender" 
+                formControlName="gender" 
+                required>
+                <option value="" disabled selected>Select your gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div *ngIf="registerForm.get('gender')?.invalid && (registerForm.get('gender')?.dirty || registerForm.get('gender')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('gender')?.errors?.['required']">Please select your gender.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="far fa-lock input-icon"></i>
+              <input 
+                type="password" 
+                id="password" 
+                formControlName="password" 
+                placeholder="Create your password"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.dirty || registerForm.get('password')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters long.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrapper">
+              <i class="far fa-lock input-icon"></i>
+              <input 
+                type="password" 
+                id="confirmPassword" 
+                formControlName="confirmPassword" 
+                placeholder="Confirm your password"
+                required>
+            </div>
+            <div *ngIf="registerForm.get('confirmPassword')?.invalid && (registerForm.get('confirmPassword')?.dirty || registerForm.get('confirmPassword')?.touched)" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password.</span>
+            </div>
+            <div *ngIf="registerForm.errors?.['mismatch']" class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>Passwords do not match.</span>
+            </div>
+          </div>
+
+          <button type="submit" [disabled]="loading$ | async" class="submit-button">
+            <span *ngIf="!(loading$ | async)">Create Recruiter Account</span>
+            <div *ngIf="loading$ | async" class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Creating account...</span>
+            </div>
+          </button>
+        </form>
+
+        <div *ngIf="error$ | async as errorMessage" class="error-alert">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="sign-up-prompt">
+          <p>Already have an account? <a [routerLink]="['/recruiter/login']">Login</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

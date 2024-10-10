@@ -1,0 +1,35 @@
+<div class="otp-container">
+  <h2>OTP Verification</h2>
+  <p>Please enter the OTP sent to your email.</p>
+
+  <form [formGroup]="otpForm" (ngSubmit)="onSubmitOtp()">
+    <div class="otp-input-container">
+      <input type="text" formControlName="digit1" maxlength="1" (input)="onInput($event, 1)">
+      <input type="text" formControlName="digit2" maxlength="1" (input)="onInput($event, 2)">
+      <input type="text" formControlName="digit3" maxlength="1" (input)="onInput($event, 3)">
+      <input type="text" formControlName="digit4" maxlength="1" (input)="onInput($event, 4)">
+      <input type="text" formControlName="digit5" maxlength="1" (input)="onInput($event, 5)">
+      <input type="text" formControlName="digit6" maxlength="1" (input)="onInput($event, 6)">
+    </div>
+  
+    <div *ngIf="otpForm.invalid && (otpForm.touched || otpForm.dirty)" class="error-message">
+      Please enter a valid 6-digit OTP.
+    </div>
+
+    
+    <div class="timer">Time remaining: {{ formatTime(timeLeft) }}</div>
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+
+    <div class="button-container">
+      <button type="submit" [disabled]="otpForm.invalid || timeLeft === 0" class="verify-button">Verify OTP</button>
+      <button type="button" (click)="onClose()" class="cancel-button">Cancel</button>
+    </div>
+  </form>
+
+  <div class="resend-container">
+    <p>Didn't receive the OTP?</p>
+    <button (click)="resendOtp()" [disabled]="timeLeft > 0" class="resend-button">Resend OTP</button>
+  </div>
+</div>
