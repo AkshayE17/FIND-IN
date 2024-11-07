@@ -1,0 +1,20 @@
+<div class="sidebar">
+  <button class="sidebar-item" routerLink="/user/dashboard/user-details" routerLinkActive="active">
+    <i class="fas fa-user"></i> Details
+  </button>
+  <button class="sidebar-item" routerLink="/user/dashboard/professional-details" routerLinkActive="active">
+    <i class="fas fa-briefcase"></i> Professional Details
+  </button>
+  <button class="sidebar-item" routerLink="/user/dashboard/applied-jobs" routerLinkActive="active">
+    <i class="fas fa-chart-line"></i>Applied Jobs
+  </button>
+  <button class="sidebar-item" routerLink="/user/messages" routerLinkActive="active">
+    <i class="fas fa-envelope"></i> Messages
+  </button>
+  <button class="sidebar-item" routerLink="/user/change-password" routerLinkActive="active">
+    <i class="fas fa-key"></i> Change password
+  </button>
+  <button class="sidebar-item" (click)="logout()">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </button>
+</div>

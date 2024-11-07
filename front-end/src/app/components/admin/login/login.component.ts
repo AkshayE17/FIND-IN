@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AppState } from '../../../state/app.state';
 import { loginAdmin } from '../../../state/admin/admin.action';
 import { selectAdminLoading, selectAdminError, selectAdmin } from '../../../state/admin/admin.selector';
@@ -17,18 +18,19 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
   admin$: Observable<IAdmin | null>;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private formBuilder: FormBuilder,
     private store: Store<AppState>,
     private router: Router
   ) {
-
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -40,13 +42,13 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.error$.subscribe((errorMessage) => {
+    this.error$.pipe(takeUntil(this.destroy$)).subscribe((errorMessage) => {
       if (errorMessage) {
         this.showErrorAlert(errorMessage);
       }
     });
 
-    this.admin$.subscribe((admin) => {
+    this.admin$.pipe(takeUntil(this.destroy$)).subscribe((admin) => {
       if (admin) {
         this.showSuccessAlert();
         this.router.navigate(['/admin/dashboard']);
@@ -82,5 +84,10 @@ export class LoginComponent implements OnInit {
       timer: 3000,
       showConfirmButton: false,
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,52 +1,81 @@
 import { Request, Response } from 'express';
-import { RecruiterService } from '../services/recruiter.service';
+import { IRecruiterService } from '../interfaces/recruiters/IRecruiterService';
+import { Messages } from '../constants/message.constants';
+import { HttpStatus } from '../constants/http.constants';
+import { IOtpService } from '../interfaces/otp/IOtpService';
+import { IRecruiterController } from '../interfaces/recruiters/IRecruiterController';
 
-const recruiterService=new RecruiterService();
+export class RecruiterController implements IRecruiterController {
+  constructor(
+    private recruiterService: IRecruiterService,
+    private otpService: IOtpService
+  ) {}
 
-export class RecruiterController {
-
-// Register a new recruiter
-async register(req: Request, res: Response): Promise<void> {
-  try {
-    console.log("entering register constroller")
-    const recruiter = await recruiterService.registerRecruiter(req.body);
-    res.status(201).json({ message: 'Recruiter registered successfully', recruiter });
-  } catch (error: any) {
-    console.error('Error in registering recruiter:', error); 
-    res.status(400).json({ message: error?.message || 'An error occurred during registration' });
-  }
-}
-
-
-
-
-// Authenticate recruiter (login)
-async login(req: Request, res: Response): Promise<void> {
-  try {
-    const recruiter = await recruiterService.loginRecruiter(req.body.email, req.body.password);
-    res.status(200).json({ message: 'Login successful', recruiter });
-  } catch (error: any) {
-    console.error('Error in registering recruiter:', error); 
-    res.status(400).json({ message: error?.message || 'Invalid email or password' });
-  }
-}
-
-
-//verify otp
-async verifyOtp(req: Request, res: Response) {
-  try {
-      const { email, otp } = req.body;
-      await recruiterService.verifyOtp(email, otp);
-      res.status(200).json({ message: 'Email verified successfully!' });
-  } catch (error) {
-      console.error('Error during OTP verification:', error);
+  async register(req: Request, res: Response): Promise<void> {
+    try {
+      const recruiter = await this.recruiterService.registerRecruiter(req.body);
+      await this.otpService.sendOtpToEmail(req.body.email);
+      
+      res.status(HttpStatus.CREATED).json({
+        message: Messages.RECRUITER_CREATED,
+        recruiter,
+      });
+    } catch (error: unknown) {
+      console.error('Error in registering recruiter:', error);
       if (error instanceof Error) {
-          res.status(500).json({ message: error.message });
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
       } else {
-          res.status(500).json({ message: 'An unknown error occurred.' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
       }
+    }
+  }
+
+  async login(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password } = req.body;
+      const { recruiter, accessToken, refreshToken } = await this.recruiterService.loginRecruiter(email, password);
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: parseInt(process.env.REFRESH_TOKEN_MAX_AGE as string, 10),
+      });
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: parseInt(process.env.ACCESS_TOKEN_MAX_AGE as string, 10),
+      });
+
+      res.status(HttpStatus.OK).json({
+        refreshToken,
+        accessToken,
+        recruiter,
+      });
+    } catch (error: unknown) {
+      console.error('Error in recruiter login:', error);
+      if (error instanceof Error) {
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: error.message });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+      }
+    }
+  }
+
+  async verifyOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, otp } = req.body;
+      await this.recruiterService.verifyOtp(email, otp);
+      
+      res.status(HttpStatus.OK).json({ message: Messages.EMAIL_VERIFIED });
+    } catch (error: unknown) {
+      console.error('Error during OTP verification:', error);
+
+      if (error instanceof Error) {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+      }
+    }
   }
 }
-
-}
-  

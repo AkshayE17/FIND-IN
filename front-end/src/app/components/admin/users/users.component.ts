@@ -1,78 +1,195 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import Swal from 'sweetalert2';
-import { Router } from '@angular/router';
-import { IUser } from '../../../state/user/user.state';
-import { AdminService } from '../../../services/adminService';
+import { IUser } from '../../../state/user/user.state'; 
+import { AdminService } from '../../../services/adminService'; 
+import { Observable, of, Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
   users$: Observable<IUser[]> = new Observable<IUser[]>();
+  totalUsers: number = 0;
+  pageSize: number = 5;
+  currentPage: number = 1;
   loading = false;
+  subscriptions: Subscription = new Subscription();
 
-  constructor(private adminService: AdminService, private router: Router) {}
+  filters = {
+    gender: '',
+    startDate: '',
+    endDate: '',
+    searchTerm: '',
+    isBlocked: null as boolean | null
+  };
+
+  genderOptions = [
+    { value: '', label: 'All Genders' },
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'other', label: 'Other' }
+  ];
+
+  blockStatusOptions = [
+    { value: '', label: 'All Users' },
+    { value: 'true', label: 'Blocked' },
+    { value: 'false', label: 'Unblocked' }
+  ];
+
+  isFiltersVisible = false;
+
+  constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
-  loadUsers() {
+  ngOnDestroy(): void {
+    // Unsubscribe from all subscriptions to prevent memory leaks
+    this.subscriptions.unsubscribe();
+  }
+
+  loadUsers(page: number = 1) {
     this.loading = true;
-    this.users$ = this.adminService.getAllUsers();
-    this.users$.subscribe({
-      complete: () => this.loading = false
+    const loadUserSubscription = this.adminService.getAllUsers(
+      page,
+      this.pageSize,
+      this.filters.searchTerm,
+      this.filters.gender,
+      this.filters.startDate,
+      this.filters.endDate,
+      this.filters.isBlocked
+    ).subscribe({
+      next: (data) => {
+        this.users$ = of(data.users);
+        this.totalUsers = data.total;
+        this.currentPage = page;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        Swal.fire('Error!', error.message, 'error');
+      }
     });
+
+    // Add to the subscriptions to manage cleanup
+    this.subscriptions.add(loadUserSubscription);
+  }
+
+  onGenderChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      this.filters.gender = target.value;
+      this.applyFilters();
+    }
+  }
+
+  onBlockStatusChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      const value = target.value;
+      this.filters.isBlocked = value === '' ? null : value === 'true';
+      console.log('Updated isBlocked:', this.filters.isBlocked); 
+    }
+  }
+
+  toggleFilters() {
+    this.isFiltersVisible = !this.isFiltersVisible;
+  }
+
+  applyFilters() {
+    this.currentPage = 1;
+    this.loadUsers(1);
+  }
+
+  resetFilters() {
+    this.filters = {
+      gender: '',
+      startDate: '',
+      endDate: '',
+      searchTerm: '',
+      isBlocked: null
+    };
+    this.loadUsers(1);
   }
 
   onSearch(event: Event) {
     const searchTerm = (event.target as HTMLInputElement).value;
-  
+    this.filters.searchTerm = searchTerm;
+    this.loadUsers(1);
   }
 
-  viewUserDetails(user: IUser) {
-    this.router.navigate(['/user/details', user.email]);
+  get totalPages(): number {
+    return Math.ceil(this.totalUsers / this.pageSize);
   }
 
-  editUser(user: IUser) {
-    // Navigate to user edit form
-    this.router.navigate(['/user/edit', user.email]);
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.loadUsers(page);
+    }
   }
 
-  blockUser(user: IUser) {
+  viewDetails(user: IUser) {
+    const detailsHtml = `
+      <strong>Name:</strong> ${user.name} <br>
+      <strong>Email:</strong> ${user.email} <br>
+      <strong>Gender:</strong> ${user.gender} <br>
+      <strong>Mobile:</strong> ${user.mobile} <br>
+      <strong>Status:</strong> ${user.isBlocked ? 'Blocked' : 'Unblocked'} <br>
+      <strong>Verified:</strong> ${user.isVerified ? 'Yes' : 'No'} <br>
+      <strong>Registration Date:</strong> ${new Date(user.createdAt).toLocaleDateString()} <br>
+    `;
+
     Swal.fire({
-      title: 'Block User',
-      text: `Are you sure you want to block ${user.email}?`,
+      title: 'User Details',
+      html: detailsHtml,
+      imageUrl: user.imageUrl || 'assets/user.jpg',
+      imageWidth: 100,
+      imageHeight: 100,
+      imageAlt: 'User Image',
+      confirmButtonText: 'Close'
+    });
+  }
+
+  blockOrUnblockUser(user: IUser) {
+    const action = user.isBlocked ? 'Unblock' : 'Block';
+    const actionText = user.isBlocked ? 'unblocked' : 'blocked';
+
+    Swal.fire({
+      title: `${action} User`,
+      text: `Are you sure you want to ${action.toLowerCase()} ${user.email}?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, Block',
+      confirmButtonText: `Yes, ${action.toLowerCase()}`,
       cancelButtonText: 'Cancel',
-      confirmButtonColor: '#c62828',
+      confirmButtonColor: user.isBlocked ? '#4caf50' : '#c62828',
       cancelButtonColor: '#666'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.adminService.blockUser(user.email).subscribe({
-          next: () => {
+        const blockSubscription = this.adminService.blockOrUnblockUser(user.email).subscribe({
+          next: () => { 
             Swal.fire({
-              title: 'Deleted!',
-              text: 'User has been deleted.',
+              title: `${action}ed!`,
+              text: `User has been successfully ${actionText}.`,
               icon: 'success',
               timer: 2000,
               showConfirmButton: false
             });
             this.loadUsers();
-          },  
+          },
           error: (error) => {
             Swal.fire('Error!', error.message, 'error');
           }
         });
+        this.subscriptions.add(blockSubscription);
       }
     });
   }
-}  
+}

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { OtpVerifyComponent } from '../otp-verify/otp-verify.component';
@@ -8,7 +8,8 @@ import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { HeaderComponent } from '../../common/header/header.component';
 import { FooterComponent } from '../../common/footer/footer.component';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-register',
@@ -17,10 +18,12 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
   templateUrl: './user-register.component.html',
   styleUrls: ['./user-register.component.scss']
 })
-export class UserRegisterComponent {
+export class UserRegisterComponent implements OnDestroy {
   loginForm: FormGroup;
   loading$ = new BehaviorSubject<boolean>(false);
   error$: Observable<string>;
+
+  private destroy$ = new Subject<void>(); // Subject to manage unsubscription
 
   constructor(private fb: FormBuilder, private http: HttpClient, private dialog: MatDialog) {
     this.loginForm = this.fb.group({
@@ -31,7 +34,14 @@ export class UserRegisterComponent {
       confirmPassword: ['', Validators.required],
       gender: ['', Validators.required]
     }, { validator: this.passwordMatchValidator });
+
     this.error$ = of('');
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup all subscriptions when the component is destroyed
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   passwordMatchValidator(g: FormGroup) {
@@ -52,20 +62,22 @@ export class UserRegisterComponent {
       const userData = this.loginForm.value;
       console.log("data is :", userData);
 
-      // Open the OTP verification modal immediately
       const dialogRef = this.openOtpVerificationModal();
 
-      this.http.post('http://localhost:8888/user/register', userData).subscribe({
+      // Make HTTP request and subscribe with unsubscription using takeUntil
+      this.http.post('http://localhost:8888/user/register', userData).pipe(
+        takeUntil(this.destroy$) // Ensure unsubscription
+      ).subscribe({
         next: (response) => {
           console.log('User registered successfully', response);
           this.loading$.next(false);
           dialogRef.componentInstance['setData'](userData);
         },
-        error: (error: any) => {  
+        error: (error: any) => {
           console.error('Error registering user', error);
           this.loading$.next(false);
-          dialogRef.close(); 
-          if (error?.error?.message === 'User with this email already exists.') { 
+          dialogRef.close();
+          if (error?.error?.message === 'User with this email already exists.') {
             this.showDuplicateEmailAlert();
           } else {
             this.showGenericErrorAlert();
@@ -73,7 +85,7 @@ export class UserRegisterComponent {
         }
       });
     } else {
-      this.loginForm.markAllAsTouched(); 
+      this.loginForm.markAllAsTouched();
     }
   }
 
@@ -84,7 +96,7 @@ export class UserRegisterComponent {
       icon: 'error',
       confirmButtonText: 'OK',
       customClass: {
-        confirmButton: 'btn btn-primary' 
+        confirmButton: 'btn btn-primary'
       }
     });
   }
@@ -96,14 +108,14 @@ export class UserRegisterComponent {
       icon: 'error',
       confirmButtonText: 'OK',
       customClass: {
-        confirmButton: 'btn btn-primary' 
+        confirmButton: 'btn btn-primary'
       }
     });
   }
 
   openOtpVerificationModal() {
     const dialogRef = this.dialog.open(OtpVerifyComponent, {
-      data: { email: this.loginForm.value.email } 
+      data: { email: this.loginForm.value.email }
     });
 
     dialogRef.afterClosed().subscribe(result => {

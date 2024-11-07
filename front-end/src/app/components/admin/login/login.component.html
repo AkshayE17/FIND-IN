@@ -1,31 +1,80 @@
+
+
 <div class="login-container">
-  <h1 class="main-header">Admin Login</h1>
-  <div class="login-box">
-    <div class="form-side">
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" formControlName="email" required>
+  <div class="login-content">
+    <div class="login-box">
+      <div class="image-side">
+        <div class="overlay">
+          <div class="brand-content">
+            <div class="brand">
+              <span class="brand-name">FINDY</span>
+              <span class="hand-icon">👩‍💼</span>
+            </div>
+            <h2>Admin Portal</h2>
+            <p>Manage your organization's recruitment process and oversee job listings efficiently.</p>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" formControlName="password" required>
-        </div>
-
-        <button type="submit" [disabled]="loading$ | async">Login</button>
-
-        <div *ngIf="loading$ | async" class="loading-spinner">
-          Logging in...
-        </div>
-      </form>
-
-      <div *ngIf="error$ | async as errorMessage" class="error-message">
-        <span>{{ errorMessage }}</span>
+        <img src="/assets/admin-dashboard.jpg" alt="Admin Login" class="background-image">
       </div>
+      
+      <div class="form-side">
+        <div class="form-header">
+          <h1>Admin Login</h1>
+          <p>Please authenticate to access the admin dashboard</p>
+        </div>
 
-      <div class="additional-options">
-        <a href="#">Forgot Password?</a>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <div class="input-wrapper">
+              <i class="far fa-envelope input-icon"></i>
+              <input 
+                type="email" 
+                id="email" 
+                formControlName="email" 
+                placeholder="Enter admin email"
+                required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="far fa-lock input-icon"></i>
+              <input 
+                type="password" 
+                id="password" 
+                formControlName="password" 
+                placeholder="Enter admin password"
+                required>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox">
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="forgot-password">Reset Admin Password</a>
+          </div>
+
+          <button type="submit" [disabled]="loading$ | async" class="submit-button">
+            <span *ngIf="!(loading$ | async)">Login to Dashboard</span>
+            <div *ngIf="loading$ | async" class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+              <span>Authenticating...</span>
+            </div>
+          </button>
+        </form>
+
+        <div *ngIf="error$ | async as errorMessage" class="error-alert">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="sign-up-prompt">
+          <p>Need an admin account? <a href="mailto:support@findy.com">Contact Support</a></p>
+        </div>
       </div>
     </div>
   </div>

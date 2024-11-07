@@ -1,11 +1,12 @@
-import { createSelector, createFeatureSelector } from '@ngrx/store';
+import { createSelector, createFeatureSelector, select } from '@ngrx/store';
 import { RecruiterState } from './recruiter.state';
 
 export const selectRecruiterFeature = createFeatureSelector<RecruiterState>('recruiter');
 
 export const selectRecruiter = createSelector(
   selectRecruiterFeature,
-  (state: RecruiterState) => state.recruiter
+  (state: RecruiterState) =>
+    state.recruiter
 );
 
 export const selectRecruiterLoading = createSelector(
@@ -16,4 +17,9 @@ export const selectRecruiterLoading = createSelector(
 export const selectRecruiterError = createSelector(
   selectRecruiterFeature,
   (state: RecruiterState) => state.error
+);
+
+export const selectCompanyDetails = createSelector(
+  selectRecruiterFeature,
+  (state: RecruiterState) => state.companyDetails
 );

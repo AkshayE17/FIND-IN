@@ -7,18 +7,75 @@
           type="text" 
           placeholder="Search users..." 
           (input)="onSearch($event)"
+          [(ngModel)]="filters.searchTerm"
         >
         <i class="fas fa-search"></i>
+      </div>
+      <button class="btn-filter" (click)="toggleFilters()">
+        <i class="fas fa-filter"></i> Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.visible]="isFiltersVisible">
+    <div class="filters-content">
+      <div class="filter-group">
+        <label>Gender</label>
+        <select 
+          [(ngModel)]="filters.gender" 
+          (ngModelChange)="onGenderChange($event)"
+          class="status-select"
+        >
+          <option value="">All</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Block Status</label>
+        <select 
+          [(ngModel)]="filters.isBlocked" 
+          (ngModelChange)="onBlockStatusChange($event)"
+          class="status-select"
+        >
+          <option value="">All</option>
+          <option value="true">Blocked</option>
+          <option value="false">Unblocked</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Registration Date Range</label>
+        <div class="date-range">
+          <input 
+            type="date" 
+            [(ngModel)]="filters.startDate" 
+            placeholder="Start date"
+          >
+          <span>to</span>
+          <input 
+            type="date" 
+            [(ngModel)]="filters.endDate" 
+            placeholder="End date"
+          >
+        </div>
+      </div>
+      
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="applyFilters()">
+          Apply Filters
+        </button>
+        <button class="btn-reset" (click)="resetFilters()">
+          Reset
+        </button>
       </div>
     </div>
   </div>
 
   <div class="users-table-container">
-    <div *ngIf="loading" class="loading-spinner">
-      <div class="spinner"></div>
-      <p>Loading users...</p>
-    </div>
-
     <div *ngIf="!(users$ | async)?.length && !loading" class="empty-state">
       <i class="fas fa-users"></i>
       <p>No users available</p>
@@ -31,6 +88,8 @@
           <th>Email</th>
           <th>Mobile</th>
           <th>Gender</th>
+          <th>Registration Date</th>
+          <th>Status</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -40,19 +99,41 @@
           <td>{{ user.email }}</td>
           <td>{{ user.mobile }}</td>
           <td>{{ user.gender }}</td>
+          <td>{{ user.createdAt | date }}</td>
+          <td>
+            <span [ngClass]="user.isBlocked ? 'status-badge blocked' : 'status-badge unblocked'">
+              {{ user.isBlocked ? 'Blocked' : 'Unblocked' }}
+            </span>
+          </td>
           <td class="actions-cell">
-            <button class="btn-view" (click)="viewUserDetails(user)" title="View Details">
+            <button class="btn-view" (click)="viewDetails(user)" title="View Details">
               <i class="fas fa-eye"></i>
             </button>
-            <button class="btn-edit" (click)="editUser(user)" title="Edit">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-delete" (click)="blockUser(user)" title="Delete">
-              <i class="fas fa-trash"></i>
+            <button class="btn-delete" (click)="blockOrUnblockUser(user)" title="Block User">
+              <i class="fas fa-ban"></i>
             </button>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Pagination -->
+    <div *ngIf="totalUsers > pageSize" class="pagination-controls">
+      <button 
+        (click)="changePage(currentPage - 1)" 
+        [disabled]="currentPage === 1"
+        class="btn-pagination"
+      >
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <span>Page {{currentPage}} of {{totalPages}}</span>
+      <button 
+        (click)="changePage(currentPage + 1)" 
+        [disabled]="currentPage === totalPages"
+        class="btn-pagination"
+      >
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </div>

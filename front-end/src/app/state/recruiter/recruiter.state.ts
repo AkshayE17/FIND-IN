@@ -1,4 +1,5 @@
 export interface IRecruiter {
+  _id: string;
   name: string;
   email: string;
   officialEmail: string;  
@@ -13,17 +14,44 @@ export interface IRecruiter {
   isVerified?: boolean;
   isBlocked?: boolean;
   isApproved?: boolean;
-  registrationDate?: Date;
+  createdAt:Date;
+  updatedAt:Date;
 }
 
-export interface RecruiterState {
+export interface ICompany{
+  _id:string;
+  hrId: string; 
+  logo: string; 
+  companyName: string;
+  contactNumber: string; 
+  companyWebsite: string; 
+  about: string; 
+  city: string;
+  country: string; 
+}
+
+export interface LoginResponse {
+  recruiter: IRecruiter;
+  accessToken: string;
+  refreshToken: string;
+  companyDetails:ICompany
+}
+
+
+export interface RecruiterState {  
   recruiter: IRecruiter | null; 
+  companyDetails: ICompany | null; 
+  accessToken: string | null;
+  refreshToken: string | null;
   loading: boolean;
   error: string | null;
 }
 
 export const initialRecruiterState: RecruiterState = {
   recruiter: null,
+  companyDetails: null, 
+  accessToken: null,
+  refreshToken: null,
   loading: false,
   error: null,
 };

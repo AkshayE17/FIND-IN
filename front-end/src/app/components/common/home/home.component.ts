@@ -16,6 +16,5 @@ import { FormsModule } from '@angular/forms';
 export class HomeComponent {
   handleSearch(searchTerm: string) {
     console.log('Searching for:', searchTerm);
-    // Implement search logic
   }
 }

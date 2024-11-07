@@ -24,7 +24,7 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
   [x: string]: any;
   otpForm: FormGroup;
   errorMessage: string = '';
-  timeLeft: number = 120; // 2 minutes in seconds
+  timeLeft: number = 120; 
   timerSubscription: Subscription | null = null;
   
   
@@ -105,7 +105,6 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
 }
 
   resendOtp() {
-    // Reset the timer
     this.timeLeft = 120;
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();

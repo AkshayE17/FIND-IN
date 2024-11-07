@@ -1,0 +1,64 @@
+<div class="manage-jobs-container">
+  <header class="page-header">
+    <h1>Manage Jobs</h1>
+  </header>
+
+  <div class="search-filter-container">
+    <input
+      type="text"
+      placeholder="Search jobs..."
+      [(ngModel)]="filters.searchTerm"
+      (input)="loadJobs(1)"
+      class="search-input"
+    >
+    <select [(ngModel)]="filters.jobType" (change)="loadJobs(1)" class="filter-select">
+      <option value="">All Job Types</option>
+      <option *ngFor="let option of jobTypeOptions" [value]="option.value">
+        {{ option.label }}
+      </option>
+    </select>
+  </div>
+
+  <table *ngIf="(jobs$ | async)?.length" class="jobs-table">
+    <thead>
+      <tr>
+        <th>Job Title</th>
+        <th>Job Type</th>
+        <th>Job Category</th>
+        <th>Job Description</th>
+        <th>Experience Required</th>
+        <th>Location</th>
+        <th>Salary</th>
+        <th>Applicants</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let job of (jobs$ | async)">
+        <td>{{ job.jobTitle }}</td>
+        <td>{{ job.jobType }}</td>
+        <td>{{ job.jobCategory }}</td>
+        <td class="job-description">{{ job.jobDescription }}</td>
+        <td>{{ job.experienceRequired }}</td>
+        <td>{{ job.location }}</td>
+        <td>{{ job.salary }}</td>
+        <td>{{ job.applicants?.length || 0 }}</td>
+        <td class="actions-cell">
+          <button class="btn update-btn" (click)="showUpdateForm(job)" title="Update Job">Update</button>
+          <button class="btn delete-btn" (click)="confirmDelete(job._id!)" title="Delete Job">Delete</button>
+        </td>
+      </tr>
+    </tbody> 
+  </table> 
+
+  <div *ngIf="!(jobs$ | async)?.length" class="no-jobs-message">
+    <p>You haven't created any jobs yet.</p>
+  </div>
+
+  <div *ngIf="totalJobs > pageSize" class="pagination-controls">
+    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+  </div>
+</div>
+

@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './components/common/header/header.component';
-import { FooterComponent } from './components/common/footer/footer.component';
-import { HomeComponent } from './components/common/home/home.component';
+import { userInitializeApp } from './state/recruiter/recruiter.action';
+import { recruiterInitializeApp } from './state/user/user.action';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +11,13 @@ import { HomeComponent } from './components/common/home/home.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'front-end';
+
+  constructor(private store: Store) {}
+
+  ngOnInit() {
+    this.store.dispatch(userInitializeApp());
+    this.store.dispatch(recruiterInitializeApp());
+}
 }

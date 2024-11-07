@@ -1,106 +1,70 @@
-import { RecruiterRepository } from '../repository/recruiter.repository';
-import { OtpRepository } from '../repository/otp.repository';
-import nodemailer from 'nodemailer'
+import { IRecruiterService } from '../interfaces/recruiters/IRecruiterService';
+import { IRecruiterRepository } from '../interfaces/recruiters/IRecruiterRepository';
 import { IRecruiter } from '../models/Recruiter';
 import bcrypt from 'bcrypt';
-import  jwt  from 'jsonwebtoken';
+import { generateAccessToken, generateRefreshToken } from '../util/token.util';
+import { hashPassword } from '../util/pass.util';
 
+export class RecruiterService implements IRecruiterService {
+  constructor(private _recruiterRepository: IRecruiterRepository) {}
 
+  async registerRecruiter(recruiterData: IRecruiter): Promise<IRecruiter> {
+    try {
+      const existingRecruiter = await this._recruiterRepository.findRecruiterByEmail(recruiterData.email);
+      
+      if (existingRecruiter) {
+        throw new Error('Recruiter with this email already exists.');
+      }
 
-export class RecruiterService {
+      recruiterData.password = await hashPassword(recruiterData.password);
 
-  private otpRepository:OtpRepository;
-  private recruiterRepository:RecruiterRepository;
+      const newRecruiter = await this._recruiterRepository.createRecruiter(recruiterData);
 
-  constructor(otpRepository:OtpRepository,recruiterRepository:RecruiterRepository){
-    this.otpRepository=otpRepository;
-    this.recruiterRepository=recruiterRepository;
+      return newRecruiter;
+    } catch (error) {
+      throw new Error(`Failed to register recruiter: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
-  async registerRecruiter(recruiterData: IRecruiter){
-    console.log("entering the register recruiter service")
-    const existingRecruiter = await this.recruiterRepository.findRecruiterByEmail(recruiterData.email);
+  async verifyOtp(email: string, otp: number): Promise<IRecruiter | null> {
+    try {
+      const recruiter = await this._recruiterRepository.findRecruiterByEmail(email);
+      if (!recruiter) {
+        throw new Error('Recruiter not found.');
+      }
 
-    if (existingRecruiter) {
-      throw new Error('Recruiter with this email already exists.');
+      recruiter.isVerified = true;
+      await recruiter.save();
+      return recruiter;
+    } catch (error) {
+      throw new Error(`Failed to verify OTP: ${error instanceof Error ? error.message : String(error)}`);
     }
-
-  
-    const hashedPassword = await bcrypt.hash(recruiterData.password, 10);
-    recruiterData.password = hashedPassword;
-
-    const otp = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
-
-    console.log("New otp is :",otp);
-
-    const newRecruiter = await this.recruiterRepository.createRecruiter(recruiterData);
-
-    console.log("new recruiter data is:",recruiterData);
-
-        await this.otpRepository.createOtp(newRecruiter.email.toString(), otp);
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS, 
-        },
-    });
-
-    const mailOptions: nodemailer.SendMailOptions = {   
-        from: process.env.EMAIL_USER,
-        to: newRecruiter.email.toString(),
-        subject: 'Your OTP for Email Verification',
-        text: `Your OTP is ${otp}. It will expire in 2 minutes.`,
-    };
-
-    await transporter.sendMail(mailOptions);
-    return newRecruiter;
   }
 
-      //verify otp
-      async verifyOtp(email: string, otp: number) {
-        const otpEntry = await this.otpRepository.findOtp(email, otp);
-        if (!otpEntry) {
-            throw new Error('Invalid OTP or OTP has expired.');
-        }
+  async loginRecruiter(email: string, password: string): Promise<{ recruiter: IRecruiter, accessToken: string, refreshToken: string }> {
+    try {
+      const recruiter = await this._recruiterRepository.findRecruiterByEmail(email);
 
-        const recruiter = await this.recruiterRepository.findRecruiterByEmail(email);
-        if (!recruiter) {
-            throw new Error('User not found.');
-        }
+      if (!recruiter) {
+        throw new Error('Recruiter not found.');
+      }
 
-        recruiter.isVerified = true;
-        await recruiter.save();
-        await this.otpRepository.deleteOtp(otpEntry.email);
-        return recruiter;
+      const isMatch = await bcrypt.compare(password, recruiter.password);
+
+      if (!isMatch) {
+        throw new Error('Invalid password');
+      }
+
+      if(recruiter.isBlocked === true) {
+        throw new Error('User is blocked');
+      }
+
+      const accessToken = generateAccessToken(recruiter._id as string);
+      const refreshToken = generateRefreshToken(recruiter._id as string);
+
+      return { recruiter, accessToken, refreshToken };
+    } catch (error) {
+      throw new Error(`Failed to log in recruiter: ${error instanceof Error ? error.message : String(error)}`);
     }
-
-    //login recruite
-  async loginRecruiter(email: string, password: string){
-    const recruiter = await this.recruiterRepository.findRecruiterByEmail(email);
-
-    if (!recruiter) {
-      throw new Error('User not found');
-    }
-
-    if (recruiter.isApproved==='Pending') {
-      throw new Error('Your account is pending approval from the admin.');
-    }else if(recruiter.isApproved==='Rejected'){
-      throw new Error('Your account has been rejected from the admin.');
-    }
-
-    const isMatch = await bcrypt.compare(password, recruiter.password);
-
-    if (!isMatch) {
-      throw new Error('Invalid password');
-    }
-
-    const accessToken = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET!, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ id: recruiter._id }, process.env.JWT_SECRET!, { expiresIn: '7d' });
-    
-    return {recruiter, accessToken, refreshToken };
   }
-
-  
 }

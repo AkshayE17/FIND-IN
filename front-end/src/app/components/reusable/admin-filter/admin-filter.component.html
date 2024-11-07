@@ -1,0 +1,74 @@
+<div class="page-header">
+  <h1>{{ title }}</h1>
+  <div class="header-actions">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [placeholder]="config.searchPlaceholder || 'Search...'" 
+        (input)="onSearch($event)"
+        [(ngModel)]="searchTerm"
+      >
+      <i class="fas fa-search"></i>
+    </div>
+    <button class="btn-filter" (click)="toggleFilters()">
+      <i class="fas fa-filter"></i> Filters
+    </button>
+  </div>
+</div>
+
+<div class="filters-panel" [class.visible]="isFiltersVisible">
+  <div class="filters-content">
+    <ng-container *ngFor="let filter of config.filters">
+      <div class="filter-group">
+        <label>{{ filter.label }}</label>
+        
+        <!-- Text Input -->
+        <input 
+          *ngIf="filter.type === 'text'"
+          type="text"
+          [(ngModel)]="filterValues[filter.key]"
+          [placeholder]="filter.placeholder"
+        >
+
+        <!-- Select Input -->
+        <select 
+          *ngIf="filter.type === 'select'"
+          [(ngModel)]="filterValues[filter.key]"
+          (ngModelChange)="onFilterChange(filter.key, $event)"
+        >
+          <option value="">All</option>
+          <option 
+            *ngFor="let option of filter.options" 
+            [value]="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+
+        <!-- Date Range Input -->
+        <div *ngIf="filter.type === 'date-range'" class="date-range">
+          <input 
+            type="date" 
+            [(ngModel)]="filterValues[filter.key + 'Start']"
+            placeholder="Start date"
+          >
+          <span>to</span>
+          <input 
+            type="date" 
+            [(ngModel)]="filterValues[filter.key + 'End']"
+            placeholder="End date"
+          >
+        </div>
+      </div>
+    </ng-container>
+    
+    <div class="filter-actions">
+      <button class="btn-apply" (click)="applyFilters()">
+        Apply Filters
+      </button>
+      <button class="btn-reset" (click)="resetFilters()">
+        Reset
+      </button>
+    </div>
+  </div>
+</div>

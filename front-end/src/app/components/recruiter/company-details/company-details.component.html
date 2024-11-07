@@ -1,0 +1,106 @@
+<div class="company-details-content">
+  <h2>Company Details</h2>
+  <ng-container *ngIf="companyDetails$ | async as companyDetails; else noDetails">
+    <div class="profile-card" *ngIf="!isEditing">
+      <div class="profile-header">
+        <div class="avatar-container">
+          <img [src]="companyDetails.logo || '/assets/default-company-logo.png'" alt="Company logo" class="avatar">
+        </div>
+        <div class="company-info">
+          <h3>{{ companyDetails.companyName }}</h3>
+          <span class="contact">{{ companyDetails.contactNumber }}</span>
+        </div>
+      </div>
+      <div class="profile-info">
+        <div class="info-item">
+          <i class="fas fa-globe"></i>
+          <div>
+            <label>Website</label>
+            <p><a [href]="companyDetails.companyWebsite" target="_blank">{{ companyDetails.companyWebsite }}</a></p>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <div>
+            <label>City</label>
+            <p>{{ companyDetails.city }}</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-flag"></i>
+          <div>
+            <label>Country</label>
+            <p>{{ companyDetails.country }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="description">
+        <h4>About the Company</h4>
+        <p>{{ companyDetails.about }}</p>
+      </div>
+      <button class="edit-button" (click)="startEditing()">
+        <i class="fas fa-edit"></i> Update Details
+      </button>
+    </div>
+  </ng-container>
+  
+  <ng-template #noDetails>
+    <div class="no-details" *ngIf="!isEditing">
+      <p>No company details available. Please add your company information.</p>
+      <button class="add-button" (click)="startEditing()">
+        <i class="fas fa-plus"></i> Add Company Details
+      </button>
+    </div>
+  </ng-template>
+
+  <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" *ngIf="isEditing" class="edit-form">
+    <div class="form-group">
+      <label for="companyName">Company Name</label>
+      <input type="text" id="companyName" formControlName="companyName" required>
+      <small *ngIf="companyForm.get('companyName')?.errors?.['required'] && companyForm.get('companyName')?.touched">Company Name is required.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="companyWebsite">Website</label>
+      <input type="url" id="companyWebsite" formControlName="companyWebsite" required>
+      <small *ngIf="companyForm.get('companyWebsite')?.errors?.['required'] && companyForm.get('companyWebsite')?.touched">Website is required.</small>
+      <small *ngIf="companyForm.get('companyWebsite')?.errors?.['pattern']">Please enter a valid URL.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="contactNumber">Contact Number</label>
+      <input type="text" id="contactNumber" formControlName="contactNumber" required>
+      <small *ngIf="companyForm.get('contactNumber')?.errors?.['required'] && companyForm.get('contactNumber')?.touched">Contact Number is required.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="city">City</label>
+      <input type="text" id="city" formControlName="city" required>
+      <small *ngIf="companyForm.get('city')?.errors?.['required'] && companyForm.get('city')?.touched">City is required.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="country">Country</label>
+      <input type="text" id="country" formControlName="country" required>
+      <small *ngIf="companyForm.get('country')?.errors?.['required'] && companyForm.get('country')?.touched">Country is required.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="about">Company Description</label>
+      <textarea id="about" formControlName="about" rows="4" required></textarea>
+      <small *ngIf="companyForm.get('about')?.errors?.['required'] && companyForm.get('about')?.touched">Description is required.</small>
+      <small *ngIf="companyForm.get('about')?.errors?.['minlength']">Description must be at least 50 characters.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="logo">Logo URL</label>
+      <input type="url" id="logo" formControlName="logo">
+      <small *ngIf="companyForm.get('logo')?.errors?.['pattern']">Please enter a valid URL.</small>
+    </div>
+  
+    <div class="button-group">
+      <button type="submit" class="submit-button" [disabled]="companyForm.invalid">Save Changes</button>
+      <button type="button" class="cancel-button" (click)="cancelEditing()">Cancel</button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,249 @@
+.job-candidates-container {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+
+  h2 {
+    color: #1a237e;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.job-select-container {
+  margin-bottom: 1.5rem;
+
+  .job-select {
+    width: 100%;
+    max-width: 500px;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: #333;
+    background-color: white;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  .search-box, .status-filter {
+    input, select {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    .search-box input {
+      width: 300px;
+    }
+  }
+}
+
+.candidates-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  th {
+    background-color: #f1f3f9;
+    color: #1a237e;
+    font-weight: 600;
+  }
+}
+
+.candidate-row {
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  &.expanded {
+    background-color: #f8f9fa;
+  }
+}
+
+.skills-match {
+  font-weight: 500;
+  color: #2e7d32;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  &.pending {
+    background-color: #fff3e0;
+    color: #e65100;
+  }
+
+  &.shortlisted {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.selected {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.rejected {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    padding: 0.25rem 0.75rem;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-shortlist {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    &:hover:not(:disabled) {
+      background-color: #bbdefb;
+    }
+  }
+
+  .btn-select {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    &:hover:not(:disabled) {
+      background-color: #c8e6c9;
+    }
+  }
+
+  .btn-reject {
+    background-color: #ffebee;
+    color: #c62828;
+    &:hover:not(:disabled) {
+      background-color: #ffcdd2;
+    }
+  }
+}
+
+.candidate-details {
+  padding: 1.5rem;
+  background-color: #ffffff;
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-section {
+    h4 {
+      color: #1a237e;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+    }
+
+    p {
+      margin: 0.5rem 0;
+      color: #333;
+
+      strong {
+        color: #555;
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    .skill-tag {
+      background-color: #f1f3f9;
+      color: #1a237e;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+.resume-section {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1.5rem;
+  
+  h4 {
+    color: #1a237e;
+    margin-bottom: 1rem;
+  }
+
+  .document-links {
+    display: flex;
+    gap: 1rem;
+
+    .doc-link {
+      padding: 0.5rem 1rem;
+      background-color: #f1f3f9;
+      color: #1a237e;
+      text-decoration: none;
+      border-radius: 0.25rem;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #e8eaf6;
+      }
+    }
+  }
+}
+
+.no-candidates {
+  text-align: center;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  p {
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+  font-size: 1.2rem;
+  color: #666;
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
+}

@@ -1,6 +1,5 @@
-// user.action.ts
 import { createAction, props } from '@ngrx/store';
-import { IUser } from './user.state';
+import { IProfessionalDetails, IUser } from './user.state';
 
 export const loginUser = createAction(
   '[User] Login',
@@ -9,7 +8,7 @@ export const loginUser = createAction(
 
 export const loginUserSuccess = createAction(
   '[User] Login Success',
-  props<{ user: IUser }>() // Pass the user on success
+  props<{ user: IUser; accessToken: string; refreshToken: string }>()
 );
 
 export const loginUserFailure = createAction(
@@ -17,5 +16,32 @@ export const loginUserFailure = createAction(
   props<{ error: string }>()
 );
 
+export const logoutUser = createAction('[User] Logout');
 
 export const resetJustLoggedIn = createAction('[User] Reset Just Logged In');
+
+export const recruiterInitializeApp = createAction('[App] Initialize');
+
+export const loadProfessionalDetails = createAction('[User] Load Professional Details');
+
+export const loadProfessionalDetailsSuccess = createAction(
+  '[User] Load Professional Details Success',
+  props<{ professionalDetails: IProfessionalDetails }>()
+);
+export const loadProfessionalDetailsFailure = createAction(
+  '[User] Load Professional Details Failure',
+  props<{ error: string }>()
+);
+
+export const updateProfessionalDetails = createAction(
+  '[User] Update Professional Details',
+  props<{ professionalDetails: IProfessionalDetails }>()
+);
+export const updateProfessionalDetailsSuccess = createAction(
+  '[User] Update Professional Details Success',
+  props<{ professionalDetails: IProfessionalDetails }>()
+);
+export const updateProfessionalDetailsFailure = createAction(
+  '[User] Update Professional Details Failure',
+  props<{ error: string }>()
+);

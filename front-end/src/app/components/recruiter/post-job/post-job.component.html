@@ -1,0 +1,83 @@
+<div class="job-posting-container">
+  <h2>Job Posting</h2>
+
+  <ng-container *ngIf="(companyDetails$ | async) === null; else jobFormTemplate">
+    <div class="no-company-details">
+      <p>No company details available. Please add your company information.</p>
+      <button class="add-company-details-button" (click)="navigateToCompanyDetails()">
+        <i class="fas fa-plus"></i> Add Company Details
+      </button>
+    </div>
+  </ng-container>
+
+  <ng-template #jobFormTemplate>
+  <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="job-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="jobTitle">Job Title</label>
+        <input type="text" id="jobTitle" formControlName="jobTitle" required>
+        <small *ngIf="jobForm.get('jobTitle')?.errors?.['required'] && jobForm.get('jobTitle')?.touched">Job Title is required.</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="jobType">Job Type</label>
+        <select id="jobType" formControlName="jobType" required>
+          <option value="">Select Job Type</option>
+          <option value="Full-time">Full-time</option>
+          <option value="Part-time">Part-time</option>
+          <option value="Remote">Remote</option>
+          <option value="Hybrid">Hybrid</option>
+        </select>
+        <small *ngIf="jobForm.get('jobType')?.errors?.['required'] && jobForm.get('jobType')?.touched">Job Type is required.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="jobCategory">Job Category</label>
+        <select id="jobCategory" formControlName="jobCategory" required>
+          <option value="" disabled>Select a category</option>
+          <option *ngFor="let category of jobCategories" [value]="category">
+            {{ category }}
+          </option>
+        </select>
+        <small *ngIf="jobForm.get('jobCategory')?.errors?.['required'] && jobForm.get('jobCategory')?.touched">Job Category is required.</small>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="experienceRequired">Experience Required</label>
+        <input type="text" id="experienceRequired" formControlName="experienceRequired" required>
+        <small *ngIf="jobForm.get('experienceRequired')?.errors?.['required'] && jobForm.get('experienceRequired')?.touched">Experience is required.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Skills Required</label>
+        <input type="text" id="skills" formControlName="skills" required>
+        <small *ngIf="jobForm.get('skills')?.errors?.['required'] && jobForm.get('skills')?.touched">Skills are required.</small>
+      </div>
+    
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" formControlName="location" required>
+        <small *ngIf="jobForm.get('location')?.errors?.['required'] && jobForm.get('location')?.touched">Location is required.</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="salary">Salary</label>
+        <input type="text" id="salary" formControlName="salary" required>
+        <small *ngIf="jobForm.get('salary')?.errors?.['required'] && jobForm.get('salary')?.touched">Salary is required.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="jobDescription">Job Description</label>
+      <textarea id="jobDescription" formControlName="jobDescription" rows="6" required></textarea>
+      <small *ngIf="jobForm.get('jobDescription')?.errors?.['required'] && jobForm.get('jobDescription')?.touched">Job Description is required.</small>
+    </div>
+    
+    <div class="button-group">
+      <button type="submit" class="submit-button" [disabled]="jobForm.invalid">Create Job</button>
+    </div>
+  </form>
+</ng-template>
+</div>

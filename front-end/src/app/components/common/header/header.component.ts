@@ -1,41 +1,43 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { selectUser } from '../../../state/user/user.selector';
-import { AppState } from '../../../state/app.state';
-import { IUser } from '../../../state/user/user.state';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { AppState } from '../../../state/app.state';
+import { selectUser } from '../../../state/user/user.selector';
+import { IUser } from '../../../state/user/user.state';
 import { selectRecruiter } from '../../../state/recruiter/recruiter.selector';
 import { IRecruiter } from '../../../state/recruiter/recruiter.state';
+
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule,CommonModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
+  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
   user$: Observable<IUser | null>; 
-  recruiter$: Observable <IRecruiter | null>
+  recruiter$: Observable<IRecruiter | null>;
   isMenuOpen = false;
 
   constructor(private store: Store<AppState>, private router: Router) {
     this.user$ = this.store.select(selectUser);
-    this.recruiter$ = this.store.select(selectRecruiter); 
+    this.recruiter$ = this.store.select(selectRecruiter);
   }
 
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
+  goToUserDetails() {
+    this.router.navigate(['/user/dashboard/user-details']);
+    console.log("user",this.user$);
+    console.log('Recruiter:',this.recruiter$) 
   }
 
-  navigateToProfile() {
-    this.router.navigate(['/user/profile']); // Adjust the route to your user profile page
+  goToRecruiterDetails() {
+    this.router.navigate(['/recruiter/dashboard/recruiter-details']); 
+    console.log('Recruiter:',this.recruiter$)
+    console.log("user",this.user$);
+
   }
-
-  goToUserDetails(){}
-
-  goToRecruiterDetails(){}
 }

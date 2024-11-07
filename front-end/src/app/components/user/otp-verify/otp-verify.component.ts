@@ -24,7 +24,7 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
   [x: string]: any;
   otpForm: FormGroup;
   errorMessage: string = '';
-  timeLeft: number = 120; // 2 minutes in seconds
+  timeLeft: number = 120; 
   timerSubscription: Subscription | null = null;
   
   
@@ -85,9 +85,9 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
       try {
         const response = await this.http.post<string>('http://localhost:8888/user/verify-otp', { email, otp }).toPromise();
         
-        this.verify.emit(response); // Emit the success event
+        this.verify.emit(response); 
         
-        this.dialogRef.close(true); // Close the modal on success
+        this.dialogRef.close(true); 
         
         this.router.navigate(['/user/verify-success']); 
       } catch (error) {

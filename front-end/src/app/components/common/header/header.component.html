@@ -1,4 +1,3 @@
-<!-- header.component.html -->
 <header class="header">
   <nav class="nav-container">
     <div class="brand">
@@ -7,34 +6,26 @@
         <span class="hand-icon">✋</span>
       </a>
     </div>
-    
-    <button (click)="toggleMenu()" class="menu-toggle">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
 
     <ul [class.show]="isMenuOpen" class="nav-links">
       <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
-      <li><a routerLink="/jobs" routerLinkActive="active">Jobs</a></li>
+      <li *ngIf="!(recruiter$ | async)"><a routerLink="/user/jobs" routerLinkActive="active">Jobs</a></li>
       <li><a routerLink="/blogs" routerLinkActive="active">Blogs</a></li>
-      
+
       <!-- Authentication Links -->
       <li *ngIf="!(user$ | async) && !(recruiter$ | async)">
         <a routerLink="/user/login" routerLinkActive="active">Job Seeker</a>
       </li>
       
-      <li *ngIf="!(recruiter$ | async)">
+      <li *ngIf="!(recruiter$ | async) && !(user$ | async)">
         <a routerLink="/recruiter/login" routerLinkActive="active">Recruiter</a>
       </li>
 
       <!-- User Profile -->
       <li *ngIf="user$ | async" class="profile-item">
-        <a routerLink="/user/profile" routerLinkActive="active" class="user-icon">
+        <a  class="user-icon">
           <img
-            [src]="(user$ | async)?.imageUrl || 'assets/default-avatar.png'"
+            [src]="(user$ | async)?.imageUrl"
             alt="Job Seeker Profile Picture"
             class="profile-icon"
             (click)="goToUserDetails()"
@@ -44,9 +35,9 @@
 
       <!-- Recruiter Profile -->
       <li *ngIf="recruiter$ | async" class="profile-item">
-        <a routerLink="/recruiter/profile" routerLinkActive="active" class="user-icon">
+        <a  class="user-icon">
           <img
-            [src]="(recruiter$ | async)?.imageUrl || 'assets/default-avatar.png'"
+            [src]="(recruiter$ | async)?.imageUrl"
             alt="Recruiter Profile Picture"
             class="profile-icon"
             (click)="goToRecruiterDetails()"

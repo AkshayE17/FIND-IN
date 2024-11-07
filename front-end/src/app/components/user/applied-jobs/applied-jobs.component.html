@@ -1,0 +1,67 @@
+<div class="applied-jobs-container">
+  <h2>Applied Jobs</h2>
+  <div *ngIf="appliedJobs && appliedJobs.length > 0; else noJobs">
+    <table class="jobs-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Job Title</th>
+          <th>Company</th>
+          <th>Type</th>
+          <th>Location</th>
+          <th>Experience</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let job of appliedJobs; let i = index">
+          <!-- Main Row -->
+          <tr class="job-row" (click)="toggleDetails(i)">
+            <td>
+              <button class="expand-btn" [class.expanded]="expandedIndex === i">
+                ↓
+              </button>
+            </td>
+            <td>{{ job.jobTitle }}</td>
+            <td>{{ job.companyId?.companyName }}</td>
+            <td>{{ job.jobType }}</td>
+            <td>{{ job.location }}</td>
+            <td>{{ job.experienceRequired }}</td>
+          </tr>
+          <!-- Details Row -->
+          <tr *ngIf="expandedIndex === i" class="details-row">
+            <td colspan="6">
+              <div class="job-details">
+                <div class="details-grid">
+                  <div class="detail-item">
+                    <strong>Category:</strong>
+                    <span>{{ job.jobCategory }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>Salary:</strong>
+                    <span>{{ job.salary }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>Recruiter:</strong>
+                    <span>{{ job.recruiterId?.name }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>Skills:</strong>
+                    <span>{{ job.skills.join(', ') }}</span>
+                  </div>
+                </div>
+                <div class="description-section">
+                  <strong>Description:</strong>
+                  <p>{{ job.jobDescription }}</p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #noJobs>
+    <p>You haven't applied for any jobs yet.</p>
+  </ng-template>
+</div>

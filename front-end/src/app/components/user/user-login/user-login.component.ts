@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { loginUser } from '../../../state/user/user.action';
 import { AppState } from '../../../state/app.state';
 import { selectUserLoading, selectUserError, selectUser } from '../../../state/user/user.selector';
@@ -11,19 +11,22 @@ import { CommonModule } from '@angular/common';
 import { IUser } from '../../../state/user/user.state';
 import { HeaderComponent } from '../../common/header/header.component';
 import { FooterComponent } from '../../common/footer/footer.component';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule, CommonModule,HeaderComponent,FooterComponent],
+  imports: [ReactiveFormsModule, RouterModule, CommonModule, HeaderComponent, FooterComponent],
   templateUrl: './user-login.component.html',
   styleUrls: ['./user-login.component.scss'],
 })
-export class UserLoginComponent implements OnInit {
+export class UserLoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   loading$: Observable<boolean>;
   error$: Observable<string | null>;
   user$: Observable<IUser | null>;
+
+  private destroy$ = new Subject<void>(); // Subject to manage unsubscription
 
   constructor(
     private formBuilder: FormBuilder,
@@ -41,21 +44,26 @@ export class UserLoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-   
-    this.error$.subscribe((errorMessage) => {
-        if (errorMessage) {
-            this.showErrorAlert(errorMessage); 
-        }
+    // Subscribe to error and user observables
+    this.error$.pipe(takeUntil(this.destroy$)).subscribe((errorMessage) => {
+      if (errorMessage) {
+        this.showErrorAlert(errorMessage);
+      }
     });
 
-    this.user$.subscribe((user) => {
-        if (user) {
-            this.showSuccessAlert();
-            this.router.navigate(['/']);
-        }
+    this.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+      if (user) {
+        this.showSuccessAlert();
+        this.router.navigate(['/']);
+      }
     });
-}
+  }
 
+  ngOnDestroy(): void {
+    // Clean up subscriptions to avoid memory leaks
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   onSubmit() {
     if (this.loginForm.invalid) {

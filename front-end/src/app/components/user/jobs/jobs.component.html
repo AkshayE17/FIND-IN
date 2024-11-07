@@ -1,0 +1,129 @@
+<app-header></app-header>
+<main class="jobs-page">
+  <div class="page-header">
+    <h1>Discover Your Next Career</h1>
+    <div class="header-actions">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search jobs..." 
+          (input)="onSearch($event)"
+          [(ngModel)]="filters.search"
+        >
+        <i class="fas fa-search"></i>
+      </div>
+      <button class="btn-filter" (click)="toggleFilters()">
+        <i class="fas fa-filter"></i> Filters
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" [class.visible]="isFiltersVisible">
+    <div class="filters-content">
+      <div class="filter-group">
+        <label>Job Type</label>
+        <select [(ngModel)]="filters.jobType" class="filter-select">
+          <option value="">All Types</option>
+          <option *ngFor="let type of jobTypes" [value]="type">{{type}}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Category</label>
+        <select [(ngModel)]="filters.category" class="filter-select">
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categories" [value]="category">{{category}}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Salary Range</label>
+        <div class="salary-range">
+          <input 
+            type="number" 
+            [(ngModel)]="filters.startSalary" 
+            placeholder="Min"
+            class="salary-input"
+          >
+          <span>to</span>
+          <input 
+            type="number" 
+            [(ngModel)]="filters.endSalary" 
+            placeholder="Max"
+            class="salary-input"
+          >
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Location</label>
+        <input 
+          type="text" 
+          [(ngModel)]="filters.location" 
+          placeholder="Enter location"
+          class="location-input"
+        >
+      </div>
+      
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="applyFilters()">
+          Apply Filters
+        </button>
+        <button class="btn-reset" (click)="resetFilters()">
+          Reset
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="jobs-grid">
+    <div *ngIf="!(jobs$ | async)?.length && !loading" class="empty-state">
+      <i class="fas fa-briefcase"></i>
+      <p>No jobs available</p>
+    </div>
+
+    <div class="job-cards">
+      <div *ngFor="let job of (jobs$ | async)" class="job-card">
+        <div class="job-header">
+          <h3>{{ job.jobTitle }}</h3>
+          <span class="job-type">{{ job.jobType }}</span>
+        </div>
+        <div class="company-info">
+         
+          <div>
+            <p class="company-name">{{ job.companyId }}</p>
+            <p class="location"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
+          </div>
+        </div>
+        <div class="job-details">
+          <p class="salary"><i class="fas fa-money-bill-wave"></i> {{ job.salary }}</p>
+          <p class="category"><i class="fas fa-tag"></i> {{ job.jobCategory }}</p>
+        </div>
+        <button (click)="applyForJob(job._id!)" class="apply-btn">
+          Apply Now
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalJobs > pageSize" class="pagination">
+      <button 
+        (click)="changePage(currentPage - 1)" 
+        [disabled]="currentPage === 1"
+        class="page-btn"
+      >
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <span>Page {{currentPage}} of {{totalPages}}</span>
+      <button 
+        (click)="changePage(currentPage + 1)" 
+        [disabled]="currentPage === totalPages"
+        class="page-btn"
+      >
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</main>
+<app-footer></app-footer>

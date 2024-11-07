@@ -17,3 +17,14 @@ export const selectUserError = createSelector(
   selectUserState,
   (state: UserState) => state.error
 );
+
+export const selectProfessionalDetails = createSelector(
+  selectUserState,
+  (state: UserState) => state.professionalDetails
+);
+
+export const selectProfessionalDetailsLoading = createSelector(
+  selectUserState,
+  (state: UserState) => state.loading
+);
+

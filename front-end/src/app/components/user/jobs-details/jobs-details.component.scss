@@ -1,0 +1,52 @@
+/* job-details.component.scss */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+// Define brand colors
+$primary: #1a237e;
+$primary-dark: darken(#1a237e, 10%);
+
+// Custom utility classes
+.text-primary {
+  color: $primary;
+}
+
+.bg-primary {
+  background-color: $primary;
+}
+
+.hover\:bg-primary-dark:hover {
+  background-color: $primary-dark;
+}
+
+.hover\:text-primary-dark:hover {
+  color: $primary-dark;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .grid {
+    gap: 1rem;
+  }
+  
+  .p-6 {
+    padding: 1rem;
+  }
+  
+  .mb-8 {
+    margin-bottom: 1rem;
+  }
+}
+
+// Custom transitions
+.transition-colors {
+  transition: all 0.2s ease-in-out;
+}
+
+// Shadow utilities
+.shadow-sm {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}

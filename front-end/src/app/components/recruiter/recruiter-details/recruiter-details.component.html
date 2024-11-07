@@ -1,0 +1,61 @@
+<div class="recruiter-details-content" *ngIf="recruiter$ | async as recruiter">
+  <h2>Recruiter Profile</h2>
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="avatar-container">
+        <img [src]="recruiter.imageUrl || '/assets/user (2).png'" alt="Recruiter avatar" class="avatar">
+      </div>
+      <div class="recruiter-info">
+        <h3>{{ recruiter.name }}</h3>
+        <span class="job-title">{{ recruiter.jobTitle }}</span>
+      </div>
+    </div>
+    <div class="profile-info">
+      <div class="info-item">
+        <i class="fas fa-envelope"></i>
+        <div>
+          <label>Personal Email</label>
+          <p>{{ recruiter.email }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-envelope"></i>
+        <div>
+          <label>Official Email</label>
+          <p>{{ recruiter.officialEmail }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-phone"></i>
+        <div>
+          <label>Phone</label>
+          <p>{{ recruiter.mobile }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-venus-mars"></i>
+        <div>
+          <label>Gender</label>
+          <p>{{ recruiter.gender }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-building"></i>
+        <div>
+          <label>Company</label>
+          <p>{{ recruiter.companyName }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-globe"></i>
+        <div>
+          <label>Company Website</label>
+          <p>{{ recruiter.companyWebsite }}</p>
+        </div>
+      </div>
+    </div>
+    <button class="edit-button">
+      <i class="fas fa-edit"></i> Edit Profile
+    </button>
+  </div>
+</div>

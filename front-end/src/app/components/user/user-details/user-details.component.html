@@ -1,0 +1,39 @@
+<div class="user-details-content" *ngIf="user$ | async as user">
+  <h2>User Profile</h2>
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="avatar-container">
+        <img [src]="user.imageUrl || '/assets/user (2).png'" alt="User avatar" class="avatar">
+      </div>
+      <div class="user-name">
+        <h3>{{ user.name }}</h3>
+      </div>
+    </div>
+    <div class="profile-info">
+      <div class="info-item">
+        <i class="fas fa-envelope"></i>
+        <div>
+          <label>Email</label>
+          <p>{{ user.email }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-phone"></i>
+        <div>
+          <label>Phone</label>
+          <p>{{ user.mobile }}</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-venus-mars"></i>
+        <div>
+          <label>Gender</label>
+          <p>{{ user.gender }}</p>
+        </div>
+      </div>
+    </div>
+    <button class="edit-button">
+      <i class="fas fa-edit"></i> Edit Profile
+    </button>
+  </div>
+</div>

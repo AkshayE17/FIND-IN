@@ -17,6 +17,13 @@ export interface IRecruiter extends Document {
   isApproved:'Pending' | 'Approved' | 'Rejected';
 }
 
+export interface FilterOptions {
+  company?: string;
+  startDate?: string;
+  endDate?: string;
+  isBlocked?:boolean;
+}
+
 const recruiterSchema = new Schema<IRecruiter>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -31,7 +38,7 @@ const recruiterSchema = new Schema<IRecruiter>({
   isVerified: { type: Boolean, default: false },
   isBlocked: { type: Boolean, default: false },
   isApproved:{ type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' }, 
-  imageUrl: { type: String, default: 'assets/recruiter.jpg' }
-});
+  imageUrl: { type: String, default: 'assets/Recruiter.jpg' }
+},{ timestamps: true });
 
 export default model<IRecruiter>('Recruiter', recruiterSchema);

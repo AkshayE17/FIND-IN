@@ -1,107 +1,115 @@
-import { Request, Response } from "express";
-import { UserService } from "../services/user.service";
+import { Request, Response } from 'express';
+import { IUserService } from '../interfaces/users/IUserService';
 import jwt from 'jsonwebtoken';
+import { Messages } from '../constants/message.constants';
+import { HttpStatus } from '../constants/http.constants';
+import { IOtpService } from '../interfaces/otp/IOtpService';
+import { IUserController } from '../interfaces/users/IUserController';
 
+export class UserController implements IUserController {
+  constructor(private _userService: IUserService, private _otpService: IOtpService) {}
 
-
-const userService = new UserService();
-
-export class UserController {
-
-    // Create a new user
-    async createUser(req: Request, res: Response) {
-        try {
-            
-            await userService.registerUser(req.body);
-            res.status(201).json({ message: 'User created. Please verify your email by entering the OTP sent to your email.' });
-        }
-        catch (error: unknown) {   
-            console.error('Error during user registration:', error);
-            
-            let errorMessage: string;
-            if (error instanceof Error) {
-                errorMessage = error.message;
-            } else {
-                errorMessage = String(error);   
-            }
-            res.status(400).json({ message: errorMessage });
-        }
+  // Create a new user
+  async createUser(req: Request, res: Response): Promise<void> {
+    try {
+      await this._userService.registerUser(req.body);
+      await this._otpService.sendOtpToEmail(req.body.email);
+      res.status(HttpStatus.CREATED).json({ message: Messages.USER_CREATED });
+    } catch (error: unknown) {
+      console.error('Error during user registration:', error);
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : Messages.UNKNOWN_ERROR,
+      });
     }
+  }
 
-    // Update an existing user
-    async updateUser(req: Request, res: Response) {
-        const userId = req.params.id;
-        const updatedData = req.body; 
-        try {
-            const updatedUser = await userService.updateUser(userId, updatedData);
-            if (updatedUser) {
-                res.json(updatedUser);
-            } else {
-                res.status(404).json({ message: 'User not found' });
-            }
-        } catch (error) {
-            console.error('Error updating user:', error);
-            res.status(500).json({ message: 'Error updating user', error });
-        }
+  // Update an existing user
+  async updateUser(req: Request, res: Response): Promise<void> {
+    const userId = req.params.id;
+    const updatedData = req.body;
+    try {
+      const updatedUser = await this._userService.updateUser(userId, updatedData);
+      if (updatedUser) {
+        res.status(HttpStatus.OK).json({ message: Messages.USER_UPDATED, user: updatedUser });
+      } else {
+        res.status(HttpStatus.NOT_FOUND).json({ message: Messages.USER_NOT_FOUND });
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
     }
-    
+  }
 
-    //verify otp
-    async verifyOtp(req: Request, res: Response) {
-        try {
-            const { email, otp } = req.body;
-            await userService.verifyOtp(email, otp);
-            res.status(200).json({ message: 'Email verified successfully!' });
-        } catch (error) {
-            console.error('Error during OTP verification:', error);
-            if (error instanceof Error) {
-                res.status(500).json({ message: error.message });
-            } else {
-                res.status(500).json({ message: 'An unknown error occurred.' });
-            }
-        }
-    }   
-    
-
-    async login(req: Request, res: Response) {
-        try {
-            const { email, password } = req.body;
-            const { accessToken, refreshToken } = await userService.loginUser(email, password);
-    
-            // Set refresh token in a cookie
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', 
-                maxAge: 7 * 24 * 60 * 60 * 1000
-            });
-    
-            res.status(200).json({ accessToken });
-        } catch (error) {
-            console.error('Error during login:', error);
-            if (error instanceof Error) {
-                res.status(400).json({ message: error.message }); // Ensure the error message is returned
-            } else {
-                res.status(500).json({ message: 'An unknown error occurred.' });
-            }
-        }
+  // Verify OTP
+  async verifyOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, otp } = req.body;
+      await this._otpService.verifyOtp(email, otp);
+      await this._userService.verifyOtp(email);
+      res.status(HttpStatus.OK).json({ message: Messages.EMAIL_VERIFIED });
+    } catch (error) {
+      console.error('Error during OTP verification:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: error instanceof Error ? error.message : Messages.UNKNOWN_ERROR,
+      });
     }
-    
+  }
 
-   //refreshtoken
-    async refreshToken(req: Request, res: Response) {
+  // User login
+  async login(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password } = req.body;
+      const { accessToken, refreshToken, user } = await this._userService.loginUser(email, password);
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: parseInt(process.env.REFRESH_TOKEN_MAX_AGE as string, 10),
+      });
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: parseInt(process.env.ACCESS_TOKEN_MAX_AGE as string, 10),
+      });
+
+      res.status(HttpStatus.OK).json({
+        refreshToken,
+        accessToken,
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          mobile: user.mobile,
+          gender: user.gender,
+          isVerified: user.isVerified,
+          imageUrl: user.imageUrl,
+        },
+      });
+    } catch (error) {
+      console.error('Error during login:', error);
+      res.status(HttpStatus.BAD_REQUEST).json({
+        message: error instanceof Error ? error.message : Messages.UNKNOWN_ERROR,
+      });
+    }
+  }
+
+  // Refresh token
+  async refreshToken(req: Request, res: Response): Promise<void> {
     const refreshToken = req.cookies.refreshToken;
-    console.log("refresh token:", refreshToken);
-
     if (!refreshToken) {
-        return res.sendStatus(401); // Unauthorized
+      res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.REFRESH_TOKEN_MISSING });
+      return;
     }
 
     jwt.verify(refreshToken, process.env.JWT_SECRET!, (err: jwt.VerifyErrors | null, user: any) => {
-        if (err || !user) return res.sendStatus(403); 
-
-        const accessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, { expiresIn: '15m' });
-        res.json({ accessToken });
+      if (err) {
+        console.error('Error verifying refresh token:', err);
+        res.status(HttpStatus.FORBIDDEN).json({ message: Messages.INVALID_OR_EXPIRED_REFRESH_TOKEN });
+        return;
+      }
+      const newAccessToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, { expiresIn: '15m' });
+      res.status(HttpStatus.OK).json({ accessToken: newAccessToken });
     });
-    }
-
+  }
 }
