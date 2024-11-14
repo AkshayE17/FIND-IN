@@ -3,7 +3,6 @@
 export interface IAdmin {
   username: string;
   password: string;
-  isAdmin?: boolean;
 }
 
 export interface LoginResponse {
@@ -17,7 +16,7 @@ export interface LoginResponse {
 export interface AdminState {
   admin: IAdmin | null;
   accessToken: string | null;
-  refreshToken: string | null;
+  role: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -25,7 +24,7 @@ export interface AdminState {
 export const initialAdminState: AdminState = {
   admin: null,
   accessToken: null,
-  refreshToken: null,
+  role: null,
   loading: false,
   error: null,
 };

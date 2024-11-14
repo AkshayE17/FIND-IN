@@ -1,9 +1,8 @@
-// job.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { IJob, IJobCategory, IJobResponse } from '../state/job/job.state'; 
-import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +35,7 @@ export class JobService {
   }
 
   // Update an existing job
-  updateJob(jobId: number, job: IJob): Observable<IJob> {
+  updateJob(jobId:  string | null | undefined, job: IJob): Observable<IJob> {
     console.log("Updating job:", job);
     return this.http.put<IJob>(`${this.apiUrl}/recruiter/job/${jobId}`, job); 
   }
@@ -79,7 +78,7 @@ export class JobService {
   applyForJob(jobId: string, userId: string | null): Observable<any> {
     return this.http.post(`${this.apiUrl}/user/job/${jobId}/apply`, { userId }).pipe(
       catchError(error => {
-        console.error('Error applying for job:', error);
+        console.error('Error in applying for job:', error);
         return throwError(error);
       })
     );
@@ -117,6 +116,36 @@ export class JobService {
   }
   
 
+  getRecruiterShortlistedJobs(
+    recruiterId:string | null,
+    page: number,
+    pageSize: number,
+    search?: string,
+    jobType?: string,
+  ): Observable<{ jobs: IJob[], total: number }> {
+    let recruiterParam = recruiterId ? recruiterId.toString() : '';
+    let params = new HttpParams()
+      .set('recruiterId',recruiterParam)
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (search) params = params.set('search', search);
+    if (jobType) params = params.set('jobType', jobType);
+
+    console.log("params from front-end:", params.toString());
+
+    return this.http.get<{ jobs: IJob[], total: number }>(
+      `${this.apiUrl}/recruiter/shortlist-jobs`,
+      { params }
+    ).pipe(
+      catchError(error => {
+        console.error('Error fetching recruiter jobs:', error);
+        return throwError(error);
+      })
+    );
+  }
+  
+
   // delete a job
   deleteJob(jobId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/recruiter/job/${jobId}`);
@@ -140,4 +169,26 @@ getJobApplicants(jobId: string): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/user/job/${jobId}/applicants`);
 }
 
+toggleShortlist(jobId: string, applicantId: string): Observable<any> {
+  return this.http.patch(
+    `${this.apiUrl}/jobs/${jobId}/shortlist`,
+    { applicantId }
+  ).pipe(
+    catchError(error => {
+      console.error('Error toggling shortlist:', error);
+      return throwError(error);
+    })
+  );
+}
+
+updateApplicationStatus(jobId: string, userId: string, status: string): Observable<any> {
+  console.log("status:", status);
+  return this.http.patch(`${this.apiUrl}/recruiter/${jobId}/applicants/${userId}`, { status })
+    .pipe(
+      catchError(error => {
+        console.error('Error updating application status:', error);
+        return throwError(error);
+      })
+    );
+}
 }

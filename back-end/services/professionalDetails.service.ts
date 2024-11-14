@@ -33,6 +33,7 @@ export class ProfessionalDetailsService implements IProfessionalDetailsService {
 
   async update(id: string, details: Partial<IProfessionalDetails>): Promise<IProfessionalDetails | null> {
     try {
+      console.log("updating professional details...",details);
       return await this._professionalDetailsRepository.update(id, details);
     } catch (error) {
       throw new Error(`Failed to update professional details: ${error instanceof Error ? error.message : String(error)}`);

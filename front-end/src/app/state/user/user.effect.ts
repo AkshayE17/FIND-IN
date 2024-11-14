@@ -6,12 +6,14 @@ import { UserService } from '../../services/userService';
 import * as UserActions from './user.action';
 import { IProfessionalDetails, LoginResponse } from './user.state';
 import { CookieService } from 'ngx-cookie-service'; 
+import { AuthService } from '../../services/auth.service';
 
 @Injectable()
 export class UserEffects {
   constructor(
     private actions$: Actions,
     private userService: UserService,
+    private authService: AuthService,
     private cookieService: CookieService 
   ) {}
 
@@ -25,7 +27,7 @@ export class UserEffects {
             UserActions.loginUserSuccess({
               user: response.user,
               accessToken: response.accessToken,
-              refreshToken: response.refreshToken,
+              role:'user'
             })
           ),
           catchError((error) =>
@@ -44,15 +46,14 @@ export class UserEffects {
     this.actions$.pipe(
       ofType('[App] Initialize'), 
       map(() => {
-        const user = this.userService.getUserData(); 
+        const user = this.authService.getUserData(); 
         const accessToken = this.cookieService.get('accessToken'); 
-        const refreshToken = this.cookieService.get('refreshToken');
 
-        if (user && accessToken && refreshToken) {
+        if (user && accessToken ) {
           return UserActions.loginUserSuccess({
             user,
             accessToken,
-            refreshToken,
+            role:'user'
           });
         } else {
           return { type: '[User] No Action' };

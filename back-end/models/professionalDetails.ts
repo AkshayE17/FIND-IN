@@ -19,7 +19,7 @@ const ProfessionalDetailsSchema = new Schema<IProfessionalDetails>({
   currentLocation: { type: String, required: true },
   expectedSalary: { type: Number, required: true },
   about: { type: String, required: true },
-  resumeUrl: { type: String },
+  resumeUrl: { type: String,required:true },
 });
 
 export const ProfessionalDetailsModel = mongoose.model<IProfessionalDetails>('ProfessionalDetails', ProfessionalDetailsSchema);

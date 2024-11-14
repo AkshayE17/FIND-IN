@@ -23,3 +23,13 @@ export const selectCompanyDetails = createSelector(
   selectRecruiterFeature,
   (state: RecruiterState) => state.companyDetails
 );
+
+export const selectRecruiterAccessToken = createSelector(
+  selectRecruiterFeature,
+  (state: RecruiterState) => state.accessToken
+)
+
+export const selectRecruiterRole = createSelector(
+  selectRecruiterFeature,
+  (state: RecruiterState) => state.role
+)

@@ -8,7 +8,7 @@ export const loginRecruiter = createAction(
 
 export const loginRecruiterSuccess = createAction(
   '[Recruiter] Login Recruiter Success',
-  props<{ recruiter: IRecruiter; accessToken: string; refreshToken: string; companyDetails?: ICompany }>()
+  props<{ recruiter: IRecruiter; accessToken: string; companyDetails?: ICompany ,role:string}>()
 );
 
 

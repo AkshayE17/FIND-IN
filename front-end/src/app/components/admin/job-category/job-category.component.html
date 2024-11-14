@@ -70,11 +70,11 @@
       <img [src]="imagePreview" alt="Category Icon" class="category-preview-img">
     </div>
   </div>
-
-  <button type="submit" class="btn btn-success" [disabled]="!categoryForm.valid">
+  <button type="submit" class="btn btn-success" [disabled]="!categoryForm.valid || !categoryForm.get('imageUrl')?.value">
     <i class="fas" [ngClass]="editMode ? 'fa-save' : 'fa-plus-circle'"></i>
     {{ editMode ? 'Update' : 'Create' }} Job Category
   </button>
+  
 </form>
 
 

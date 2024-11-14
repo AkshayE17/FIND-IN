@@ -29,23 +29,29 @@ export class RecruiterRegisterComponent implements OnDestroy {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       officialEmail: ['', [Validators.required, Validators.email]],
-      einNumber: ['', [Validators.required, Validators.pattern('^[0-9]{2}-[0-9]{7}$')]],  // Example EIN format: 12-3456789
+      einNumber: ['', [Validators.required, Validators.pattern('^[0-9]{2}-[0-9]{7}$')]],
       mobile: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       companyName: ['', Validators.required],
       companyWebsite: ['', [Validators.required, Validators.pattern('https?://.+')]],
       jobTitle: ['', Validators.required],
       gender: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(8),
+        Validators.pattern('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$')  // strong password pattern
+      ]],
       confirmPassword: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
+    }, { validators: this.passwordMatchValidator });    
     this.error$ = of('');
   }
 
   // Custom Validators
-  passwordMatchValidator(g: FormGroup) {
-    return g.get('password')?.value === g.get('confirmPassword')?.value
-      ? null : { 'mismatch': true };
+  passwordMatchValidator(group: FormGroup) {
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { passwordsDoNotMatch: true };
   }
+  
 
   noAllZerosValidator(control: AbstractControl) {
     const mobile = control.value;

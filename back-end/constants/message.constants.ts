@@ -37,4 +37,5 @@ export const Messages = {
   JOB_UPDATED: 'Job updated successfully.',
   JOB_DELETED: 'Job deleted successfully.',
   INVALID_USER_ID: 'Invalid user ID provided.',
+  APPLIED_ALREADY:'You have already applied for this job.',
 };

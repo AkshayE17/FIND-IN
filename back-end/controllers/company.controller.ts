@@ -17,14 +17,14 @@ export class CompanyController implements ICompanyController {
       console.log("recruiter id:", recruiterId);
 
       const result = await this._companyService.createOrUpdateCompany(recruiterId, companyData);
-      if (result) {
+      if (result) {   
         res.cookie('companyId', result.id.toString(), { httpOnly: true, path: '/' });
         res.status(result._id ? HttpStatus.OK : HttpStatus.CREATED).json(result);
       } else {
         res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.INVALID_DATA_PROVIDED });
       }
-    } catch (error: any) {
-      console.error('Error in createOrUpdateCompany:', error);
+    } catch (error: any) {  
+      console.error('Error in createOrUpdateCompany:', error);  
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
     }
   }

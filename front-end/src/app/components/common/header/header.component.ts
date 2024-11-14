@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, combineLatest } from 'rxjs';
@@ -18,16 +18,18 @@ import { IRecruiter } from '../../../state/recruiter/recruiter.state';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent {
-  user$: Observable<IUser | null>; 
-  recruiter$: Observable<IRecruiter | null>;
+export class HeaderComponent implements OnInit{
+  user$?: Observable<IUser | null>; 
+  recruiter$?: Observable<IRecruiter | null>;
   isMenuOpen = false;
 
   constructor(private store: Store<AppState>, private router: Router) {
+  }
+
+  ngOnInit(): void {
     this.user$ = this.store.select(selectUser);
     this.recruiter$ = this.store.select(selectRecruiter);
   }
-
   goToUserDetails() {
     this.router.navigate(['/user/dashboard/user-details']);
     console.log("user",this.user$);

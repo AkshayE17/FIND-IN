@@ -1,37 +1,57 @@
-<!-- professional-details.component.html -->
 <div class="professional-details-content">
   <h2>Professional Details</h2>
   
   <ng-container *ngIf="(professionalDetails$ | async) as details">
-
     <div class="profile-card" *ngIf="!isEditing && details.title">
-      <div class="profile-item">
-        <strong>Title:</strong> {{ details.title }}
+      <div class="profile-header">
+        <h3>{{ details.title }}</h3>
+        <button class="edit-button" (click)="toggleEdit()">
+          <i class="fas fa-edit"></i> Edit
+        </button>
       </div>
-      <div class="profile-item">
-        <strong>Skills:</strong>
-         {{ details.skills }}
+      <div class="profile-details">
+        <div class="detail-item">
+          <i class="fas fa-code"></i>
+          <div>
+            <label>Skills</label>
+            <p>{{ details.skills }}</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-briefcase"></i>
+          <div>
+            <label>Experience</label>
+            <p>{{ details.experience }} years</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <div>
+            <label>Location</label>
+            <p>{{ details.currentLocation }}</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-rupee-sign"></i>
+          <div>
+            <label>Expected Salary</label>
+            <p>{{ details.expectedSalary }} ₹/year</p>
+          </div>
+        </div>
       </div>
-      <div class="profile-item">
-        <strong>Experience (years):</strong> {{ details.experience }}
+      <div class="profile-about">
+        <label>About</label>
+        <p>{{ details.about }}</p>
       </div>
-      <div class="profile-item">
-        <strong>Current Location:</strong> {{ details.currentLocation }}
+      <div class="profile-resume">
+        <label>Resume</label>
+        <div class="resume-container">
+          <i class="fas fa-file-alt"></i>
+          <a [href]="details.resumeUrl" target="_blank">View Resume</a>
+        </div>
       </div>
-      <div class="profile-item">
-        <strong>Expected Salary (₹/year):</strong> {{ details.expectedSalary }}
-      </div>
-      <div class="profile-item">
-        <strong>About:</strong> {{ details.about }}
-      </div>
-      <div class="profile-item">
-        <strong>Resume:</strong> 
-        <a [href]="details.resumeUrl" target="_blank">View Resume</a>
-      </div>
-      <button class="edit-button" (click)="toggleEdit()">Edit</button>
     </div>
 
-    <!-- Show form when editing -->
     <form *ngIf="isEditing" [formGroup]="detailsForm" class="profile-card edit-form" (ngSubmit)="onSubmit()">
       <div class="form-header">
         <h3>{{ details?.title ? 'Edit Professional Details' : 'Add Professional Details' }}</h3>
@@ -39,112 +59,89 @@
           <button type="button" class="cancel-button" (click)="toggleEdit()">
             <i class="fas fa-times"></i> Cancel
           </button>
-          <button type="submit" class="save-button">
+          <button type="submit" class="save-button" [disabled]="detailsForm.invalid">
             <i class="fas fa-check"></i> Save
           </button>
         </div>
       </div>
-
+    
       <div class="form-grid">
         <div class="form-group">
           <label>Title</label>
-          <input type="text" formControlName="title" [value]="details.title" placeholder="e.g. MEAN Stack Developer">
+          <input type="text" formControlName="title" placeholder="e.g. MEAN Stack Developer">
+          <div *ngIf="detailsForm.get('title')?.touched && detailsForm.get('title')?.invalid" class="error-message">
+            <small *ngIf="detailsForm.get('title')?.hasError('required')">Title is required.</small>
+            <small *ngIf="detailsForm.get('title')?.hasError('pattern')">Invalid title format.</small>
+          </div>
         </div>
-
+    
         <div class="form-group">
           <label>Skills</label>
-          <input type="text" formControlName="skills" [value]="details.skills" placeholder="e.g. Angular, Node.js, MongoDB">
+          <input type="text" formControlName="skills" placeholder="e.g. Angular, Node.js, MongoDB">
           <small>Separate skills with commas</small>
+          <div *ngIf="detailsForm.get('skills')?.touched && detailsForm.get('skills')?.invalid" class="error-message">
+            <small *ngIf="detailsForm.get('skills')?.hasError('required')">Skills are required.</small>
+            <small *ngIf="detailsForm.get('skills')?.hasError('pattern')">Invalid characters. Only letters and commas are allowed.</small>
+          </div>
         </div>
-
+    
         <div class="form-group">
           <label>Experience (years)</label>
-          <input type="number" formControlName="experience" [value]="details.experience" min="0" step="0.5">
+          <input type="number" formControlName="experience" min="0" step="0.5">
+          <div *ngIf="detailsForm.get('experience')?.touched && detailsForm.get('experience')?.invalid" class="error-message">
+            <small *ngIf="detailsForm.get('experience')?.hasError('required')">Experience is required.</small>
+            <small *ngIf="detailsForm.get('experience')?.hasError('min')">Experience must be at least 0 years.</small>
+            <small *ngIf="detailsForm.get('experience')?.hasError('max')">Experience cannot exceed 100 years.</small>
+          </div>
         </div>
-
+    
         <div class="form-group">
           <label>Current Location</label>
-          <input type="text" formControlName="currentLocation" [value]="details.currentLocation">
+          <input type="text" formControlName="currentLocation">
+          <div *ngIf="detailsForm.get('currentLocation')?.touched && detailsForm.get('currentLocation')?.invalid" class="error-message">
+            <small *ngIf="detailsForm.get('currentLocation')?.hasError('required')">Location is required.</small>
+            <small *ngIf="detailsForm.get('currentLocation')?.hasError('pattern')">Invalid location format.</small>
+          </div>
         </div>
-
+    
         <div class="form-group">
           <label>Expected Salary (₹/year)</label>
-          <input type="number" formControlName="expectedSalary" [value]="details.expectedSalary">
+          <input type="number" formControlName="expectedSalary">
+          <div *ngIf="detailsForm.get('expectedSalary')?.touched && detailsForm.get('expectedSalary')?.invalid" class="error-message">
+            <small *ngIf="detailsForm.get('expectedSalary')?.hasError('required')">Salary is required.</small>
+            <small *ngIf="detailsForm.get('expectedSalary')?.hasError('min')">Salary must be a positive number.</small>
+          </div>
+        </div>
+    
+        <div class="form-group">
+          <label>About</label>
+          <textarea formControlName="about" rows="4"></textarea>
+          <div *ngIf="detailsForm.get('about')?.touched && detailsForm.get('about')?.invalid" class="error-message">
+            <small *ngIf="detailsForm.get('about')?.hasError('required')">About is required.</small>
+            <small *ngIf="detailsForm.get('about')?.hasError('maxlength')">About section cannot exceed 500 characters.</small>
+          </div>
+        </div>
+    
+        <div class="form-group">
+          <label>Resume</label>
+          <input type="file" (change)="onFileSelect($event)" accept=".pdf,.doc,.docx">
+          <small>Supported formats: PDF, DOC, DOCX (Max 5MB)</small>
+          <div *ngIf="selectedFile && selectedFile.size > 5242880" class="error-message">
+            <small>File size exceeds 5MB limit.</small>
+          </div>
+          <div *ngIf="error" class="error-message">
+            <small>{{ error }}</small>
+          </div>
         </div>
       </div>
-
-      <div class="form-group">
-        <label>About</label>
-        <textarea formControlName="about" rows="4">{{ details.about }}</textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Resume</label>
-        <input type="file" (change)="onFileSelect($event)" accept=".pdf,.doc,.docx">
-        <small>Supported formats: PDF, DOC, DOCX (Max 5MB)</small>
-      </div>
     </form>
+    
   </ng-container>
 
-  <!-- Show add button when no details exist and not editing -->
   <div class="add-details-container" *ngIf="!(professionalDetails$ | async) && !isEditing">
     <p>No professional details added yet</p>
     <button class="add-button" (click)="startAdding()">
       <i class="fas fa-plus"></i> Add Professional Details
     </button>
   </div>
-
-  <!-- Show form when adding new details -->
-  <form *ngIf="isEditing && !(professionalDetails$ | async)" [formGroup]="detailsForm" class="profile-card edit-form" (ngSubmit)="onSubmit()">
-    <div class="form-header">
-      <h3>Add Professional Details</h3>
-      <div class="form-actions">
-        <button type="button" class="cancel-button" (click)="toggleEdit()">
-          <i class="fas fa-times"></i> Cancel
-        </button>
-        <button type="submit" class="save-button">
-          <i class="fas fa-check"></i> Save
-        </button>
-      </div>
-    </div>
-
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Title</label>
-        <input type="text" formControlName="title" placeholder="e.g. MEAN Stack Developer">
-      </div>
-
-      <div class="form-group">
-        <label>Skills</label>
-        <input type="text" formControlName="skills" placeholder="e.g. Angular, Node.js, MongoDB">
-        <small>Separate skills with commas</small>
-      </div>
-
-      <div class="form-group">
-        <label>Experience (years)</label>
-        <input type="number" formControlName="experience" min="0" step="0.5">
-      </div>
-
-      <div class="form-group">
-        <label>Current Location</label>
-        <input type="text" formControlName="currentLocation">
-      </div>
-
-      <div class="form-group">
-        <label>Expected Salary (₹/year)</label>
-        <input type="number" formControlName="expectedSalary">
-      </div>
-
-      <div class="form-group">
-        <label>Resume</label>
-        <input type="file" (change)="onFileSelect($event)" accept=".pdf,.doc,.docx">
-        <small>Supported formats: PDF, DOC, DOCX (Max 5MB)</small>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>About</label>
-      <textarea formControlName="about" rows="4"></textarea>
-    </div>
-  </form>
 </div>

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { IAdminService } from '../interfaces/admin/IAdminService';
 import { HttpStatus } from '../constants/http.constants';
 import { IAdminController } from '../interfaces/admin/IAdminController';
+import { generatePresignedUrl } from '../services/s3.service';
 
 export class AdminController implements IAdminController {
   constructor(private _adminService: IAdminService) {}
@@ -12,19 +13,14 @@ export class AdminController implements IAdminController {
       const { email, password } = req.body;
       const { accessToken, refreshToken, admin } = await this._adminService.login(email, password);
 
-      res.cookie('refreshToken', refreshToken, {
+      res.cookie('adminRefreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: parseInt(process.env.REFRESH_TOKEN_MAX_AGE || '604800000'), 
       });
 
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: parseInt(process.env.ACCESS_TOKEN_MAX_AGE || '900000'),
-      });
 
-      res.status(HttpStatus.OK).json({ refreshToken, accessToken, admin: { id: admin._id, email: admin.email } });
+      res.status(HttpStatus.OK).json({ accessToken, admin: { id: admin._id, email: admin.email } });
     } catch (error: any) {
       console.error("Error during admin login:", error);
       res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
@@ -176,4 +172,17 @@ export class AdminController implements IAdminController {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'An unknown error occurred' });
     }
   }
+
+
+  //generating predefined url
+   async generatePredefinedUrl(req: Request, res: Response): Promise<void> {
+    try {
+        const { fileName, fileType } = req.body;
+        const url = await generatePresignedUrl(fileName, fileType);
+        res.status(200).json({ url });
+    } catch (error) {
+        console.error('Error generating pre-signed URL:', error);
+        res.status(500).json({ message: 'Error generating pre-signed URL' });
+    }
+}
 }

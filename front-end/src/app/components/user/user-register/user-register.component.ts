@@ -30,11 +30,15 @@ export class UserRegisterComponent implements OnDestroy {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       mobile: ['', [Validators.required, Validators.pattern("^[0-9]{10}$"), this.noAllZerosValidator]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(8),  // Minimum length set to 8 characters
+        Validators.pattern('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$')  // Strong password pattern
+      ]],
       confirmPassword: ['', Validators.required],
       gender: ['', Validators.required]
     }, { validator: this.passwordMatchValidator });
-
+    
     this.error$ = of('');
   }
 
@@ -43,11 +47,12 @@ export class UserRegisterComponent implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  passwordMatchValidator(g: FormGroup) {
-    return g.get('password')?.value === g.get('confirmPassword')?.value
-      ? null : { 'mismatch': true };
+  passwordMatchValidator(group: FormGroup) {
+    const password = group.get('password')?.value;
+    const confirmPassword = group.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { passwordsDoNotMatch: true };
   }
+  
 
   noAllZerosValidator(control: AbstractControl) {
     const mobile = control.value;

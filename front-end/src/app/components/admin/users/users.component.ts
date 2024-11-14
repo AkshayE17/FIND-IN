@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import Swal from 'sweetalert2';
 import { IUser } from '../../../state/user/user.state'; 
-import { AdminService } from '../../../services/adminService'; 
+import { AdminService } from '../../../services/admin.service'; 
 import { Observable, of, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+
 
 @Component({
   selector: 'app-users',
@@ -20,6 +23,8 @@ export class UsersComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   loading = false;
   subscriptions: Subscription = new Subscription();
+
+  searchSubject: Subject<string> = new Subject<string>();
 
   filters = {
     gender: '',
@@ -48,10 +53,22 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadUsers();
+
+    // Set up debounce for search
+    const searchSubscription = this.searchSubject
+      .pipe(
+        debounceTime(300), // Adjust the debounce time as needed (in milliseconds)
+        distinctUntilChanged()
+      )
+      .subscribe((searchTerm) => {
+        this.filters.searchTerm = searchTerm;
+        this.loadUsers(1); // Reload users on debounced search term change
+      });
+
+    this.subscriptions.add(searchSubscription);
   }
 
   ngOnDestroy(): void {
-    // Unsubscribe from all subscriptions to prevent memory leaks
     this.subscriptions.unsubscribe();
   }
 
@@ -78,9 +95,15 @@ export class UsersComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Add to the subscriptions to manage cleanup
     this.subscriptions.add(loadUserSubscription);
   }
+
+  onSearch(event: Event) {
+    const searchTerm = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(searchTerm); // Emit search term to searchSubject
+  }
+
+ 
 
   onGenderChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -119,11 +142,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.loadUsers(1);
   }
 
-  onSearch(event: Event) {
-    const searchTerm = (event.target as HTMLInputElement).value;
-    this.filters.searchTerm = searchTerm;
-    this.loadUsers(1);
-  }
+
 
   get totalPages(): number {
     return Math.ceil(this.totalUsers / this.pageSize);

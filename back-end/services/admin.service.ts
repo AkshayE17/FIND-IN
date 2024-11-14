@@ -20,7 +20,7 @@ export class AdminService implements IAdminService {
       }
 
       const isPasswordCorrect = await bcrypt.compare(password, admin.password);
-      if (!isPasswordCorrect) {
+      if (!isPasswordCorrect) { 
         throw new Error(Messages.INVALID_PASSWORD);
       }
 
@@ -34,7 +34,7 @@ export class AdminService implements IAdminService {
     }
   }
 
-  // Create Admin
+  // Create Admin  
   async createAdmin(email: string, password: string): Promise<IAdmin> {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);

@@ -1,0 +1,37 @@
+<app-base-admin-table
+      title="Manage Users"
+      searchPlaceholder="users"
+      emptyStateMessage="No users available"
+      [columns]="columns"
+      [data$]="users$"
+      [totalItems]="totalUsers"
+      [pageSize]="pageSize"
+      [loading]="loading"
+      [filters]="filters"
+      [actionTemplate]="actionTemplate"
+      (searchChange)="onSearchChange($event)"
+      (pageChange)="onPageChange($event)"
+      (filtersChange)="onFiltersChange($event)"
+    >
+      <ng-container filters>
+        <!-- Custom filters for users -->
+        <div class="filter-group">
+          <label>Gender</label>
+          <select [(ngModel)]="filters.gender">
+            <option value="">All</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <!-- Add more custom filters -->
+      </ng-container>
+    </app-base-admin-table>
+
+    <ng-template #actionTemplate let-user>
+      <button class="btn-view" (click)="viewDetails(user)">
+        <i class="fas fa-eye"></i>
+      </button>
+      <button class="btn-block" (click)="blockOrUnblockUser(user)">
+        <i class="fas fa-ban"></i>
+      </button>
+    </ng-template>

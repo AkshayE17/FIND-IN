@@ -1,43 +1,41 @@
-import AWS from 'aws-sdk';
 
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,   
-  region: process.env.AWS_REGION,   
-});
 
-export const uploadFileToS3 = (file: Express.Multer.File): Promise<string> => {
-  const params = {
-    Bucket: process.env.S3_BUCKET_NAME!,
-    Key: `uploads/${Date.now().toString()}-${file.originalname}`,
-    Body: file.buffer,
-    ContentType: file.mimetype,
-  };
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'; 
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import dotenv from 'dotenv';
+dotenv.config();
 
-  return new Promise((resolve, reject) => {
-    s3.upload(params, (err: Error, data: AWS.S3.ManagedUpload.SendData) => {
-      if (err) {
-        console.error("Error uploading file to S3:", err);
-        return reject(new Error(`Failed to upload file to S3: ${err.message}`));
-      }
-      resolve(data.Location);
-    });
-  });
-};
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },  
+})
 
-export const deleteFileFromS3 = async (key: string): Promise<void> => {
-  const params = {
-    Bucket: process.env.S3_BUCKET_NAME!,
-    Key: key, 
-  };
 
-  return new Promise((resolve, reject) => {
-    s3.deleteObject(params, (err) => {
-      if (err) {
-        console.error("Error deleting file from S3:", err);
-        return reject(new Error(`Failed to delete file from S3: ${err.message}`));
-      }
-      resolve();
-    });
-  });
+export const generatePresignedUrl = async (fileName: string, fileType: string): Promise<string> => {
+  try {
+    console.log('Generating presigned URL for:', { fileName, fileType });
+
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    
+    const params = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: `${sanitizedFileName}`,
+      ContentType: fileType,
+      
+    };
+
+    console.log('S3 params:', params);
+
+    const signedUrl = new PutObjectCommand(params);
+    console.log('Generated presigned URL:', signedUrl);
+    const url = await getSignedUrl(s3Client,signedUrl ,{expiresIn: 300});
+
+    return url;
+  } catch (error) {
+    console.error('Error generating signed URL:', error);
+    throw error;
+  }
 };

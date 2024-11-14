@@ -22,13 +22,13 @@ export const recruiterReducer = createReducer(
     error: null,
   })),
 
-  on(loginRecruiterSuccess, (state, { recruiter, accessToken, refreshToken }) => {
+  on(loginRecruiterSuccess, (state, { recruiter, accessToken}) => {
     console.log('Recruiter logged in:', recruiter);
     return {
       ...state,
       recruiter,
       accessToken,
-      refreshToken,
+      role:'recruiter',
       loading: false,
       error: null,
     };

@@ -97,12 +97,49 @@ export class JobController implements IJobController {
         jobType
       );
 
+      // console.log("recruiter jobs:", JSON.stringify(result, null, 2));
+
+
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       console.error("Error in getRecruiterJob:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
     }
   }
+
+
+  async getRecruiterShortListedJob(req: Request, res: Response): Promise<void> {
+    try {
+      console.log("getRecruiterShortListedJob");
+      const recruiterId = req.query.recruiterId as string;
+      if (!recruiterId) {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.RECRUITER_ID_REQUIRED });
+        return;
+      }
+
+      const page = parseInt(req.query.page as string) || 1;
+      const pageSize = parseInt(req.query.pageSize as string) || 10;
+      const search = req.query.search as string;
+      const jobType = req.query.jobType as string;
+
+      const result = await this._jobService.getRecruiterShortListedJobs(
+        recruiterId,
+        page,
+        pageSize,
+        search,
+        jobType
+      );
+
+      console.log("recruiter jobs:", JSON.stringify(result, null, 2));
+
+
+      res.status(HttpStatus.OK).json(result);
+    } catch (error) {
+      console.error("Error in getRecruiterJob:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+    }
+  }
+
 
   async updateJob(req: Request, res: Response): Promise<void> {
     try {
@@ -153,28 +190,42 @@ export class JobController implements IJobController {
         return;
       }
       res.status(HttpStatus.OK).json({ message: Messages.APPLICATION_SUCCESSFUL, job });
-    } catch (error) {
-      console.error("Error applying for job:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
-    }
-  }
-
-  async appliedJobs(req: Request<{ userId: string }>, res: Response): Promise<void> {
-    try {
-      const userId = req.params.userId;
-      const jobs = await this._jobService.getAppliedJobs(userId);
-
-      if (!jobs.length) {
-        res.status(HttpStatus.NOT_FOUND).json({ message: Messages.NO_APPLIED_JOBS_FOUND });
-        return;
+    } catch (error:any) {
+      console.error("Error in controller:", error);
+      if (error.message === 'You have already applied for this job.') {
+        console.log("message are equal");
+        res.status(HttpStatus.CONFLICT).json({ message: 'You have already applied for this job.' });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
       }
+      
+    }
+ }
 
-      res.status(HttpStatus.OK).json(jobs);
-    } catch (error) {
-      console.error("Error fetching applied jobs:", error);
+ async appliedJobs(req: Request<{ userId: string }>, res: Response): Promise<void> {
+  try {
+    const userId = req.params.userId;
+    const jobs = await this._jobService.getAppliedJobs(userId);
+
+    if (!jobs.length) {
+      res.status(HttpStatus.NOT_FOUND).json({ message: Messages.NO_APPLIED_JOBS_FOUND });
+      return;
+    }
+
+    res.status(HttpStatus.OK).json(jobs);
+  } catch (error: any) {
+    console.error("Error fetching applied jobs:", error);
+
+    // Check for the specific error message
+    if (error.message === 'You have already applied for this job.') {
+      res.status(HttpStatus.CONFLICT).json({ message: 'You have already applied for this job.' });
+    } else {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
     }
   }
+}
+
+
 
   async getJobsWithApplicants(req: Request, res: Response): Promise<void> {
     try {
@@ -197,4 +248,32 @@ export class JobController implements IJobController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
     }
   }
+
+  // In JobController
+async updateApplicationStatus(req: Request, res: Response): Promise<void> {
+  try {
+    console.log('Updating application status...');
+    const jobId = req.params.jobId;
+    const userId = req.params.userId;
+    const { status } = req.body; 
+    
+    if (!status) {
+      res.status(HttpStatus.BAD_REQUEST).json({ message: 'Status is required' });
+      return;
+    }
+
+    const updatedApplication = await this._jobService.updateApplicationStatus(jobId, userId, status);
+    
+    if (!updatedApplication) {
+      res.status(HttpStatus.NOT_FOUND).json({ message: 'Job or Applicant not found' });
+      return;
+    }
+
+    res.status(HttpStatus.OK).json({ message: 'Application status updated successfully', updatedApplication });
+  } catch (error) {
+    console.error('Error updating application status:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'An error occurred while updating the application status' });
+  }
+}
+
 }

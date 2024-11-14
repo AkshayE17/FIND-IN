@@ -1,7 +1,14 @@
 
-import { Schema, model,Document,Types } from 'mongoose';
+import { Schema, model,Document,Types, ObjectId } from 'mongoose';
 import { IRecruiter } from './Recruiter';
 import { ICompany } from './company';
+
+export interface IApplicant {
+  userId: Types.ObjectId;
+  appliedDate: Date;
+  applicationStatus: "applied" | "shortlisted" | "rejected";
+  _id?:ObjectId | undefined;
+}
 
 export interface IJob extends Document{
   companyId: Types.ObjectId; 
@@ -14,12 +21,17 @@ export interface IJob extends Document{
   location: string; 
   salary: string;
   skills:string[];
-  applicants: Types.ObjectId[];
-  shortListed: Types.ObjectId[];
+  applicants: IApplicant[];
+  shortListed: IApplicant[];
   recruiter:IRecruiter;  
   company:ICompany;
 
 }
+const applicantSchema = new Schema<IApplicant>({
+  userId: { type: Schema.Types.ObjectId, required: true },
+  appliedDate: { type: Date, required: true },
+  applicationStatus: { type: String, required: true, enum: ["applied", "shortlisted", "rejected"],default:"applied" },
+});
 
 const jobSchema = new Schema<IJob>({
   companyId: { type: Schema.Types.ObjectId, required: true, ref: 'Company' },
@@ -31,9 +43,9 @@ const jobSchema = new Schema<IJob>({
   experienceRequired: { type: String, required: true },
   location: { type: String, required: true },
   salary: { type: String, required: true },
-  skills:{ type:[String],required:true},
-  applicants: { type: [Schema.Types.ObjectId], ref: 'User', default: [] },
-  shortListed:{ type: [Schema.Types.ObjectId], ref: 'User', default: [] },
+  skills:{ type:[String],required:true},  
+  applicants: { type: [applicantSchema], ref: 'User', default: [] },
+  shortListed:{ type: [applicantSchema], ref: 'User', default: [] },
 },{ timestamps: true });
 
 export const JobModel = model<IJob>('Job', jobSchema);

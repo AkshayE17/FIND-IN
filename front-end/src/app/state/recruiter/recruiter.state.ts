@@ -1,3 +1,23 @@
+
+export interface RecruiterState {  
+  recruiter: IRecruiter | null; 
+  companyDetails: ICompany | null; 
+  accessToken: string | null;
+  role: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export const initialRecruiterState: RecruiterState = {
+  recruiter: null,
+  companyDetails: null, 
+  accessToken: null,
+  role: null,
+  loading: false,
+  error: null,
+};
+
+
 export interface IRecruiter {
   _id: string;
   name: string;
@@ -11,7 +31,7 @@ export interface IRecruiter {
   einNumber: string;
   imageUrl?: string;
   password: string;
-  isVerified?: boolean;
+  isVerified?: boolean; 
   isBlocked?: boolean;
   isApproved?: boolean;
   createdAt:Date;
@@ -37,21 +57,3 @@ export interface LoginResponse {
   companyDetails:ICompany
 }
 
-
-export interface RecruiterState {  
-  recruiter: IRecruiter | null; 
-  companyDetails: ICompany | null; 
-  accessToken: string | null;
-  refreshToken: string | null;
-  loading: boolean;
-  error: string | null;
-}
-
-export const initialRecruiterState: RecruiterState = {
-  recruiter: null,
-  companyDetails: null, 
-  accessToken: null,
-  refreshToken: null,
-  loading: false,
-  error: null,
-};

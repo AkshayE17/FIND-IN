@@ -37,7 +37,11 @@ class ProfessionalDetailsRepository implements IProfessionalDetailsRepository {
   // Update professional details by ID
   async update(id: string, details: Partial<IProfessionalDetails>): Promise<IProfessionalDetails | null> {
     try {
-      return await ProfessionalDetailsModel.findByIdAndUpdate(id, details, { new: true });
+      console.log("Updating professional details for ID: ", id);
+      console.log("Updated details: ", details);
+      const result= await ProfessionalDetailsModel.findOneAndUpdate({ userId: id }, details, { new: true });
+      console.log("Result: ", result);
+      return result;
     } catch (error) {
       console.error(`Error updating professional details for ID: ${id}`, error);
       throw new Error("Error updating professional details");

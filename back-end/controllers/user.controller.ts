@@ -55,44 +55,40 @@ export class UserController implements IUserController {
     }
   }
 
-  // User login
-  async login(req: Request, res: Response): Promise<void> {
-    try {
+ // User login
+async login(req: Request, res: Response): Promise<void> {
+  try {
       const { email, password } = req.body;
       const { accessToken, refreshToken, user } = await this._userService.loginUser(email, password);
 
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: parseInt(process.env.REFRESH_TOKEN_MAX_AGE as string, 10),
+
+      res.cookie('userRefreshToken', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: parseInt(process.env.REFRESH_TOKEN_MAX_AGE as string, 10),
+          sameSite: 'strict',
       });
 
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: parseInt(process.env.ACCESS_TOKEN_MAX_AGE as string, 10),
-      });
 
       res.status(HttpStatus.OK).json({
-        refreshToken,
-        accessToken,
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          mobile: user.mobile,
-          gender: user.gender,
-          isVerified: user.isVerified,
-          imageUrl: user.imageUrl,
-        },
+          accessToken,
+          user: {
+              id: user._id,
+              email: user.email,
+              name: user.name,
+              mobile: user.mobile,
+              gender: user.gender,
+              isVerified: user.isVerified,
+              imageUrl: user.imageUrl,
+          },
       });
-    } catch (error) {
+  } catch (error) {
       console.error('Error during login:', error);
       res.status(HttpStatus.BAD_REQUEST).json({
-        message: error instanceof Error ? error.message : Messages.UNKNOWN_ERROR,
+          message: error instanceof Error ? error.message : Messages.UNKNOWN_ERROR,
       });
-    }
   }
+}
 
   // Refresh token
   async refreshToken(req: Request, res: Response): Promise<void> {

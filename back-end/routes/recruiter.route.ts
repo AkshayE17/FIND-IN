@@ -13,14 +13,15 @@ import otpRepository from "../repository/otp.repository";
 import { JobCategoryController } from "../controllers/jobCategory.controller";
 import { JobCategoryService } from "../services/jobcategory.service";
 import jobCategoryRepository from "../repository/jobCategory.repository";
-import userRepository from "../repository/user.repository";
+import { authenticateToken } from "../middlewares/authmiddleware";
+import { authorizeRole } from "../middlewares/authorizeRole";
 
 
 
 const recruiterService = new RecruiterService(recruiterRepository);
 const otpService= new OtpService(otpRepository)
 const companyService = new CompanyService(companyRepository);
-const jobService = new JobService(jobRepository,companyRepository,userRepository);
+const jobService = new JobService(jobRepository,companyRepository);
 const jobCategoryService = new JobCategoryService(jobCategoryRepository)
 const recruiterController = new RecruiterController(recruiterService,otpService);
 const companyController = new CompanyController(companyService);
@@ -33,13 +34,15 @@ const recruiterRoute = Router();
 recruiterRoute.post('/register', recruiterController.register.bind(recruiterController));
 recruiterRoute.post('/login', recruiterController.login.bind(recruiterController));
 recruiterRoute.post('/verify-otp', recruiterController.verifyOtp.bind(recruiterController));
-recruiterRoute.post('/company-details/:recruiterId', companyController.createOrUpdateCompany.bind(companyController));
-recruiterRoute.get('/company-details/:recruiterId', companyController.getCompanyByHrId.bind(companyController));
-recruiterRoute.post('/post-job', jobController.createJob.bind(jobController));
-recruiterRoute.get('/jobs', jobController.getRecruiterJob.bind(jobController));
-recruiterRoute.delete('/job/:id', jobController.deleteJob.bind(jobController));
-recruiterRoute.put('/job/:id', jobController.updateJob.bind(jobController));
-recruiterRoute.get('/jobCategories',jobCategoryController.getAllJobCategories.bind(jobCategoryController));
-recruiterRoute.get('/jobs/applicants', jobController.getJobsWithApplicants.bind(jobController));
+recruiterRoute.post('/company-details/:recruiterId',authenticateToken,authorizeRole('recruiter'), companyController.createOrUpdateCompany.bind(companyController));
+recruiterRoute.get('/company-details/:recruiterId',authenticateToken, authorizeRole('recruiter'), companyController.getCompanyByHrId.bind(companyController));
+recruiterRoute.post('/post-job',authenticateToken,authorizeRole('recruiter'),  jobController.createJob.bind(jobController));
+recruiterRoute.get('/jobs',authenticateToken,authorizeRole('recruiter'),  jobController.getRecruiterJob.bind(jobController));
+recruiterRoute.get('/shortlist-jobs',authenticateToken,authorizeRole('recruiter'),  jobController.getRecruiterShortListedJob.bind(jobController));
+recruiterRoute.delete('/job/:id',authenticateToken,authorizeRole('recruiter'),  jobController.deleteJob.bind(jobController));
+recruiterRoute.put('/job/:id',authenticateToken,authorizeRole('recruiter'),  jobController.updateJob.bind(jobController));
+recruiterRoute.get('/jobCategories',authenticateToken,authorizeRole('recruiter'), jobCategoryController.getAllJobCategories.bind(jobCategoryController));
+recruiterRoute.get('/jobs/applicants',authenticateToken,authorizeRole('recruiter'),  jobController.getJobsWithApplicants.bind(jobController));
+recruiterRoute.patch('/:jobId/applicants/:userId',authenticateToken,authorizeRole('recruiter'),  jobController.updateApplicationStatus.bind(jobController));
 
 export default recruiterRoute;

@@ -13,5 +13,4 @@ import { FooterComponent } from '../../common/footer/footer.component';
   styleUrl: './user-dashboard.component.scss'
 })
 export class UserDashboardComponent {
-
 }

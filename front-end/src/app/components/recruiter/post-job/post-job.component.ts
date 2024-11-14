@@ -4,14 +4,16 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Store } from '@ngrx/store';
 import { IJob, IJobCategory } from '../../../state/job/job.state';
 import { createJob } from '../../../state/job/job.action';
-import { RecruiterService } from '../../../services/recruiterService';
 import Swal from 'sweetalert2';
-import { JobService } from '../../../services/jobService';
+import { JobService } from '../../../services/job.service';
 import { selectCompanyDetails } from '../../../state/recruiter/recruiter.selector';
 import { ICompany } from '../../../state/recruiter/recruiter.state';
 import { Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
+import { loadCompanyDetails } from '../../../state/recruiter/recruiter.action';
+import { AuthService } from '../../../services/auth.service';
+import { RecruiterService } from '../../../services/recruiter.service';
 
 @Component({
   selector: 'app-post-job',
@@ -29,8 +31,9 @@ export class PostJobComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private store: Store,
-    private recruiterService: RecruiterService,
+    private authService: AuthService,
     private jobService: JobService,
+    private recruiterService: RecruiterService,
     private router: Router
   ) {
     this.jobForm = this.fb.group({
@@ -46,6 +49,14 @@ export class PostJobComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.companyDetails$ = this.store.select(selectCompanyDetails);
+
+    const accessToken = this.authService.getRecruiterAccessToken();
+    const recruiterId = this.authService.getRecruiterId();
+
+    if (accessToken && recruiterId) {
+      this.store.dispatch(loadCompanyDetails({ accessToken, recruiterId }));
+    }
     this.companyDetails$ = this.store.select(selectCompanyDetails);
     this.jobService.getJobCategories()
       .pipe(takeUntil(this.unsubscribe$))
@@ -66,7 +77,7 @@ export class PostJobComponent implements OnInit, OnDestroy {
     if (this.jobForm.valid) {
       console.log("form is valid");
       const job: IJob = { ...this.jobForm.value };
-      const recruiterId = this.recruiterService.getRecruiterId();
+      const recruiterId = this.authService.getRecruiterId();
 
       if (recruiterId) {
         job.recruiterId = recruiterId;

@@ -6,17 +6,18 @@ import { AdminState, initialAdminState } from './admin.state';
 export const adminReducer = createReducer(
   initialAdminState,
   on(loginAdmin, (state) => ({ ...state, loading: true })),
-  on(loginAdminSuccess, (state, { admin,accessToken,refreshToken }) => ({
+  on(loginAdminSuccess, (state, { admin,accessToken }) => ({
     ...state,
     admin,
     accessToken,
-    refreshToken,
+    role:'admin',
     loading: false,
     error: null,
   })),
   on(loginAdminFailure, (state, { error }) => ({
     ...state,
     admin: null,
+    role: null,
     loading: false,
     error,
   })),

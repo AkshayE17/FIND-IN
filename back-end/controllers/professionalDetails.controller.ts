@@ -64,8 +64,9 @@ export class ProfessionalDetailsController {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id;
+      console.log("Id is:", id);
       const updatedDetails = await this._professionalDetailsService.update(id, req.body);
-
+      console.log("Updated details are:", updatedDetails);
       if (updatedDetails) {
         res.status(HttpStatus.OK).json(updatedDetails);
       } else {

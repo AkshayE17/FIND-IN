@@ -24,9 +24,12 @@ import { ManageJobsComponent } from './components/recruiter/manage-jobs/manage-j
 import { JobComponent } from './components/user/jobs/jobs.component';
 import { JobsDetailsComponent } from './components/user/jobs-details/jobs-details.component';
 import { AppliedJobsComponent } from './components/user/applied-jobs/applied-jobs.component';
-import { JobCandidatesComponent } from './components/recruiter/job-candidates/job-candidates.component';
 import { ProfessionalDetailsComponent } from './components/user/professional-details/professional-details.component';
-import { AppliedCandidatesComponent } from './components/recruiter/applied-candidates/applied-candidates.component';
+import { JobsComponent } from './components/admin/jobs/jobs.component';
+import { ShortListedComponent } from './components/recruiter/short-listed/short-listed.component';
+import { AuthGuard } from './services/auth-guard.service';
+import { UnauthorizedComponent } from './components/common/unauthorized/unauthorized.component';
+import { ChatComponent } from './components/user/chat/chat.component';
 export const routes: Routes = [
   {path:'',component:HomeComponent},
   {path:'user/login',component:UserLoginComponent},
@@ -39,34 +42,41 @@ export const routes: Routes = [
   {path:'user/jobs',component:JobComponent},
   {path:'user/job-details/:id',component:JobsDetailsComponent},
   {path:'admin/login',component:LoginComponent},
+  {path:'unauthorized',component:UnauthorizedComponent},
 
   {
     path: 'admin',
     component:AdminlayoutComponent, 
+    canActivate:[AuthGuard],
     children: [
+      {path:'',component:MainContentComponent},
       { path: 'dashboard', component:MainContentComponent},
       {path: 'verified-recruiters',component:VerifyRecruitersComponent},
       { path: 'users', component:UsersComponent },
       { path: 'recruiters', component:RecruitersComponent},
       {path:'jobcategory',component:JobCategoryComponent},
+      {path:'jobs',component:JobsComponent}
     ],
   },
   {
     path:'user/dashboard',component:UserDashboardComponent,
+    canActivate:[AuthGuard],
     children:[
       {path:"user-details",component:UserDetailsComponent},
       {path:"applied-jobs",component:AppliedJobsComponent},
       {path:"professional-details",component:ProfessionalDetailsComponent},
+      {path:"chat",component:ChatComponent},
     ]
   },
   {
     path:'recruiter/dashboard',component:RecruiterDashboardComponent,
+    canActivate:[AuthGuard],
     children:[
       {path:'recruiter-details',component:RecruiterDetailsComponent},
       {path:"company-details",component:CompanyDetailsComponent},
       {path:"post-job",component:PostJobComponent},
       {path:"manage-jobs",component:ManageJobsComponent},
-      {path:"applied-candidates",component:AppliedCandidatesComponent}
+      {path:"shortlisted",component:ShortListedComponent}
     ]
   }
 ];

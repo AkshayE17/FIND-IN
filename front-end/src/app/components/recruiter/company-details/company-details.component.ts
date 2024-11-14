@@ -5,10 +5,12 @@ import { Observable, Subject, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import Swal from 'sweetalert2';
-import { RecruiterService } from '../../../services/recruiterService';
 import { selectCompanyDetails } from '../../../state/recruiter/recruiter.selector';
 import { loadCompanyDetails, setCompanyDetails } from '../../../state/recruiter/recruiter.action';
 import { takeUntil } from 'rxjs/operators';
+import { AdminService } from '../../../services/admin.service';
+import { AuthService } from '../../../services/auth.service';
+import { RecruiterService } from '../../../services/recruiter.service';
 
 @Component({
   selector: 'app-company-details',
@@ -26,14 +28,14 @@ export class CompanyDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private subscription: Subscription = new Subscription();
 
-  constructor(private fb: FormBuilder, private store: Store, private recruiterService: RecruiterService) {}
-
+constructor(private fb: FormBuilder, private store: Store, private authService:AuthService,private adminService: AdminService,private recruiterService: RecruiterService) {}
+ 
   ngOnInit() {
     this.companyDetails$ = this.store.select(selectCompanyDetails);
     this.initForm();
 
-    const accessToken = this.recruiterService.getAccessToken();
-    const recruiterId = this.recruiterService.getRecruiterId();
+    const accessToken = this.authService.getRecruiterAccessToken();
+    const recruiterId = this.authService.getRecruiterId();
 
     if (accessToken && recruiterId) {
       this.store.dispatch(loadCompanyDetails({ accessToken, recruiterId }));
@@ -43,6 +45,7 @@ export class CompanyDetailsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(details => {
         if (details) {
+          console.log('Company details loaded:', details);
           this.hasDetails = true;
           this.companyForm.patchValue(details);
           this.isEditing = false;
@@ -63,7 +66,7 @@ export class CompanyDetailsComponent implements OnInit, OnDestroy {
       city: ['', Validators.required],
       country: ['', Validators.required],
       about: ['', [Validators.required, Validators.minLength(50)]],
-      logo: ['']
+      logo: [null]
     });
   }
 
@@ -71,6 +74,56 @@ export class CompanyDetailsComponent implements OnInit, OnDestroy {
     this.isEditing = true;
   }
 
+  onLogoChange(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      this.getPresignedUrlAndUploadLogo(file);
+    }
+  }
+
+  private getPresignedUrlAndUploadLogo(file: File) {
+    this.adminService.getUploadUrl(file.name, file.type)
+      .subscribe(
+        async (response) => {
+          const uploadUrl = response.url;
+
+          const cleanedUrl = uploadUrl.split('?')[0];
+  
+          try {
+            await this.uploadLogoToS3(uploadUrl, file);
+            this.companyForm.patchValue({ logo: cleanedUrl });
+  
+  
+          } catch (error) {
+            console.error('File upload failed:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'Failed to upload logo. Please try again later.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+        },
+        (error) => {
+          console.error('Error getting presigned URL:', error);
+          Swal.fire({
+            title: 'Error!',
+            text: 'Failed to get upload URL. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      );
+  }
+  
+  private async uploadLogoToS3(url: string, file: File): Promise<void> {
+    try {
+      await this.adminService.uploadFileToS3(url, file);
+    } catch (error) {
+      throw new Error('Upload to S3 failed');
+    }
+  }
+  
   cancelEditing() {
     Swal.fire({
       title: 'Are you sure?',
@@ -97,8 +150,8 @@ export class CompanyDetailsComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.companyForm.valid) {
       const companyDetails: ICompany = this.companyForm.value;
-      const accessToken = this.recruiterService.getAccessToken();
-      const recruiterId = this.recruiterService.getRecruiterId();
+      const accessToken = this.authService.getRecruiterAccessToken();
+      const recruiterId = this.authService.getRecruiterId();
 
       if (accessToken && recruiterId) {
         const submitSub = this.recruiterService.addOrUpdateCompanyDetails(companyDetails, accessToken, recruiterId)

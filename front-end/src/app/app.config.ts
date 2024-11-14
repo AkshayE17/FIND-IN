@@ -3,7 +3,7 @@ import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } fr
 import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { userReducer } from './state/user/user.reducer';
 import { recruiterReducer } from './state/recruiter/recruiter.reducer';
@@ -14,6 +14,9 @@ import { AdminEffects } from './state/admin/admin.effect';
 import { JobEffects } from './state/job/job.effect';
 import { jobReducer } from './state/job/job.reducer';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { TokenInterceptor } from './interceptors/token.interceptor';
+import { CookieService } from 'ngx-cookie-service';
+import { authInterceptor } from './interceptors/authentication.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -24,5 +27,12 @@ export const appConfig: ApplicationConfig = {
     ),
     provideEffects([UserEffects, RecruiterEffects, AdminEffects,JobEffects]),
     importProvidersFrom(HttpClientModule), provideAnimationsAsync(),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true,
+    },
+    provideHttpClient(withInterceptors([authInterceptor])),
+    CookieService
   ],
 };

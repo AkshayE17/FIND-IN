@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import Swal from 'sweetalert2';
 import { IRecruiter } from '../../../state/recruiter/recruiter.state';
-import { AdminService } from '../../../services/adminService';
-import { Observable, of, Subscription } from 'rxjs';
+import { AdminService } from '../../../services/admin.service';
+import { Observable, of, Subscription,Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-recruiters',
@@ -19,7 +21,8 @@ export class RecruitersComponent implements OnInit, OnDestroy {
   pageSize: number = 1;
   currentPage: number = 1;
   loading = false;
-  private subscriptions: Subscription[] = []; // Array to store subscriptions
+  private subscriptions: Subscription[] = []; 
+  private searchSubject = new Subject<string>();
 
   filters = {
     company: '',
@@ -39,7 +42,42 @@ export class RecruitersComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadRecruiters();
-  }
+    const searchSub = this.searchSubject
+    .pipe(
+      debounceTime(300), // Adjust delay as needed
+      distinctUntilChanged(),
+      switchMap((searchTerm) => {
+        this.filters.searchTerm = searchTerm;
+        return this.adminService.getAllRecruiters(
+          this.currentPage,
+          this.pageSize,
+          this.filters.searchTerm,
+          this.filters.company,
+          this.filters.startDate,
+          this.filters.endDate,
+          this.filters.isBlocked
+        );
+      })
+    )
+    .subscribe({
+      next: (data) => {
+        this.recruiters$ = of(data.recruiters);
+        this.totalRecruiters = data.total;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        Swal.fire('Error!', error.message, 'error');
+      }
+    });
+  
+  this.subscriptions.push(searchSub); // Add subscription to array
+}
+
+onSearch(event: Event) {
+  const searchTerm = (event.target as HTMLInputElement).value;
+  this.searchSubject.next(searchTerm);
+}
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
@@ -99,11 +137,6 @@ export class RecruitersComponent implements OnInit, OnDestroy {
     this.loadRecruiters(1);
   }
 
-  onSearch(event: Event) {
-    const searchTerm = (event.target as HTMLInputElement).value;
-    this.filters.searchTerm = searchTerm;
-    this.loadRecruiters(1);
-  }
 
   get totalPages(): number {
     return Math.ceil(this.totalRecruiters / this.pageSize);

@@ -2,16 +2,18 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
-import { RecruiterService } from '../../services/recruiterService';
+import { RecruiterService } from '../../services/recruiter.service';
 import { loginRecruiter, loginRecruiterSuccess, loginRecruiterFailure, addOrUpdateCompanyDetails, addOrUpdateCompanyDetailsSuccess, addOrUpdateCompanyDetailsFailure, loadCompanyDetails } from './recruiter.action';
 import { LoginResponse } from './recruiter.state';
 import { CookieService } from 'ngx-cookie-service';
+import { AuthService } from '../../services/auth.service';
 
 @Injectable()
 export class RecruiterEffects {
   constructor(
     private actions$: Actions,
     private recruiterService: RecruiterService,
+    private authService: AuthService,
     private cookieService: CookieService 
   ) {}
 
@@ -25,7 +27,7 @@ export class RecruiterEffects {
             loginRecruiterSuccess({
               recruiter: response.recruiter,
               accessToken: response.accessToken,
-              refreshToken: response.refreshToken
+              role:'recruiter'
             })
           ),
           catchError((error) => 
@@ -40,15 +42,14 @@ export class RecruiterEffects {
     this.actions$.pipe(
       ofType('[App] Initialize'), 
       map(() => {
-        const recruiter = this.recruiterService.getRecruiterData(); 
+        const recruiter = this.authService.getRecruiterData(); 
         const accessToken = this.cookieService.get('recruiterAccessToken');
-        const refreshToken = this.cookieService.get('recruiterRefreshToken');
 
-        if (recruiter && accessToken && refreshToken) {
+        if (recruiter && accessToken) {
           return loginRecruiterSuccess({
             recruiter,
             accessToken,
-            refreshToken,
+            role:'recruiter'
           });
         } else {
           return { type: '[Recruiter] No Action' };

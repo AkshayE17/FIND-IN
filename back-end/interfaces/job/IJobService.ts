@@ -20,6 +20,13 @@ export interface IJobService {
     search?: string,
     jobType?: string
   ): Promise<{ jobs: IJob[], total: number }>;
+  getRecruiterShortListedJobs(
+    recruiterId: string,
+    page: number,
+    pageSize: number,
+    search?: string,
+    jobType?: string
+  ): Promise<{ jobs: IJob[], total: number }>;
   getJobById(id: string): Promise<IJob | null>;
   updateJob(id: string, jobData: Partial<IJob>): Promise<IJob | null>;
   deleteJob(id: string): Promise<IJob | null>;
@@ -27,4 +34,5 @@ export interface IJobService {
   getAppliedJobs(userId: string): Promise<IJob[]>
   getCompanyIdByRecruiterId(recruiterId: string): Promise<string | null>;
   getJobsWithApplicants(recruiterId: string): Promise<IJob[]> ;
+  updateApplicationStatus(jobId: string, userId:string, status:"rejected"|"shortlisted"| "applied"): Promise<any>
 }

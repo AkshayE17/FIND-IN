@@ -1,67 +1,69 @@
-<!-- <div class="applied-candidates-container">
+<div *ngIf="isVisible" class="modal-overlay">
+  <div class="modal-wrapper">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Applied Candidates</h2>
+        <button class="close-button" (click)="close()">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="filters">
+          <select [(ngModel)]="statusFilter" (change)="filterApplicants()" class="status-filter">
+            <option value="all">All Status</option>
+            <option value="applied">Applied</option>
+            <option value="shortlisted">Shortlisted</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
 
-  <div class="job-carousel-container">
-    <div class="carousel-scroll" #scrollContainer>
-      <div *ngFor="let job of (jobs$ | async)" 
-           class="job-card" 
-           [class.active]="selectedJobId === job._id"
-           (click)="selectJob(job._id!)">
-        <h3>{{ job.jobTitle }}</h3>
-        <p>{{ job.jobType }} | {{ job.location }}</p>
-        <span class="applicant-count">{{ job.applicants?.length || 0 }} Applicants</span>
+        <div class="applicants-list">
+          <div *ngFor="let applicant of filteredApplicants" class="applicant-card">
+            <div class="applicant-info">
+              <h3>{{ applicant.userId.name }}</h3>
+              <p>{{ applicant.userId.email }}</p>
+              <p>{{ applicant.userId.mobile }}</p>
+              <p>Applied: {{ applicant.appliedDate | date:'mediumDate' }}</p>
+              
+              <!-- Only show professional details if they exist -->
+              <ng-container *ngIf="applicant.userId.professionalDetails">
+                <p>Title: {{ applicant.userId.professionalDetails.title }}</p>
+                <p>Skills: {{ applicant.userId.professionalDetails.skills.join(', ') }}</p>
+                <p>Experience: {{ applicant.userId.professionalDetails.experience }} years</p>
+                <p>Current Location: {{ applicant.userId.professionalDetails.currentLocation }}</p>
+                <p>Expected Salary: {{ applicant.userId.professionalDetails.expectedSalary | currency }}</p>
+                <p>About: {{ applicant.userId.professionalDetails.about }}</p>
+                <p *ngIf="applicant.userId.professionalDetails.resumeUrl">
+                  Resume available
+                </p>
+              </ng-container>
+            </div>
+            
+            <div class="applicant-actions">
+              <button
+                *ngIf="applicant.applicationStatus === 'applied'"
+                class="btn shortlist-btn"
+                (click)="updateStatus(applicant._id, 'shortlisted')"
+              >
+                Shortlist
+              </button>
+              <button
+                *ngIf="applicant.applicationStatus === 'applied'"
+                class="btn reject-btn"
+                (click)="updateStatus(applicant._id, 'rejected')"
+              >
+                Reject
+              </button>
+              <button
+                *ngIf="applicant.userId.professionalDetails?.resumeUrl"
+                class="btn view-resume-btn"
+                (click)="viewResume(applicant.userId.professionalDetails.resumeUrl)"
+              >
+                View Resume
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-
-  <div class="candidates-table-container">
-    <h2 *ngIf="selectedJob">Candidates for {{ selectedJob.jobTitle }}</h2>
-    
-    <table *ngIf="(candidates$ | async)?.length" class="candidates-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Experience</th>
-          <th>Current Role</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let candidate of (candidates$ | async)">
-          <td>{{ candidate.name }}</td>
-          <td>{{ candidate.email }}</td>
-          <td>{{ candidate.phone }}</td>
-          <td>{{ candidate.experience }} years</td>
-          <td>{{ candidate.currentRole }}</td>
-          <td>
-            <span [class]="'status-badge ' + candidate.status.toLowerCase()">
-              {{ candidate.status }}
-            </span>
-          </td>
-          <td class="actions-cell">
-            <button class="btn view-btn" (click)="viewProfile(candidate)">
-              View Profile
-            </button>
-            <button class="btn shortlist-btn" 
-                    *ngIf="candidate.status === 'PENDING'"
-                    (click)="updateStatus(candidate._id!, 'SHORTLISTED')">
-              Shortlist
-            </button>
-            <button class="btn reject-btn" 
-                    *ngIf="candidate.status === 'PENDING'"
-                    (click)="updateStatus(candidate._id!, 'REJECTED')">
-              Reject
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div *ngIf="!(candidates$ | async)?.length" class="no-candidates-message">
-      <p>No candidates have applied for this position yet.</p>
-    </div>
-  </div>
-</div>  -->
+</div>

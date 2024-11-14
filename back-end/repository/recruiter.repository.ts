@@ -1,37 +1,36 @@
-import Recruiter from '../models/Recruiter';
-import { IRecruiter } from '../models/Recruiter';
+import Recruiter, { IRecruiter } from '../models/Recruiter';
 import { IRecruiterRepository } from '../interfaces/recruiters/IRecruiterRepository';
+import { BaseRepository } from './base.repository';
 
-class RecruiterRepository implements IRecruiterRepository {
+class RecruiterRepository extends BaseRepository<IRecruiter> implements IRecruiterRepository {
+  constructor() {
+    super(Recruiter);
+  }
 
-  // Create a new recruiter
   async createRecruiter(recruiterData: IRecruiter): Promise<IRecruiter> {
     try {
-      const recruiter = new Recruiter(recruiterData);
-      return await recruiter.save();
+      return await this.create(recruiterData);  // Delegate to BaseRepository's create method
     } catch (error) {
-      console.error("Error creating recruiter", error);
-      throw new Error("Error creating recruiter");
+      console.error("Error in createRecruiter:", error);
+      throw new Error(`Error creating recruiter: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  // Find recruiter by email
-  async findRecruiterByEmail(email: string): Promise<IRecruiter | null> {
-    try {
-      return await Recruiter.findOne({ email });
-    } catch (error) {
-      console.error(`Error finding recruiter with email: ${email}`, error);
-      throw new Error("Error finding recruiter by email");
-    }
-  }
-
-  // Update recruiter details by ID
   async updateRecruiter(id: string, updateData: Partial<IRecruiter>): Promise<IRecruiter | null> {
     try {
-      return await Recruiter.findByIdAndUpdate(id, updateData, { new: true });
+      return await this.update(id, updateData);  // Delegate to BaseRepository's update method
     } catch (error) {
-      console.error(`Error updating recruiter with ID: ${id}`, error);
-      throw new Error("Error updating recruiter");
+      console.error("Error in updateRecruiter:", error);
+      throw new Error(`Error updating recruiter with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  async findRecruiterByEmail(email: string): Promise<IRecruiter | null> {
+    try {
+      return await this.findOne({ email });
+    } catch (error) {
+      console.error("Error in findRecruiterByEmail:", error);
+      throw new Error(`Error finding recruiter with email ${email}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

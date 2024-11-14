@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { JobService } from '../../services/jobService';
+import { JobService } from '../../services/job.service';
 import { createJob, loadJobs, loadJobsSuccess, loadJobFailure, updateJob, deleteJob, loadAllJobs, loadAllJobsSuccess } from './job.action';
 
 @Injectable()

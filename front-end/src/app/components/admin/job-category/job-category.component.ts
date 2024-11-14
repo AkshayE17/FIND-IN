@@ -1,15 +1,18 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { catchError, Observable, Subscription, throwError, of, map } from 'rxjs';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Observable, Subscription, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { IJobCategory } from '../../../state/job/job.state';
-import { AdminService } from '../../../services/adminService';
+import { AdminService } from '../../../services/admin.service';
 import Swal from 'sweetalert2';
+import { CommonModule } from '@angular/common';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-job-category',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [FormsModule,CommonModule,ReactiveFormsModule],
   templateUrl: './job-category.component.html',
   styleUrls: ['./job-category.component.scss'], 
 })
@@ -27,25 +30,39 @@ export class JobCategoryComponent implements OnInit, OnDestroy {
   pageSize = 5;
   totalCategories = 0;
   totalPages = 0;
-  private subscriptions = new Subscription(); // Add a Subscription property
+  private subscriptions = new Subscription();
+
+  private searchSubject = new Subject<string>();
 
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService 
   ) {
     this.categoryForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      imageUrl: ['']
+      name: ['', [Validators.required, this.nonWhitespaceValidator]],
+      description: ['', [Validators.required, this.nonWhitespaceValidator]],
+      imageUrl: ['', Validators.required],
     });
+    
   }
 
   ngOnInit() { 
     this.loadCategories();
+
+    this.subscriptions.add(
+      this.searchSubject.pipe(
+        debounceTime(300),  
+        distinctUntilChanged()  
+      ).subscribe((searchTerm) => {
+        this.searchTerm = searchTerm;
+        this.currentPage = 1;
+        this.loadCategories();
+      })
+    );
   }
 
   ngOnDestroy() {
-    this.subscriptions.unsubscribe(); // Unsubscribe from all subscriptions
+    this.subscriptions.unsubscribe();
   }
 
   loadCategories() {
@@ -60,50 +77,67 @@ export class JobCategoryComponent implements OnInit, OnDestroy {
     );
   }
 
-  onSubmit() {
+  onSearch(event: Event) {
+    const searchTerm = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(searchTerm); 
+  }
+
+  async onSubmit() {
     if (this.categoryForm.valid) {
-      const formData = new FormData();
-      if (this.categoryForm.get('name')?.value) formData.append('name', this.categoryForm.get('name')?.value);
-      if (this.categoryForm.get('description')?.value) formData.append('description', this.categoryForm.get('description')?.value);
-      if (this.selectedFile) {
-        formData.append('file', this.selectedFile, this.selectedFile.name);
-      } else if (this.categoryForm.get('imageUrl')?.value) {
-        formData.append('imageUrl', this.categoryForm.get('imageUrl')?.value);
-      }
+      try {
+        if (this.selectedFile) {
+          const uploadUrl = await this.adminService.getUploadUrl(this.selectedFile.name, this.selectedFile.type).toPromise();
+          if (uploadUrl) {
+            const { url } = uploadUrl;
+            await this.adminService.uploadFileToS3(url, this.selectedFile);
+            const imageUrl = url.split('?')[0];
+            this.categoryForm.get('imageUrl')?.setValue(imageUrl); // Ensure this field is updated before submitting
+          }
+        }
   
-      let operation;
-      if (this.editMode && this.selectedCategoryId) {
-        operation = this.adminService.updateJobCategory(this.selectedCategoryId, formData);
-      } else {
-        operation = this.adminService.createJobCategory(formData);
-      }
+        const formData = this.categoryForm.value;
+        let operation;
   
-      const submitSubscription = operation.pipe(
-        catchError((error) => {
-          console.error('Error occurred:', error);
+        if (this.editMode && this.selectedCategoryId) {
+          operation = this.adminService.updateJobCategory(this.selectedCategoryId, formData);
+        } else {
+          operation = this.adminService.createJobCategory(formData);
+        }  
+  
+        const submitSubscription = operation.pipe(
+          catchError((error) => {
+            Swal.fire({
+              title: 'Error!',
+              text: error.status === 409 ? 'This category already exists.' : 'An unexpected error occurred. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+            return throwError(error);
+          })
+        ).subscribe(() => {
+          this.resetForm();
+          this.loadCategories();
           Swal.fire({
-            title: 'Error!',
-            text: error.status === 409 ? 'This category already exists.' : 'An unexpected error occurred. Please try again.',
-            icon: 'error',
+            title: 'Success!',
+            text: this.editMode ? 'Category updated successfully!' : 'Category added successfully!',
+            icon: 'success',
             confirmButtonText: 'OK'
           });
-          return throwError(error);
-        })
-      ).subscribe(() => {
-        this.resetForm();
-        this.loadCategories();
+        });
+  
+        this.subscriptions.add(submitSubscription);
+      } catch (error) {
         Swal.fire({
-          title: 'Success!',
-          text: this.editMode ? 'Category updated successfully!' : 'Category added successfully!',
-          icon: 'success',
+          title: 'Error!',
+          text: 'Failed to upload image. Please try again.',
+          icon: 'error',
           confirmButtonText: 'OK'
         });
-      });
-
-      this.subscriptions.add(submitSubscription); // Add the subscription to the Subscription object
+      }
     }
   }
   
+
   editCategory(category: IJobCategory) {
     this.showForm = true;
     this.editMode = true;
@@ -115,7 +149,7 @@ export class JobCategoryComponent implements OnInit, OnDestroy {
     });
     this.imagePreview = category.imageUrl;
     this.selectedFile = null;
-  }  
+  }
 
   deleteCategory(category: IJobCategory) {
     Swal.fire({
@@ -128,9 +162,8 @@ export class JobCategoryComponent implements OnInit, OnDestroy {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        const deleteSubscription = this.adminService.deleteJobCategory(category.name).pipe(
+        const deleteSubscription = this.adminService.deleteJobCategory(category._id).pipe(
           catchError((error) => {
-            console.error('Error occurred:', error);
             Swal.fire({
               title: 'Error!',
               text: 'An unexpected error occurred while deleting the category.',
@@ -149,36 +182,32 @@ export class JobCategoryComponent implements OnInit, OnDestroy {
           });
         });
 
-        this.subscriptions.add(deleteSubscription); // Add delete operation subscription
+        this.subscriptions.add(deleteSubscription);
       }
     });
   }
-  
   onFileChange(event: Event) {
     const element = event.target as HTMLInputElement;
     if (element.files && element.files.length > 0) {
       this.selectedFile = element.files[0];
-
+  
       const reader = new FileReader();
       reader.onload = () => {
         this.imagePreview = reader.result as string;
       };
       reader.readAsDataURL(this.selectedFile);
+  
+      // Update the imageUrl form control immediately
+      this.categoryForm.get('imageUrl')?.setValue(this.selectedFile.name);  // Temporarily set it
     }
   }
-
+  
   resetForm() {
     this.categoryForm.reset();
     this.editMode = false;
     this.selectedFile = null;
     this.showForm = false;
     this.imagePreview = null;
-  }
-
-  onSearch(event: Event) {
-    this.searchTerm = (event.target as HTMLInputElement).value;
-    this.currentPage = 1;
-    this.loadCategories();
   }
 
   toggleForm() {
@@ -200,5 +229,12 @@ export class JobCategoryComponent implements OnInit, OnDestroy {
       this.currentPage--;
       this.loadCategories();
     }
+  }
+
+  // Custom validator to disallow whitespace-only inputs
+  nonWhitespaceValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { 'whitespace': true };
   }
 }

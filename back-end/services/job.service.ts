@@ -2,17 +2,15 @@ import { IJobService } from '../interfaces/job/IJobService';
 import { IJobRepository } from '../interfaces/job/IJobRepository';
 import { ICompanyRepository } from '../interfaces/company/ICompanyRepository';
 import { IJob } from '../models/job';
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import User, { IUser } from '../models/User';
-import { IUserRepository } from '../interfaces/users/IUserRepository';
 import { Messages } from '../constants/message.constants';
 
 export class JobService implements IJobService {
 
   constructor(
     private _jobRepository: IJobRepository,
-    private _companyRepository: ICompanyRepository,
-    private _userRepository: IUserRepository
+    private _companyRepository: ICompanyRepository
   ) {}
 
   // Create a new job
@@ -26,7 +24,7 @@ export class JobService implements IJobService {
       throw new Error(`${Messages.UNKNOWN_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-
+  
   // Get company ID by recruiter ID
   async getCompanyIdByRecruiterId(recruiterId: string): Promise<string | null> {
     try {
@@ -56,13 +54,13 @@ export class JobService implements IJobService {
   ): Promise<{ jobs: IJob[], total: number }> {
     try {
       return await this._jobRepository.getAllJobs(
-        page,
+        page, 
         pageSize,
         search,
-        jobType,
+        jobType, 
         category,
         startSalary,
-        endSalary,
+        endSalary, 
         location
       );
     } catch (error) {
@@ -92,6 +90,28 @@ export class JobService implements IJobService {
     try {
       const recruiterObjectId = new mongoose.Types.ObjectId(recruiterId) as unknown as mongoose.Schema.Types.ObjectId;
       return await this._jobRepository.getRecruiterJobs(
+        recruiterObjectId,
+        page,
+        pageSize,
+        search,
+        jobType
+      );
+    } catch (error) {
+      console.error(Messages.UNKNOWN_ERROR, error);
+      throw new Error(`${Messages.UNKNOWN_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  async getRecruiterShortListedJobs(
+    recruiterId: string,
+    page: number,
+    pageSize: number,
+    search?: string,
+    jobType?: string
+  ): Promise<{ jobs: IJob[], total: number }> {
+    try {
+      const recruiterObjectId = new mongoose.Types.ObjectId(recruiterId) as unknown as mongoose.Schema.Types.ObjectId;
+      return await this._jobRepository.getRecruiterShortListedJobs(
         recruiterObjectId,
         page,
         pageSize,
@@ -161,17 +181,24 @@ export class JobService implements IJobService {
   async applyForJob(jobId: string, userId: string): Promise<{ job: IJob | null, user: IUser | null }> {
     try {
       return await this._jobRepository.applyForJob(jobId, userId);
-    } catch (error) {
-      console.error(Messages.UNKNOWN_ERROR, error);
-      throw new Error(`${Messages.UNKNOWN_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
+    } catch (error: any) {
+      console.error('Error in service:', error);
+  
+      // Check for the specific error message
+      if (error.message === 'You have already applied for this job.') {
+        throw new Error('You have already applied for this job.');
+      } else {
+        throw new Error(Messages.UNKNOWN_ERROR);
+      }
     }
   }
+  
 
   // Get jobs with applicants for a recruiter
   async getJobsWithApplicants(recruiterId: string): Promise<IJob[]> {
     try {
       const recruiterObjectId = new mongoose.Types.ObjectId(recruiterId);
-      const jobs = await this._jobRepository.getapplicantsbyjob(recruiterObjectId);
+      const jobs = await this._jobRepository.getApplicantsByJob(recruiterObjectId);
 
       const jobsWithApplicants = await Promise.all(jobs.map(async (job) => {
         const populatedJob = await job.populate('applicants');
@@ -184,4 +211,36 @@ export class JobService implements IJobService {
       throw new Error(`${Messages.UNKNOWN_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+async updateApplicationStatus(jobId: string, userId:string, status:"rejected"|"shortlisted"| "applied"): Promise<any> {
+  try {
+  console.log('Updating application status...');
+    const job = await this._jobRepository.getJobById(jobId);
+
+    console.log('status:', status);
+    console.log('Job:', job);
+
+    if (!job) {
+      return null; 
+    }
+   console.log('userId:', userId);
+   const applicant = job.applicants.find((applicant) => applicant && applicant._id && applicant._id.toString() === userId);
+   console.log('Applicant:', applicant);
+   
+    
+    console.log('Applicant:', applicant);
+    if (!applicant) {
+      return null; 
+    }
+
+    applicant.applicationStatus = status; 
+    await this._jobRepository.updateJob(jobId, job); 
+
+    return job; 
+  } catch (error) {
+    console.error('Error in updateApplicationStatus service:', error);
+    throw new Error('Failed to update application status');
+  }
+}
+
 }

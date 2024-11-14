@@ -19,7 +19,7 @@ export class CompanyService implements ICompanyService {
         if (!updatedCompany) {
           console.error(Messages.UNKNOWN_ERROR); 
           throw new Error(Messages.UNKNOWN_ERROR);
-        }
+        }  
         console.log(Messages.COMPANY_UPDATED);  
         return updatedCompany;
       } else {

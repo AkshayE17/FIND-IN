@@ -2,9 +2,9 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2'; 
-import { UserService } from '../../../services/userService';
 import {  logoutUser } from '../../../state/user/user.action';
 import { Store } from '@ngrx/store';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-user-sidebar',
@@ -15,7 +15,7 @@ import { Store } from '@ngrx/store';
 })
 export class UserSidebarComponent {
 
-  constructor(private userService: UserService, private router: Router,private store:Store) {}
+  constructor(private authService: AuthService, private router: Router,private store:Store) {}
 
   logout() {
     Swal.fire({
@@ -28,7 +28,7 @@ export class UserSidebarComponent {
       confirmButtonText: 'Yes, log me out!',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.userService.clearUserData(); 
+        this.authService.clearUserData(); 
         this.store.dispatch(logoutUser());
         Swal.fire({
           icon: 'success',

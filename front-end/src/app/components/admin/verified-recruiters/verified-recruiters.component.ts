@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import Swal from 'sweetalert2';
 import { IRecruiter } from '../../../state/recruiter/recruiter.state';
-import { AdminService } from '../../../services/adminService';
+import { AdminService } from '../../../services/admin.service';
 import { Router } from '@angular/router';
-import { of, Observable, Subscription } from 'rxjs';
+import { of, Observable, Subscription ,Subject} from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-verified-recruiters',
@@ -31,12 +32,42 @@ export class VerifyRecruitersComponent implements OnInit, OnDestroy {
 
   isFiltersVisible = false;
   private subscriptions: Subscription = new Subscription();
+  private searchSubject = new Subject<string>();
 
   constructor(private adminService: AdminService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadPendingRecruiters();
+    const searchSubscription = this.searchSubject.pipe(
+      debounceTime(300), // Adjust the debounce time as needed
+      distinctUntilChanged(),
+      switchMap((term: string) => {
+        this.filters.searchTerm = term;
+        this.currentPage = 1; 
+        return this.adminService.getPendingRecruiters(
+          this.currentPage,
+          this.pageSize,
+          this.filters.searchTerm,
+          this.filters.company,
+          this.filters.startDate,
+          this.filters.endDate
+        );
+      })
+    ).subscribe({
+      next: (data) => {
+        this.pendingRecruiters$ = of(data.recruiters);
+        this.totalRecruiters = data.total;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        Swal.fire('Error!', error.message, 'error');
+      }
+    });
+    
+    this.subscriptions.add(searchSubscription);
   }
+
 
   loadPendingRecruiters(page: number = 1) {
     this.loading = true;
@@ -81,11 +112,12 @@ export class VerifyRecruitersComponent implements OnInit, OnDestroy {
     this.loadPendingRecruiters(1);
   }
 
+
   onSearch(event: Event) {
     const searchTerm = (event.target as HTMLInputElement).value;
-    this.filters.searchTerm = searchTerm;
-    this.loadPendingRecruiters(1);
+    this.searchSubject.next(searchTerm); // Emit search term to Subject
   }
+
 
   get totalPages(): number {
     return Math.ceil(this.totalRecruiters / this.pageSize);

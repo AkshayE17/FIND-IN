@@ -5,6 +5,8 @@ import { AdminService } from '../services/admin.service';
 import { JobCategoryService } from '../services/jobcategory.service';
 import AdminRepository from '../repository/admin.repository'; 
 import JobCategoryRepository from '../repository/jobCategory.repository';
+import { authenticateToken } from '../middlewares/authmiddleware';
+import { authorizeRole } from '../middlewares/authorizeRole';
 
 
 const adminService = new AdminService(AdminRepository);
@@ -19,16 +21,16 @@ const adminRouter = Router();
 
 adminRouter.post('/login', adminController.login.bind(adminController));
 adminRouter.post('/register', adminController.createAdmin.bind(adminController));
-adminRouter.get('/pending', adminController.getPendingRecruiters.bind(adminController));
-adminRouter.put('/approve', adminController.approveRecruiter.bind(adminController));
-adminRouter.put('/reject', adminController.rejectRecruiter.bind(adminController));
-adminRouter.get('/recruiters', adminController.getRecruiters.bind(adminController));
-adminRouter.get('/users', adminController.getUsers.bind(adminController));
-adminRouter.get('/job-categories', jobCategoryController.getJobCategories.bind(jobCategoryController));
-adminRouter.post('/job-category', jobCategoryController.createJobCategory.bind(jobCategoryController));
-adminRouter.put('/job-category/:id',jobCategoryController.updateJobCategory.bind(jobCategoryController));
-adminRouter.delete('/job-category/:id',jobCategoryController.deleteJobCategory.bind(jobCategoryController));
-adminRouter.put('/recruiter-block', adminController.blockOrUnblockRecruiter.bind(adminController));
-adminRouter.put('/user-block', adminController.blockOrUnblockUser.bind(adminController));
-
+adminRouter.get('/pending',authenticateToken,authorizeRole('admin'), adminController.getPendingRecruiters.bind(adminController));
+adminRouter.put('/approve',authenticateToken,authorizeRole('admin'), adminController.approveRecruiter.bind(adminController));
+adminRouter.put('/reject', authenticateToken,authorizeRole('admin'),adminController.rejectRecruiter.bind(adminController));
+adminRouter.get('/recruiters',authenticateToken,authorizeRole('admin'), adminController.getRecruiters.bind(adminController));
+adminRouter.get('/users',authenticateToken,authorizeRole('admin'), adminController.getUsers.bind(adminController));
+adminRouter.get('/job-categories',authenticateToken,authorizeRole('admin'), jobCategoryController.getJobCategories.bind(jobCategoryController));
+adminRouter.post('/job-category',authenticateToken,authorizeRole('admin'), jobCategoryController.createJobCategory.bind(jobCategoryController));
+adminRouter.put('/job-category/:id',authenticateToken,authorizeRole('admin'),jobCategoryController.updateJobCategory.bind(jobCategoryController));
+adminRouter.delete('/job-category/:id',authenticateToken,authorizeRole('admin'),jobCategoryController.deleteJobCategory.bind(jobCategoryController));
+adminRouter.put('/recruiter-block',authenticateToken,authorizeRole('admin'), adminController.blockOrUnblockRecruiter.bind(adminController));
+adminRouter.put('/user-block',authenticateToken,authorizeRole('admin'), adminController.blockOrUnblockUser.bind(adminController));
+adminRouter.post('/generate-upload-url',authorizeRole('admin'), adminController.generatePredefinedUrl.bind(adminController));
 export default adminRouter;

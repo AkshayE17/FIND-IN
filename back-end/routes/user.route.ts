@@ -8,14 +8,15 @@ import { JobService } from "../services/job.service";
 import companyRepository from "../repository/company.repository";
 import { OtpService } from "../services/otp.service";
 import otpRepository from "../repository/otp.repository";
-import userRepository from "../repository/user.repository";
 import { ProfessionalDetailsController } from "../controllers/professionalDetails.controller";
 import { ProfessionalDetailsService } from "../services/professionalDetails.service";
 import professionalDetailsRepository from "../repository/professionalDetails.repository";
+import { authenticateToken } from "../middlewares/authmiddleware";
+import { authorizeRole } from "../middlewares/authorizeRole";
 
 const userService = new UserService(UserRepository);
 const otpService= new OtpService(otpRepository);
-const jobService=new JobService(jobRepository,companyRepository,userRepository);
+const jobService=new JobService(jobRepository,companyRepository);
 const professionalDetailsService = new ProfessionalDetailsService(professionalDetailsRepository);
 const userController = new UserController(userService,otpService);
 const jobController=new JobController(jobService);
@@ -24,15 +25,17 @@ const professionalDetailsController=new ProfessionalDetailsController(profession
 const userRouter = Router();
 
 
-userRouter.post('/register', userController.createUser.bind(userController));
+userRouter.post('/register',authenticateToken,authorizeRole('user'), userController.createUser.bind(userController));
 userRouter.post('/login', userController.login.bind(userController));
 userRouter.post('/verify-otp',userController.verifyOtp.bind(userController));
-userRouter.get('/jobs',jobController.getAllJobs.bind(jobController));
-userRouter.get('/job/:id',jobController.getJobById.bind(jobController));
-userRouter.post('/job/:jobId/apply',jobController.applyForJob.bind(jobController));
-userRouter.get('/applied/:userId',jobController.appliedJobs.bind(jobController));
-userRouter.put('/professional-details/:id', professionalDetailsController.create.bind(professionalDetailsController));
-userRouter.get('/professional-details/:id', professionalDetailsController.getByUserId.bind(professionalDetailsController));
+userRouter.get('/jobs',authorizeRole('user'),jobController.getAllJobs.bind(jobController));
+userRouter.get('/job/:id',authorizeRole('user'),jobController.getJobById.bind(jobController));
+userRouter.post('/job/:jobId/apply',authenticateToken,authorizeRole('user'), jobController.applyForJob.bind(jobController));
+userRouter.get('/applied/:userId',authenticateToken,authorizeRole('user'), jobController.appliedJobs.bind(jobController));
+userRouter.post('/refresh-token',userController.refreshToken.bind(userController));
+userRouter.put('/professional-details/:id',authenticateToken,authorizeRole('user'),  professionalDetailsController.update.bind(professionalDetailsController));
+userRouter.get('/professional-details/:id',authenticateToken,authorizeRole('user'), professionalDetailsController.getByUserId.bind(professionalDetailsController));
+userRouter.post('/professional-details',authenticateToken,authorizeRole('user'),  professionalDetailsController.create.bind(professionalDetailsController));
 
 
 export default userRouter;

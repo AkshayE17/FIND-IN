@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { JobService } from '../../../services/jobService';
-import { UserService } from '../../../services/userService';
+import { JobService } from '../../../services/job.service';
 import { IJobResponse } from '../../../state/job/job.state';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-applied-jobs',
@@ -18,16 +18,16 @@ export class AppliedJobsComponent implements OnInit, OnDestroy {
   expandedIndex: number = -1;
   private unsubscribe$ = new Subject<void>();
 
-  constructor(private jobService: JobService, private userService: UserService) {}
+  constructor(private jobService: JobService,private authService:AuthService) {}
 
   ngOnInit(): void {
     this.fetchAppliedJobs();
   }
 
   fetchAppliedJobs(): void {
-    const userId = this.userService.getUserId();
+    const userId = this.authService.getUserId();
     this.jobService.getAppliedJobs(userId)
-      .pipe(takeUntil(this.unsubscribe$))  // Unsubscribe when the component is destroyed
+      .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         (jobs: IJobResponse[]) => {
           this.appliedJobs = jobs;

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { JobService } from '../../../services/jobService';
+import { JobService } from '../../../services/job.service';
 import { ActivatedRoute } from '@angular/router';
 import { IJobResponse } from '../../../state/job/job.state';
 import Swal from 'sweetalert2';
@@ -8,9 +8,9 @@ import { FooterComponent } from '../../common/footer/footer.component';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../../services/userService';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-jobs-details',
@@ -22,13 +22,13 @@ import { takeUntil } from 'rxjs/operators';
 export class JobsDetailsComponent implements OnInit, OnDestroy {
   jobId: string;
   job: IJobResponse | null = null;
-  private unsubscribe$ = new Subject<void>(); // Subject to trigger unsubscription
+  private unsubscribe$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private jobService: JobService,
     private router: Router,
-    private userService: UserService
+    private authService: AuthService
   ) {
     this.jobId = this.route.snapshot.paramMap.get('id')!;
   }
@@ -63,9 +63,10 @@ export class JobsDetailsComponent implements OnInit, OnDestroy {
   }
 
   applyForJob() {
-    const userId = this.userService.getUserId();
+    const userId = this.authService.getUserId();
+  
     this.jobService.applyForJob(this.jobId, userId)
-      .pipe(takeUntil(this.unsubscribe$))  // Unsubscribe on component destruction
+      .pipe(takeUntil(this.unsubscribe$))
       .subscribe(
         () => {
           this.router.navigate(['/']);
@@ -78,15 +79,27 @@ export class JobsDetailsComponent implements OnInit, OnDestroy {
         },
         (error) => {
           console.error('Error applying for job:', error);
-          Swal.fire({
-            title: 'Error!',
-            text: 'Could not apply for the job. Please try again later.',
-            icon: 'error',
-            confirmButtonText: 'Okay'
-          });
+  
+          if (error.status === 409 && error.error.message === 'You have already applied for this job.') {
+            Swal.fire({
+              title: 'Error!',
+              text: 'You have already applied for this job.',
+              icon: 'warning',
+              confirmButtonText: 'Okay'
+            });
+          } else {
+            Swal.fire({
+              title: 'Error!',
+              text: 'Could not apply for the job. Please try again later.',
+              icon: 'error',
+              confirmButtonText: 'Okay'
+            });
+          }
         }
       );
   }
+  
+  
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();

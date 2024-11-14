@@ -6,11 +6,12 @@ import { FooterComponent } from '../../common/footer/footer.component';
 import { selectAllJobs } from '../../../state/job/job.selector';
 import { Store } from '@ngrx/store';
 import { IJob, JobState } from '../../../state/job/job.state';
-import { loadAllJobs } from '../../../state/job/job.action';
-import { JobService } from '../../../services/jobService';
+import { JobService } from '../../../services/job.service';
 import { Observable, of, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
+import { UserService } from '../../../services/userService';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-jobs',
@@ -39,9 +40,9 @@ export class JobComponent implements OnInit, OnDestroy {
   categories = ['Technology', 'Marketing', 'Sales', 'Design', 'Finance', 'Other'];
   isFiltersVisible = false;
 
-  private unsubscribe$ = new Subject<void>(); // Subject to trigger unsubscription
+  private unsubscribe$ = new Subject<void>();
 
-  constructor(private store: Store<JobState>, private router: Router, private jobService: JobService) {
+  constructor(private store: Store<JobState>, private router: Router, private jobService: JobService,private userService: UserService) {
     this.jobs$ = this.store.select(selectAllJobs);
   }
 
@@ -62,7 +63,7 @@ export class JobComponent implements OnInit, OnDestroy {
       this.filters.endSalary,
       this.filters.location
     )
-    .pipe(takeUntil(this.unsubscribe$))  // Unsubscribe on component destruction
+    .pipe(takeUntil(this.unsubscribe$))  
     .subscribe({
       next: (data) => {
         this.jobs$ = of(data.jobs);
@@ -116,11 +117,28 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   applyForJob(jobId: string) {
-    this.router.navigate(['/user/job-details', jobId]);
+    this.userService.getProfessionalDetails().subscribe((detailsExist) => {
+      console.log('Professional details exist:', detailsExist);
+      if (Array.isArray(detailsExist)&&detailsExist.length > 0) {
+        this.router.navigate(['/user/job-details', jobId]);
+      } else {
+        Swal.fire({
+          title: 'Complete Professional Details',
+          text: 'Please complete your professional details to apply for jobs. Would you like to add them now?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, add details',
+          cancelButtonText: 'Not now',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.router.navigate(['/user/dashboard/professional-details']);
+          }
+        });
+      }
+    });
   }
-
+  
   ngOnDestroy(): void {
-    // Trigger the unsubscription when the component is destroyed
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
   }

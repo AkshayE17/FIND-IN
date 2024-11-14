@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { CookieService } from 'ngx-cookie-service';
 import Swal from 'sweetalert2';
-import { RecruiterService } from '../../../services/recruiterService';
 import { logoutRecruiter } from '../../../state/recruiter/recruiter.action';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-recruiter-sidebar',
@@ -18,7 +17,7 @@ export class RecruiterSidebarComponent {
 
 
   constructor(
-    private recruiterService:RecruiterService,
+    private authService:AuthService,
     private store: Store,
     private router: Router
   ) {}
@@ -35,7 +34,7 @@ export class RecruiterSidebarComponent {
     }).then((result) => {
       if (result.isConfirmed) {
         
-        this.recruiterService.clearRecruiterData(); 
+        this.authService.clearRecruiterData(); 
         this.store.dispatch(logoutRecruiter());
         Swal.fire({
           icon: 'success',

@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { logoutUser } from '../../../state/user/user.action';
 import { Store } from '@ngrx/store';
-import { AdminService } from '../../../services/adminService';
+import { AuthService } from '../../../services/auth.service';
 
 
 @Component({
@@ -15,7 +15,7 @@ import { AdminService } from '../../../services/adminService';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-  constructor(private store:Store,private adminService:AdminService,private router:Router){}
+  constructor(private store:Store,private authService:AuthService,private router:Router){}
 
   logout() {
     Swal.fire({
@@ -28,7 +28,7 @@ export class HeaderComponent {
       confirmButtonText: 'Yes, log me out!',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.adminService.clearAdminData(); 
+        this.authService.clearAdminData(); 
         this.store.dispatch(logoutUser());
         Swal.fire({
           icon: 'success',

@@ -22,5 +22,9 @@ export class UserDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.user$.subscribe((user) => {
+      console.log("User details:", user);
+    });
   }
+  
 }

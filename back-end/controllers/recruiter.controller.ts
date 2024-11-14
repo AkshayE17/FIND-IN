@@ -19,7 +19,7 @@ export class RecruiterController implements IRecruiterController {
       res.status(HttpStatus.CREATED).json({
         message: Messages.RECRUITER_CREATED,
         recruiter,
-      });
+      });  
     } catch (error: unknown) {
       console.error('Error in registering recruiter:', error);
       if (error instanceof Error) {
@@ -41,14 +41,7 @@ export class RecruiterController implements IRecruiterController {
         maxAge: parseInt(process.env.REFRESH_TOKEN_MAX_AGE as string, 10),
       });
 
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: parseInt(process.env.ACCESS_TOKEN_MAX_AGE as string, 10),
-      });
-
       res.status(HttpStatus.OK).json({
-        refreshToken,
         accessToken,
         recruiter,
       });

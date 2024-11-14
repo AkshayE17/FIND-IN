@@ -26,7 +26,7 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   error$: Observable<string | null>;
   user$: Observable<IUser | null>;
 
-  private destroy$ = new Subject<void>(); // Subject to manage unsubscription
+  private destroy$ = new Subject<void>();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -44,7 +44,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Subscribe to error and user observables
     this.error$.pipe(takeUntil(this.destroy$)).subscribe((errorMessage) => {
       if (errorMessage) {
         this.showErrorAlert(errorMessage);
@@ -60,7 +59,6 @@ export class UserLoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Clean up subscriptions to avoid memory leaks
     this.destroy$.next();
     this.destroy$.complete();
   }

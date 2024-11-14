@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { catchError, throwError } from 'rxjs';
 import { IRecruiter } from '../state/recruiter/recruiter.state';
-import { IAdmin } from '../state/admin/admin.state';
 import { IJobCategory } from '../state/job/job.state';
 import { IUser } from '../state/user/user.state';
-import { CookieService } from 'ngx-cookie-service';
 import { LoginResponse } from '../state/admin/admin.state';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,27 +14,19 @@ import { LoginResponse } from '../state/admin/admin.state';
 export class AdminService {
   private apiUrl = 'http://localhost:8888';
 
-  constructor(private http: HttpClient, private cookieService: CookieService) {}
+  constructor(private http: HttpClient,private  authService:AuthService) {}
 
   login(credentials: { email: string; password: string }) {
     return this.http.post<LoginResponse>(`${this.apiUrl}/admin/login`, credentials).pipe(
       map((response: LoginResponse) => {
-        this.storeAdminData(response.admin);
-        this.storeTokens(response.accessToken, response.refreshToken);
+        this.authService.storeAdminData(response.admin);
+        this.authService.storeAdminTokens(response.accessToken, response.refreshToken);
         return response;
       })
     );
   }
 
-  private storeAdminData(admin: IAdmin) {
-    this.cookieService.set('admin', JSON.stringify(admin), { path: '/' });
-  }
-
-  private storeTokens(accessToken: string, refreshToken: string) {
-    this.cookieService.set('AdminAccessToken', accessToken, { path: '/' });
-    this.cookieService.set('AdminRefreshToken', refreshToken, { path: '/' });
-  }
-
+  
   getPendingRecruiters(
     page: number,
     pageSize: number,
@@ -174,15 +165,71 @@ getAllUsers(
     return this.http.put<IJobCategory>(`${this.apiUrl}/admin/job-category/${id}`, data);
   }
 
-  deleteJobCategory(id: string | null): Observable<void> {
+  deleteJobCategory(id: string |undefined | null): Observable<void> {
     console.log("entering the delete category service")
     return this.http.delete<void>(`${this.apiUrl}/admin/job-category/${id}`);
   }
   
+ 
 
-  clearAdminData() {
-    this.cookieService.delete('admin', '/');
-    this.cookieService.delete('AdminAccessToken', '/');
-    this.cookieService.delete('AdminRefreshToken', '/');
+
+
+  getUploadUrl(fileName: string, fileType: string): Observable<{ url: string }> {
+    console.log('Getting upload URL for:', { fileName, fileType });
+    return this.http.post<{ url: string }>(
+      `${this.apiUrl}/admin/generate-upload-url`, 
+      { fileName, fileType }
+    ).pipe(
+      tap(response => console.log('Got presigned URL:', response)),
+      catchError(error => {
+        console.error('Error getting upload URL:', {
+          status: error.status,
+          message: error.message,
+          error: error
+        });
+        throw error;
+      })
+    );
   }
+  
+  uploadFileToS3(url: string, file: File): Promise<void> {
+    console.log('Uploading file with:', {
+      url,
+      fileType: file.type,
+      fileSize: file.size,
+      fileName: file.name
+    });
+  
+    return fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    })
+    .then(async response => {
+      if (!response.ok) {
+        // Log more error details
+        const errorText = await response.text();
+        const headersMap = new Map();
+        response.headers.forEach((value, name) => {
+          headersMap.set(name, value);
+        });
+        console.error('Upload failed with:', {
+          status: response.status,
+          statusText: response.statusText,
+          responseBody: errorText,
+          headers: Object.fromEntries(headersMap)
+        });
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      }
+      return;
+    })
+    .catch(error => {
+      console.error('Error during file upload:', error);
+      throw error;
+    });
+  }
+  
+
 }

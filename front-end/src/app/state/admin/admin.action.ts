@@ -9,7 +9,7 @@ export const loginAdmin = createAction(
 
 export const loginAdminSuccess = createAction(
   '[Admin] Login Success',
-  props<{ admin: IAdmin, accessToken: string; refreshToken: string }>()
+  props<{ admin: IAdmin, accessToken: string , role:string}>()
 );
 
 export const loginAdminFailure = createAction(
@@ -19,3 +19,5 @@ export const loginAdminFailure = createAction(
 
 
 export const logoutAdmin = createAction('[Admin] Logout');
+
+export const adminInitializeApp = createAction('[App] Initialize');

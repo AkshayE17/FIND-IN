@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { userInitializeApp } from './state/recruiter/recruiter.action';
 import { recruiterInitializeApp } from './state/user/user.action';
 import { Store } from '@ngrx/store';
+import { adminInitializeApp } from './state/admin/admin.action';
 
 @Component({
   selector: 'app-root',
@@ -19,5 +20,6 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.store.dispatch(userInitializeApp());
     this.store.dispatch(recruiterInitializeApp());
+    this.store.dispatch(adminInitializeApp());
 }
 }

@@ -28,3 +28,12 @@ export const selectProfessionalDetailsLoading = createSelector(
   (state: UserState) => state.loading
 );
 
+export const selectUserAccessToken=createSelector(
+  selectUserState,
+  (state:UserState)=>state.accessToken
+)
+
+export const selectUserRole=createSelector(
+  selectUserState,
+  (state:UserState)=>state.role
+)

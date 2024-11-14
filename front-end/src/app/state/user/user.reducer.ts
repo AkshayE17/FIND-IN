@@ -9,11 +9,11 @@ export const userReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(UserActions.loginUserSuccess, (state, { user, accessToken, refreshToken }) => ({
+  on(UserActions.loginUserSuccess, (state, { user, accessToken}) => ({
     ...state,
     user,
     accessToken,
-    refreshToken,
+    role:'user',
     loading: false,
     error: null,
   })),
