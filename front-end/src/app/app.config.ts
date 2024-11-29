@@ -27,11 +27,6 @@ export const appConfig: ApplicationConfig = {
     ),
     provideEffects([UserEffects, RecruiterEffects, AdminEffects,JobEffects]),
     importProvidersFrom(HttpClientModule), provideAnimationsAsync(),
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true,
-    },
     provideHttpClient(withInterceptors([authInterceptor])),
     CookieService
   ],

@@ -1,0 +1,126 @@
+<div class="chat-container">
+  <!-- Chat Rooms List -->
+  <div class="chat-rooms-list" [class.mobile-hidden]="isMobileView && !isRoomListVisible">
+    <div class="chat-list-header">
+      <h2>Chats</h2>
+    </div>
+    
+    <div class="search-box">
+      <input type="text" placeholder="Search chats..." />
+    </div>
+    
+    <div class="rooms">
+      <div 
+        *ngFor="let room of chatRooms" 
+        class="room-item"
+        [class.active]="selectedChatRoom?._id === room._id"
+        (click)="selectChatRoom(room)"
+      >
+        <!-- User Avatar -->
+        <div class="avatar">
+          <img 
+            [src]="getOtherUser(room).imageUrl || '/assets/default-avatar.png'" 
+            alt="User Avatar"
+          >
+          <span *ngIf="room.unseenCount" class="unseen-badge">
+            {{ room.unseenCount }}
+          </span>
+        </div>
+        
+        <!-- User Info -->
+        <div class="room-details">
+          <div class="room-header">
+            <h3>{{ getOtherUser(room).name }}</h3>
+            <span class="timestamp">
+              {{ room.lastMessage?.createdAt | date:'shortTime' }}
+            </span>
+          </div>
+          <div class="room-footer">
+            <!-- <p class="last-message">
+              {{ room.lastMessage?.text || 'No messages yet' }}
+            </p>
+             -->
+            <!-- Typing Indicator -->
+            <div *ngIf="room.isTyping" class="typing-indicator">
+              Typing...
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Window -->
+  <div class="chat-window" [class.mobile-hidden]="isMobileView && isRoomListVisible">
+    <ng-container *ngIf="selectedChatRoom; else noRoomSelected">
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <button *ngIf="isMobileView" class="back-button" (click)="toggleRoomList()">
+          ← Back
+        </button>
+        <div class="user-info">
+          <img 
+            [src]="getOtherUser(selectedChatRoom).imageUrl || '/assets/default-avatar.png'" 
+            alt="User Avatar"
+          >
+          <div class="user-details">
+            <span class="name">{{ getOtherUser(selectedChatRoom).name }}</span>
+            <span *ngIf="selectedChatRoom.isTyping" class="status typing">
+              Typing...
+            </span>
+          </div>
+        </div>
+        <!-- Video Call Button -->
+        <button class="video-call-button" (click)="initiateVideoCall()">
+          📹 Start Video Call
+        </button>
+      </div>
+      
+
+      <!-- Messages Container -->
+      <div #messagesContainer class="messages-container">
+        <div 
+          *ngFor="let message of messages" 
+          class="message"
+          [class.sent]="message.senderId === currentUserId"
+          [class.received]="message.senderId !== currentUserId"
+        >
+          <div class="message-content">
+            <span class="text">{{ message.text }}</span>
+            <div class="message-meta">
+              <span class="timestamp">
+                {{ message.createdAt | date:'shortTime' }}
+              </span>
+              <span *ngIf="message.seen && message.senderId === currentUserId" class="seen-indicator">
+                ✓✓
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <div class="message-input">
+        <div class="input-container">
+          <input 
+            type="text" 
+            [(ngModel)]="newMessageText" 
+            (input)="onTyping()"
+            (keyup.enter)="sendMessage()"
+            placeholder="Type a message..."
+          >
+          <button (click)="sendMessage()">
+            <i class="send-icon">➤</i>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noRoomSelected>
+      <div class="no-room-selected">
+        <h2>Select a chat to start messaging</h2>
+      </div>
+    </ng-template>
+  </div>
+</div>
+<div id="video-container"></div>

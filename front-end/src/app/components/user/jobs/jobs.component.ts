@@ -5,12 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { FooterComponent } from '../../common/footer/footer.component';
 import { selectAllJobs } from '../../../state/job/job.selector';
 import { Store } from '@ngrx/store';
-import { IJob, JobState } from '../../../state/job/job.state';
+import { IJob, IJobResponse, JobState } from '../../../state/job/job.state';
 import { JobService } from '../../../services/job.service';
 import { Observable, of, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-import { takeUntil } from 'rxjs/operators';
-import { UserService } from '../../../services/userService';
+import { catchError, debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
+import { UserService } from '../../../services/user.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -21,7 +21,7 @@ import Swal from 'sweetalert2';
   styleUrls: ['./jobs.component.scss']
 })
 export class JobComponent implements OnInit, OnDestroy {
-  jobs$: Observable<IJob[]>;
+  jobs$: Observable<IJobResponse[]>;
   totalJobs: number = 0;
   pageSize: number = 5;
   currentPage: number = 1;
@@ -41,52 +41,79 @@ export class JobComponent implements OnInit, OnDestroy {
   isFiltersVisible = false;
 
   private unsubscribe$ = new Subject<void>();
+  private searchSubject = new Subject<string>();
 
-  constructor(private store: Store<JobState>, private router: Router, private jobService: JobService,private userService: UserService) {
-    this.jobs$ = this.store.select(selectAllJobs);
+  constructor(private store: Store<JobState>, private router: Router, private jobService: JobService, private userService: UserService) {
+    this.jobs$ = this.store.select(selectAllJobs).pipe(
+      map((jobs: IJob[]) =>
+        jobs.map((job) => ({
+          ...job,
+          recruiterId: job.recruiterId,
+          companyId: job.companyId, 
+          applicants: job.applicants?.map(applicant => applicant._id) ?? [],
+        }) as IJobResponse)
+      )
+    );
   }
 
   ngOnInit(): void {
     this.loadJobs();
-  }
-
-  loadJobs(page: number = 1) {
-    this.loading = true;
-
-    this.jobService.getAllJobs(
-      page,
-      this.pageSize,
-      this.filters.search,
-      this.filters.jobType,
-      this.filters.category,
-      this.filters.startSalary,
-      this.filters.endSalary,
-      this.filters.location
-    )
-    .pipe(takeUntil(this.unsubscribe$))  
-    .subscribe({
-      next: (data) => {
-        this.jobs$ = of(data.jobs);
-        this.totalJobs = data.total;
-        this.currentPage = page;
-        this.loading = false;
-      },
-      error: (error) => {
-        this.loading = false;
-        console.error('Error loading jobs:', error);
-      }
+     this.searchSubject.pipe(
+      debounceTime(300), 
+      distinctUntilChanged(), 
+      takeUntil(this.unsubscribe$)
+    ).subscribe((searchValue) => {
+      this.filters.search = searchValue;
+      this.loadJobs(1); 
     });
   }
 
+  loadJobs(page: number = 1): void {
+    this.loading = true;
+    this.jobService
+      .getAllJobs(
+        page,
+        this.pageSize,
+        this.filters.search,
+        this.filters.jobType,
+        this.filters.category,
+        this.filters.startSalary,
+        this.filters.endSalary,
+        this.filters.location
+      )
+      .pipe(
+        takeUntil(this.unsubscribe$),
+        map((data) => ({
+          ...data,
+          jobs: data.jobs.map((job) => ({
+            ...job,
+            recruiterId: job.recruiterId,
+            companyId: job.companyId,
+            applicants: job.applicants?.map((applicant) => applicant._id) ?? [],
+          }) as IJobResponse),
+        }))
+      )
+      .subscribe({
+        next: (data) => {
+          this.jobs$ = of(data.jobs);
+          this.totalJobs = data.total;
+          this.currentPage = page;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading jobs:', error);
+          this.loading = false;
+        },
+      });
+  }
   toggleFilters() {
     this.isFiltersVisible = !this.isFiltersVisible;
   }
-
-  onSearch(event: Event) {
-    const search = (event.target as HTMLInputElement).value;
-    this.filters.search = search;
-    this.loadJobs(1);
+  onSearch(event: Event): void {
+    const searchValue = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(searchValue); 
   }
+
 
   applyFilters() {
     this.currentPage = 1;
@@ -117,11 +144,47 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   applyForJob(jobId: string) {
-    this.userService.getProfessionalDetails().subscribe((detailsExist) => {
-      console.log('Professional details exist:', detailsExist);
-      if (Array.isArray(detailsExist)&&detailsExist.length > 0) {
+    this.userService.getProfessionalDetails().pipe(
+      catchError((error) => {
+        console.error('Error fetching professional details:', error);
+        if (error.status === 401) {
+      
+          Swal.fire({
+            title: 'Login Required',
+            text: 'You need to log in to apply for jobs. Would you like to log in now?',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, log in',
+            cancelButtonText: 'Not now',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              this.router.navigate(['/user/login']).catch((navError) => {
+                console.error('Navigation error:', navError);
+                Swal.fire({
+                  title: 'Navigation Error',
+                  text: 'Unable to navigate to the login page. Please try again later.',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                });
+              });
+            }
+          });
+        } else {
+          // Handle other API errors
+          Swal.fire({ 
+            title: 'Error',
+            text: 'An error occurred while fetching your professional details. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+        }
+        // Stop the chain by returning an empty observable
+        return of(null); 
+      })
+    ).subscribe((detailsExist) => {
+      if (detailsExist && Array.isArray(detailsExist) && detailsExist.length > 0) {
         this.router.navigate(['/user/job-details', jobId]);
-      } else {
+      } else if (detailsExist !== null) {
         Swal.fire({
           title: 'Complete Professional Details',
           text: 'Please complete your professional details to apply for jobs. Would you like to add them now?',
@@ -131,12 +194,23 @@ export class JobComponent implements OnInit, OnDestroy {
           cancelButtonText: 'Not now',
         }).then((result) => {
           if (result.isConfirmed) {
-            this.router.navigate(['/user/dashboard/professional-details']);
+            this.router.navigate(['/user/dashboard/professional-details']).catch((navError) => {
+              console.error('Navigation error:', navError);
+              Swal.fire({
+                title: 'Navigation Error',
+                text: 'Unable to navigate to the professional details page. Please try again later.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+              });
+            });
           }
         });
       }
     });
   }
+  
+  
+  
   
   ngOnDestroy(): void {
     this.unsubscribe$.next();

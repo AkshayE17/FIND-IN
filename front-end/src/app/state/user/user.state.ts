@@ -17,7 +17,7 @@ export const initialUserState: UserState = {
 };
 
 export interface IUser {
-  id:string;
+  _id:string;
   name: string;
   email: string;
   mobile: number;

@@ -32,6 +32,7 @@ export interface IJobService {
   deleteJob(id: string): Promise<IJob | null>;
   applyForJob(jobId: string, userId: string):Promise<{ job: IJob | null, user: IUser | null }>;
   getAppliedJobs(userId: string): Promise<IJob[]>
+  getShortListedJobs(userId: string): Promise<IJob[]>
   getCompanyIdByRecruiterId(recruiterId: string): Promise<string | null>;
   getJobsWithApplicants(recruiterId: string): Promise<IJob[]> ;
   updateApplicationStatus(jobId: string, userId:string, status:"rejected"|"shortlisted"| "applied"): Promise<any>

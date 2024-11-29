@@ -21,17 +21,18 @@ const professionalDetailsService = new ProfessionalDetailsService(professionalDe
 const userController = new UserController(userService,otpService);
 const jobController=new JobController(jobService);
 const professionalDetailsController=new ProfessionalDetailsController(professionalDetailsService);
-
+  
 const userRouter = Router();
 
 
 userRouter.post('/register',authenticateToken,authorizeRole('user'), userController.createUser.bind(userController));
 userRouter.post('/login', userController.login.bind(userController));
 userRouter.post('/verify-otp',userController.verifyOtp.bind(userController));
-userRouter.get('/jobs',authorizeRole('user'),jobController.getAllJobs.bind(jobController));
+userRouter.get('/jobs',jobController.getAllJobs.bind(jobController));
 userRouter.get('/job/:id',authorizeRole('user'),jobController.getJobById.bind(jobController));
 userRouter.post('/job/:jobId/apply',authenticateToken,authorizeRole('user'), jobController.applyForJob.bind(jobController));
 userRouter.get('/applied/:userId',authenticateToken,authorizeRole('user'), jobController.appliedJobs.bind(jobController));
+userRouter.get('/shortListed/:userId',authenticateToken,authorizeRole('user'), jobController.shortListedJobs.bind(jobController));
 userRouter.post('/refresh-token',userController.refreshToken.bind(userController));
 userRouter.put('/professional-details/:id',authenticateToken,authorizeRole('user'),  professionalDetailsController.update.bind(professionalDetailsController));
 userRouter.get('/professional-details/:id',authenticateToken,authorizeRole('user'), professionalDetailsController.getByUserId.bind(professionalDetailsController));

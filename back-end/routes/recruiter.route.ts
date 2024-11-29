@@ -41,8 +41,10 @@ recruiterRoute.get('/jobs',authenticateToken,authorizeRole('recruiter'),  jobCon
 recruiterRoute.get('/shortlist-jobs',authenticateToken,authorizeRole('recruiter'),  jobController.getRecruiterShortListedJob.bind(jobController));
 recruiterRoute.delete('/job/:id',authenticateToken,authorizeRole('recruiter'),  jobController.deleteJob.bind(jobController));
 recruiterRoute.put('/job/:id',authenticateToken,authorizeRole('recruiter'),  jobController.updateJob.bind(jobController));
-recruiterRoute.get('/jobCategories',authenticateToken,authorizeRole('recruiter'), jobCategoryController.getAllJobCategories.bind(jobCategoryController));
+recruiterRoute.get('/jobCategories', jobCategoryController.getAllJobCategories.bind(jobCategoryController));
 recruiterRoute.get('/jobs/applicants',authenticateToken,authorizeRole('recruiter'),  jobController.getJobsWithApplicants.bind(jobController));
 recruiterRoute.patch('/:jobId/applicants/:userId',authenticateToken,authorizeRole('recruiter'),  jobController.updateApplicationStatus.bind(jobController));
+recruiterRoute.patch('/change-password/:recruiterId', authenticateToken, authorizeRole('recruiter'), recruiterController.changePassword.bind(recruiterController));
+
 
 export default recruiterRoute;

@@ -1,8 +1,11 @@
+
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import Swal from 'sweetalert2';
 import { JobService } from '../../../services/job.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ChatService } from '../../../services/chat.service';
+import { AuthService } from '../../../services/auth.service';
+import Swal from 'sweetalert2';
 
 interface IApplicant {
   _id: string;
@@ -54,7 +57,7 @@ export class AppliedCandidatesComponent implements OnInit {
   statusFilter: string = 'all';
   filteredApplicants: IApplicant[] = [];
 
-  constructor(private jobService: JobService) {}
+  constructor(private jobService: JobService,private chatService: ChatService,private authService: AuthService) {}
 
   ngOnInit() {
     this.filterApplicants();
@@ -65,23 +68,75 @@ export class AppliedCandidatesComponent implements OnInit {
       ? this.applicants
       : this.applicants.filter(a => a.applicationStatus === this.statusFilter);
   }
-
   updateStatus(applicantId: string, status: 'shortlisted' | 'rejected') {
     this.jobService.updateApplicationStatus(this.jobId, applicantId, status).subscribe({
       next: () => {
-        const applicant = this.applicants.find(a => a._id === applicantId);
-        if (applicant) {
-          applicant.applicationStatus = status;
+        // Find the index of the applicant instead of just finding the applicant
+        const applicantIndex = this.applicants.findIndex(a => a._id === applicantId);
+        
+        if (applicantIndex !== -1) {
+          // Create a new array with the updated applicant
+          this.applicants = [
+            ...this.applicants.slice(0, applicantIndex),
+            {
+              ...this.applicants[applicantIndex],
+              applicationStatus: status
+            },
+            ...this.applicants.slice(applicantIndex + 1)
+          ];
+  
+          // Re-apply the filter to update the view
           this.filterApplicants();
         }
-        Swal.fire('Success', `Application ${status} successfully`, 'success');
+    
+        Swal.fire({
+          title: `Applicant ${status === 'shortlisted' ? 'Shortlisted' : 'Rejected'}`,
+          text: `The applicant has been successfully ${status}.`,
+          icon: status === 'shortlisted' ? 'success' : 'warning',
+          confirmButtonText: 'OK'
+        });
+    
+        if (status === 'shortlisted') {
+          console.log("calling the create chat room");
+          this.createChatRoom(applicantId);
+        }
       },
       error: (error: Error) => {
-        console.error('Error updating application status:', error);
-        Swal.fire('Error', 'Failed to update application status', 'error');
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update the application status. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
     });
   }
+  
+  
+
+  createChatRoom(applicantId: string) {
+
+    const recruiterId = this.authService.getRecruiterId();
+    const jobSeekerId = applicantId;
+  
+
+    console.log("job seeker id",jobSeekerId);
+    console.log("recruiter id",recruiterId);
+
+    
+    this.chatService.createChatRoom({
+      recruiterId,
+      jobSeekerId
+    }).subscribe({
+      next: () => {
+        console.log('Chat room created successfully');
+      },
+      error: (error: Error) => {
+        console.error('Error creating chat room:', error);
+      }
+    });
+  }
+  
 
   viewResume(resumeUrl?: string) {
     if (resumeUrl) {

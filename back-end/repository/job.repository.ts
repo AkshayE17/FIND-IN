@@ -29,7 +29,8 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
     const query: any = {};
     
     if (search) {
-      query.title = { $regex: search, $options: 'i' }; 
+      console.log("Search term in repository:", search);
+      query.jobTitle = { $regex: search, $options: 'i' }; 
     }
   
     if (jobType) query.jobType = jobType;
@@ -96,7 +97,6 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
 
 
   //SHORTLISTED JOBS
-
   async getRecruiterShortListedJobs(
     recruiterId: ObjectId,
     page: number,
@@ -117,25 +117,28 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
     const total = await JobModel.countDocuments(query);
   
     const jobs = await JobModel.find(query)
-    .skip(skip)
-    .limit(pageSize)
-    .sort({ createdAt: -1 })
-    .populate({
-      path: 'applicants.userId',
-      model: 'User',
-      populate: { path: 'professionalDetails', model: 'ProfessionalDetails' },
-    }).lean(); 
+      .skip(skip)
+      .limit(pageSize)
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'applicants.userId',
+        model: 'User',
+        populate: { path: 'professionalDetails', model: 'ProfessionalDetails' },
+      })
+      .lean();
   
-  const filteredJobs = jobs.map(job => ({
-    ...job,
-    applicants: job.applicants.filter(applicant => applicant.applicationStatus === 'shortlisted')
-  }))
+    const filteredJobs = jobs
+      .map((job) => ({
+        ...job,
+        applicants: job.applicants.filter((applicant) => applicant.applicationStatus === 'shortlisted')
+      }))
+      .filter((job) => job.applicants.length > 0);
   
- 
-    
+    console.log("Filtered Jobs in repository:", filteredJobs);
   
-    return { jobs:filteredJobs, total };
+    return { jobs: filteredJobs, total };
   }
+  
   
   async getJobById(id: string): Promise<IJob | null> {
     return JobModel.findById(id)
@@ -145,7 +148,7 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
 
   async updateJob(id: string, jobData: Partial<IJob>): Promise<IJob | null> {
     return await JobModel.findByIdAndUpdate(id, jobData, { new: true });
-  }
+}
 
     
   async deleteJob(id: string): Promise<IJob | null> {
@@ -206,6 +209,28 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
   async getApplicantsByJob(recruiterId: mongoose.Types.ObjectId): Promise<IJob[]> {
     return JobModel.find({ recruiterId }).populate('applicants').exec();
   }
+
+
+  async updateApplicationStatus(jobId: string, userId: string, status: string): Promise<IJob | null> {
+    try {
+        const updatedJob = await JobModel.findOneAndUpdate(
+            {
+                _id: jobId,
+                'applicants.userId': userId 
+            },
+            {
+                $set: { 'applicants.$.applicationStatus': status }
+            },
+            { new: true } // Return the updated document
+        );
+
+        return updatedJob;
+    } catch (error) {
+        console.error('Error updating application status in repository:', error);
+        throw new Error('Failed to update application status');
+    }
+}
+
 }
 
 export default new JobRepository();

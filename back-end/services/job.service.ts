@@ -53,6 +53,7 @@ export class JobService implements IJobService {
     location?: string
   ): Promise<{ jobs: IJob[], total: number }> {
     try {
+      console.log("Search term in service:", search);
       return await this._jobRepository.getAllJobs(
         page, 
         pageSize,
@@ -145,6 +146,29 @@ export class JobService implements IJobService {
     }
   }
 
+
+    // Get jobs shortListed by the user
+    async getShortListedJobs(userId: string): Promise<IJob[]> {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        console.error(Messages.INVALID_USER_ID); 
+        throw new Error(Messages.INVALID_USER_ID);
+      }
+  
+      try {
+        const user = await User.findById(userId).populate('jobs');
+        if (!user) {
+          console.error(Messages.USER_NOT_FOUND); 
+          throw new Error(Messages.USER_NOT_FOUND);
+        }
+        const jobIds: mongoose.Types.ObjectId[] = user.jobs ? user.jobs.map(jobId => new mongoose.Types.ObjectId(jobId)) : [];
+        return this._jobRepository.findJobsByIds(jobIds);
+      } catch (error) {
+        console.error(Messages.UNKNOWN_ERROR, error);
+        throw new Error(`${Messages.UNKNOWN_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+
+
   // Update job details
   async updateJob(id: string, jobData: Partial<IJob>): Promise<IJob | null> {
     try {
@@ -212,35 +236,10 @@ export class JobService implements IJobService {
     }
   }
 
-async updateApplicationStatus(jobId: string, userId:string, status:"rejected"|"shortlisted"| "applied"): Promise<any> {
-  try {
-  console.log('Updating application status...');
-    const job = await this._jobRepository.getJobById(jobId);
-
-    console.log('status:', status);
-    console.log('Job:', job);
-
-    if (!job) {
-      return null; 
-    }
-   console.log('userId:', userId);
-   const applicant = job.applicants.find((applicant) => applicant && applicant._id && applicant._id.toString() === userId);
-   console.log('Applicant:', applicant);
-   
-    
-    console.log('Applicant:', applicant);
-    if (!applicant) {
-      return null; 
-    }
-
-    applicant.applicationStatus = status; 
-    await this._jobRepository.updateJob(jobId, job); 
-
-    return job; 
-  } catch (error) {
-    console.error('Error in updateApplicationStatus service:', error);
-    throw new Error('Failed to update application status');
-  }
+  async updateApplicationStatus(jobId: string, userId: string, status: string): Promise<IJob | null> {
+    return await this._jobRepository.updateApplicationStatus(jobId, userId, status);
 }
 
+
 }
+ 

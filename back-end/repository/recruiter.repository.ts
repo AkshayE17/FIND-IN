@@ -18,7 +18,7 @@ class RecruiterRepository extends BaseRepository<IRecruiter> implements IRecruit
 
   async updateRecruiter(id: string, updateData: Partial<IRecruiter>): Promise<IRecruiter | null> {
     try {
-      return await this.update(id, updateData);  // Delegate to BaseRepository's update method
+      return await this.update(id, updateData);  
     } catch (error) {
       console.error("Error in updateRecruiter:", error);
       throw new Error(`Error updating recruiter with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
@@ -33,6 +33,29 @@ class RecruiterRepository extends BaseRepository<IRecruiter> implements IRecruit
       throw new Error(`Error finding recruiter with email ${email}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+  async findById(id: string): Promise<IRecruiter | null> {
+    try {
+      return await this.findOne({ _id: id });
+    } catch (error) {
+      console.error("Error in findRecruiterByEmail:", error);
+      throw new Error(`Error finding recruiter with email ${id}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  async updateRecruiterPassword(id: string, hashedPassword: string): Promise<IRecruiter | null> {
+    try {
+      const recruiter = await this.update(id, { password: hashedPassword });
+      if (!recruiter) {
+        throw new Error('Recruiter not found.');
+      }
+      return recruiter;
+    } catch (error) {
+      console.error('Error in updateRecruiterPassword:', error);
+      throw new Error(`Error updating password for recruiter with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  
 }
 
 export default new RecruiterRepository();

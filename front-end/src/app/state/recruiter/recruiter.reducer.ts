@@ -8,7 +8,8 @@ import {
   addOrUpdateCompanyDetails,
   addOrUpdateCompanyDetailsSuccess,
   addOrUpdateCompanyDetailsFailure,
-  setCompanyDetails // Import your new action
+  setCompanyDetails,
+  resetRecruiterState
 } from './recruiter.action';
 import { RecruiterState, initialRecruiterState } from './recruiter.state';
 
@@ -71,7 +72,9 @@ export const recruiterReducer = createReducer(
     companyDetails, // Update the companyDetails in the state
     loading: false, // Optionally set loading to false, if applicable
     error: null, // Reset error if needed
-  }))
+  })),
+
+  on(resetRecruiterState,()=>initialRecruiterState),
   
 );
 

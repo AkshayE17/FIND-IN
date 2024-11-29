@@ -7,6 +7,7 @@ import { IUser, UFilterOptions } from '../models/User';
 import { generateAccessToken, generateRefreshToken } from '../util/token.util';
 import { FilterOptions } from '../models/Recruiter';
 import { Messages } from '../constants/message.constants';
+import { IJob, JobReportData, JobStatistics } from '../models/job';
 
 export class AdminService implements IAdminService {
   constructor(private _adminRepository: IAdminRepository) {}
@@ -148,5 +149,35 @@ export class AdminService implements IAdminService {
       console.error('Error blocking/unblocking user:', error);
       throw new Error(error instanceof Error ? error.message : Messages.UNKNOWN_ERROR);
     }
+  }
+
+  async getDashboardStatistics(): Promise<JobStatistics> {
+    try {
+      return await this._adminRepository.getDashboardStatistics();
+    } catch (error) {
+      console.error('Error in getDashboardStatistics service:', error);
+      throw new Error(error instanceof Error ? error.message : Messages.UNKNOWN_ERROR);
+    }
+  }
+
+  async getRecentJobs(limit: number) :Promise<IJob[]> {
+    try{
+      return this._adminRepository.getRecentJobs(limit);
+    }catch (error) {
+      console.error('Error in getDashboardStatistics service:', error);
+      throw new Error(error instanceof Error ? error.message : Messages.UNKNOWN_ERROR);
+    }
+
+  }
+
+  async generateJobReport(category?: string): Promise<JobReportData[]> {
+    try{
+      return this._adminRepository.generateJobReport(category);
+    }catch (error) {
+      console.error('Error in getDashboardStatistics service:', error);
+      throw new Error(error instanceof Error ? error.message : Messages.UNKNOWN_ERROR);
+    }
+
+      
   }
 }

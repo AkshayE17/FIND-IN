@@ -1,10 +1,14 @@
 <nav class="admin-sidebar">
-  <ul>
-    <li><a routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a></li>
-    <li><a routerLink="/admin/verified-recruiters" routerLinkActive="active">Verify Recruiters</a></li>
-    <li><a routerLink="/admin/recruiters" routerLinkActive="active">Recruiters</a></li>
-    <li><a routerLink="/admin/users" routerLinkActive="active">Users</a></li>
-    <li><a routerLink="/admin/jobcategory" routerLinkActive="active">Job-Category</a></li>
-    <li><a routerLink="/admin/jobs" routerLinkActive="active">Jobs</a></li>
+  <ul class="sidebar-menu">
+    <li *ngFor="let item of menuItems">
+      <a 
+        [routerLink]="item.link" 
+        routerLinkActive="active"
+        [title]="item.label"
+      >
+        <span class="menu-icon">{{ item.icon }}</span>
+        <span class="menu-label">{{ item.label }}</span>
+      </a>
+    </li>
   </ul>
 </nav>

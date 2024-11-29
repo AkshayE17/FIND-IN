@@ -67,4 +67,31 @@ export class RecruiterService implements IRecruiterService {
       throw new Error(`Failed to log in recruiter: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+  async changeRecruiterPassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      const recruiter = await this._recruiterRepository.findById(id);
+      console.log("recruiter is : ", recruiter);
+      if (!recruiter) {
+        console.log("Recruiter not found.");
+        throw new Error('Recruiter not found.');
+      }
+
+      console.log("current password is : ", currentPassword);
+      console.log("recruiter password is : ", recruiter.password);
+  
+      const isMatch = await bcrypt.compare(currentPassword, recruiter.password);
+      if (!isMatch) {
+        console.log("Current password is incorrect.");
+        throw new Error('Current password is incorrect.');
+      }
+  
+      const hashedPassword = await hashPassword(newPassword);
+      await this._recruiterRepository.updateRecruiterPassword(id, hashedPassword);
+    } catch (error) {
+      console.error('Error in changeRecruiterPassword service:', error);
+      throw new Error(`Failed to change password: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  
 }

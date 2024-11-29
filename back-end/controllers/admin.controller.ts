@@ -185,4 +185,45 @@ export class AdminController implements IAdminController {
         res.status(500).json({ message: 'Error generating pre-signed URL' });
     }
 }
+
+
+async getDashboardStatistics(req: Request, res: Response): Promise<Response> {
+  try {
+    const statistics = await this._adminService.getDashboardStatistics();
+    return res.status(HttpStatus.OK).json(statistics);
+  } catch (error: unknown) {
+    console.error("Error fetching dashboard statistics:", error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+      error: 'An error occurred while fetching dashboard statistics' 
+    });
+  }
+}
+
+getRecentJobs = async (req: Request, res: Response) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+    const recentJobs = await this._adminService.getRecentJobs(limit);
+    res.json(recentJobs);
+  } catch (error) {
+    console.error('Error in getRecentJobs:', error);
+    res.status(500).json({ 
+      message: 'Error fetching recent jobs',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+}
+
+async generateJobReport(req: Request, res: Response): Promise<Response> {
+  try {
+    const category = req.query.category as string | undefined; // Get category from query params
+    const reportData = await this._adminService.generateJobReport(category);
+    return res.status(HttpStatus.OK).json(reportData);
+  } catch (error: any) {
+    console.error('Error generating job report:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Error generating job report',
+      error: error.message,
+    });
+  }
+}
 }

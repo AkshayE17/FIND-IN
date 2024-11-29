@@ -10,7 +10,7 @@ export interface IManageJobs {
 
 
 export interface IJob {
-  _id?: string | null | undefined; 
+  _id?: string; 
   jobTitle: string;
   jobType: string;
   jobCategory: string;
@@ -83,3 +83,17 @@ export interface JobState {
 }
 
 
+export interface JobStatistics {
+  totalJobs: number;
+  totalApplicants: number;
+  jobsByCategory: { category: string, count: number }[];
+  applicantsBySkill: { skill: string, count: number }[];
+}
+
+export interface JobReport {
+  jobTitle: string;
+  companyName: string;
+  totalApplicants: number;
+  averageSalary: number;
+  topSkills: string[];
+}

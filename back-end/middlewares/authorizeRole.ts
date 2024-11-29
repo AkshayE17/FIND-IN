@@ -9,6 +9,7 @@ export const authorizeRole = (requiredRole: string) => {
       if (role !== requiredRole) {
         res.status(403);
         res.json({ message: 'Access denied' });
+        return;
       }
 
       next();

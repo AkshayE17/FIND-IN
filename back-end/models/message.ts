@@ -1,22 +1,30 @@
-import mongoose, { Schema } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 
-export interface IMessage {
-  _id?: string;
-  sender: string;
-  receiver: string;
-  content: string;
-  timestamp: Date;
-  isRead: boolean;
+export interface Message extends Document {
+  chatRoomId: Types.ObjectId; 
+  senderId: Types.ObjectId;
+  senderType: 'User' | 'Recruiter'; 
+  text: string;
+  seen: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
+const MessageSchema = new Schema<Message>(
+  {
+    chatRoomId: { type: Schema.Types.ObjectId, ref: 'ChatRoom', required: true },
+    senderId: { type: Schema.Types.ObjectId, required: true },
+    senderType: { type: String, enum: ['User', 'Recruiter'], required: true }, 
+    text: { type: String, required: true },
+    seen: { type: Boolean, default: false },
+  },
+  {
+    timestamps: true, 
+  }
+);
 
-const messageSchema = new Schema<IMessage>({
-  sender: { type: String, required: true },
-  receiver: { type: String, required: true },
-  content: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now },
-  isRead: { type: Boolean, default: false }
-});
+// Indexing for performance
+MessageSchema.index({ chatRoomId: 1 });
+MessageSchema.index({ senderId: 1 });
 
-
-export const Message = mongoose.model<IMessage>('Message', messageSchema);
+export default model<Message>('MessageModel', MessageSchema);

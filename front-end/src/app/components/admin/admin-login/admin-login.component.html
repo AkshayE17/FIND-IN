@@ -1,0 +1,6 @@
+<app-base-login
+[config]="loginConfig"
+[loading]="(loading$ | async) ?? false"
+[error]="error$ | async"
+(submitForm)="onSubmit($event)">
+</app-base-login>  

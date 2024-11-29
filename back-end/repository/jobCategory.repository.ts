@@ -9,7 +9,7 @@ export class JobCategoryRepository implements IJobCategoryRepository {
 
   async getJobCategories(page: number, limit: number, searchTerm: string): Promise<{ categories: IJobCategory[], total: number }> {
     const filter = searchTerm ? { name: { $regex: searchTerm, $options: 'i' } } : {};
-    
+  
     const categories = await JobCategory.find(filter)
       .skip((page - 1) * limit)
       .limit(limit);
@@ -51,7 +51,7 @@ async findCategoryByName(name: string): Promise<IJobCategory | null> {
   return await JobCategory.findOne({ name: { $regex: `^${name}$`, $options: "i" } });
 }
 
-
+  
 //find by id
 async findCategoryById(id: string): Promise<IJobCategory | null> {
   return JobCategory.findOne({ _id:id }).exec();

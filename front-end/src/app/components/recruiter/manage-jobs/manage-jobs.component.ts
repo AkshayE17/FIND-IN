@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { IJob } from '../../../state/job/job.state';
 import { CommonModule } from '@angular/common';
 import { Observable, of, Subscription } from 'rxjs';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { JobService } from '../../../services/job.service';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
@@ -34,6 +34,17 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
     jobType: '',
   };
 
+  isUpdateModalVisible = false;
+  currentJob: IJob = {
+    jobTitle: '',
+    jobType: '',
+    jobCategory: '',
+    jobDescription: '',
+    location: '',
+    experienceRequired: '0', 
+    skills: [],
+    salary: '0' 
+  };
   searchSubject = new Subject<string>();
 
   jobTypeOptions = [
@@ -52,36 +63,37 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadJobs();
-
-    this.subscriptions.add(
-      this.searchSubject.pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        switchMap((searchTerm) => {
-          this.filters.searchTerm = searchTerm;
-          return this.jobService.getRecruiterJobs(
-            this.authService.getRecruiterId(),
-            this.currentPage,
-            this.pageSize,
-            this.filters.searchTerm,
-            this.filters.jobType
-          );
+  
+    // Only add this subscription if it's not already observed
+    if (!this.searchSubject.observed) {
+      this.subscriptions.add(
+        this.searchSubject.pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          switchMap((searchTerm) => {
+            this.filters.searchTerm = searchTerm;
+            return this.jobService.getRecruiterJobs(
+              this.authService.getRecruiterId(),
+              this.currentPage,
+              this.pageSize,
+              this.filters.searchTerm,
+              this.filters.jobType
+            );
+          })
+        ).subscribe({
+          next: (data) => {
+            this.jobs$ = of(data.jobs);
+            this.totalJobs = data.total;
+            this.loading = false;
+          },
+          error: (error) => {
+            this.loading = false;
+            console.error('Error fetching jobs:', error);
+          }
         })
-      ).subscribe({
-        next: (data) => {
-          this.jobs$ = of(data.jobs);
-          console.log("data is :", data.jobs);
-          this.totalJobs = data.total;
-          this.loading = false;
-        },
-        error: (error) => {
-          this.loading = false;
-          console.error('Error fetching jobs:', error);
-        },
-      })
-    );
+      );
+    }
   }
-
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
@@ -118,7 +130,7 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(searchTerm: string) {
-    this.searchSubject.next(searchTerm); // Emit the search term to trigger the debounce
+    this.searchSubject.next(searchTerm);
   }
 
   get totalPages(): number {
@@ -131,229 +143,12 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
       this.loadJobs(page);
     }
   }
-  showUpdateForm(job: any): void {
-    const formStyles = `
-      <style>
-        .custom-swal-form {
-          text-align: left;
-          margin: 1rem 0;
-        }
-        .form-group {
-          margin-bottom: 1.5rem;
-        }
-        .form-group label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-          color: #333;
-        }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 1rem;
-          margin-top: 0.25rem;
-        }
-        .form-group textarea {
-          min-height: 100px;
-          resize: vertical;
-        }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-          border-color: #1a237e;
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.2);
-        }
-        .swal2-popup {
-          width: 40em !important;
-        }
-        .currency-prefix {
-          position: relative;
-        }
-        .currency-prefix input {
-          padding-left: 1.5rem;
-        }
-        .currency-prefix::before {
-          content: "₹";
-          position: absolute;
-          left: 0.75rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #666;
-        }
-        .error-message {
-          color: #f44336;
-          font-size: 0.875rem;
-          margin-top: 0.25rem;
-        }
-      </style>
-    `;
-
-    Swal.fire({
-      title: 'Edit Job Details',
-      html: `
-        ${formStyles}
-        <div class="custom-swal-form">
-          <div class="form-group">
-            <label for="jobTitle">Job Title*</label>
-            <input 
-              type="text" 
-              id="jobTitle" 
-              class="swal2-input" 
-              placeholder="Enter job title" 
-              value="${job.jobTitle || ''}"
-              required
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="jobType">Job Type*</label>
-            <select id="jobType" class="swal2-input" required>
-              ${this.jobTypeOptions.map(option => 
-                `<option value="${option.value}" ${job.jobType === option.value ? 'selected' : ''}>
-                  ${option.label}
-                </option>`
-              ).join('')}
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="jobCategory">Job Category*</label>
-            <input 
-              type="text" 
-              id="jobCategory" 
-              class="swal2-input" 
-              placeholder="Enter job category"
-              value="${job.jobCategory || ''}"
-              required
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="jobDescription">Job Description*</label>
-            <textarea 
-              id="jobDescription" 
-              class="swal2-textarea" 
-              placeholder="Enter detailed job description"
-              required
-            >${job.jobDescription || ''}</textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="experienceRequired">Experience Required (in years)*</label>
-            <input 
-              type="number" 
-              id="experienceRequired" 
-              class="swal2-input" 
-              placeholder="Enter required experience"
-              value="${job.experienceRequired || 0}"
-              min="0"
-              step="0.5"
-              required
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="location">Location*</label>
-            <input 
-              type="text" 
-              id="location" 
-              class="swal2-input" 
-              placeholder="Enter job location"
-              value="${job.location || ''}"
-              required
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="salary">Salary (₹ per annum)*</label>
-            <div class="currency-prefix">
-              <input 
-                type="number" 
-                id="salary" 
-                class="swal2-input" 
-                placeholder="Enter annual salary"
-                value="${job.salary || 0}"
-                min="0"
-                step="1000"
-                required
-              >
-            </div>
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Update Job',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#1a237e',
-      cancelButtonColor: '#64748b',
-      width: '800px',
-      focusConfirm: false,
-      preConfirm: () => {
-        const fields = {
-          jobTitle: document.getElementById('jobTitle') as HTMLInputElement,
-          jobType: document.getElementById('jobType') as HTMLSelectElement,
-          jobCategory: document.getElementById('jobCategory') as HTMLInputElement,
-          jobDescription: document.getElementById('jobDescription') as HTMLTextAreaElement,
-          experienceRequired: document.getElementById('experienceRequired') as HTMLInputElement,
-          location: document.getElementById('location') as HTMLInputElement,
-          salary: document.getElementById('salary') as HTMLInputElement
-        };
-
-        // Validation
-        for (const [key, field] of Object.entries(fields)) {
-          if (!field.value.trim()) {
-            Swal.showValidationMessage(`Please enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-            return false;
-          }
-        }
-
-        return {
-          jobTitle: fields.jobTitle.value,
-          jobType: fields.jobType.value,
-          jobCategory: fields.jobCategory.value,
-          jobDescription: fields.jobDescription.value,
-          experienceRequired: Number(fields.experienceRequired.value),
-          location: fields.location.value,
-          salary: Number(fields.salary.value)
-        };
-      }
-    }).then(result => {
-      if (result.isConfirmed && result.value) {
-        const updatedJob = {
-          ...job,
-          ...result.value
-        };
-        
-        const updateJobSubscription = this.jobService.updateJob(job._id, updatedJob).subscribe({
-          next: () => {
-            Swal.fire({
-              title: 'Success!',
-              text: 'Job updated successfully',
-              icon: 'success',
-              confirmButtonColor: '#1a237e'
-            });
-            this.loadJobs(this.currentPage);
-          },
-          error: (error) => {
-            Swal.fire({
-              title: 'Error!',
-              text: 'Unable to update job. Please try again.',
-              icon: 'error',
-              confirmButtonColor: '#f44336'
-            });
-            console.error('Error updating job:', error);
-          }
-        });
-
-        this.subscriptions.add(updateJobSubscription);
-      }
-    });
+  showUpdateForm(job: IJob): void {
+    this.currentJob = { ...job };
+    this.isUpdateModalVisible = true;
   }
+
+
   confirmDelete(jobId: string): void {
     Swal.fire({
       title: 'Are you sure?',
@@ -378,6 +173,33 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
     });
   }
 
+  onJobUpdate(jobUpdateForm: NgForm): void {
+    if (jobUpdateForm.valid) {
+      this.loading = true;
+      this.jobService.updateJob(this.currentJob._id, this.currentJob).subscribe(
+        (response) => {
+          Swal.fire('Success', 'Job updated successfully!', 'success');
+          this.isUpdateModalVisible = false;
+          
+          // Trigger search subject with current filters
+          this.searchSubject.next(this.filters.searchTerm);
+          
+          this.loading = false;
+        },
+        (error) => {
+          Swal.fire('Error', 'Failed to update job. Please try again.', 'error');
+          this.loading = false;
+        }
+      );
+    }
+  }
+  
+
+
+  cancelUpdate(): void {
+    this.isUpdateModalVisible = false;
+  }
+
   showApplicants(job: IJob) {
     console.log("show candidate button triggered");
     if (job.applicants && job.applicants.length > 0) {
@@ -386,7 +208,7 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
       this.selectedJobApplicants = job.applicants.map((applicant) => ({
         _id: applicant._id,
         userId: {
-          _id: applicant.userId.id,
+          _id: applicant.userId._id,
           name: applicant.userId.name,
           email: applicant.userId.email,
           mobile: applicant.userId.mobile,
@@ -415,7 +237,7 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
         appliedDate: applicant.appliedDate,
         applicationStatus: applicant.applicationStatus,
       }));
-      console.log("Modal visible:", this.isApplicantsModalVisible);
+    
       console.log("Selected applicants:", this.selectedJobApplicants);
     } else {
       Swal.fire('No Applicants', 'This job has no applicants yet.', 'info');
@@ -427,3 +249,4 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
     this.loadJobs(this.currentPage);
   }
 }
+ 

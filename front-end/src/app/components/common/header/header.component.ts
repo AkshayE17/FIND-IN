@@ -32,14 +32,17 @@ export class HeaderComponent implements OnInit{
   }
   goToUserDetails() {
     this.router.navigate(['/user/dashboard/user-details']);
-    console.log("user",this.user$);
-    console.log('Recruiter:',this.recruiter$) 
+    this.isMenuOpen = false;
   }
 
   goToRecruiterDetails() {
     this.router.navigate(['/recruiter/dashboard/recruiter-details']); 
-    console.log('Recruiter:',this.recruiter$)
-    console.log("user",this.user$);
-
+    this.isMenuOpen = false;
   }
+
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
 }

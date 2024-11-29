@@ -1,26 +1,49 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import Swal from 'sweetalert2';
 import { logoutRecruiter } from '../../../state/recruiter/recruiter.action';
 import { AuthService } from '../../../services/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-recruiter-sidebar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule],
   templateUrl: './recruiter-sidebar.component.html',
-  styleUrl: './recruiter-sidebar.component.scss'
+  styleUrls: ['./recruiter-sidebar.component.scss']
 })
-export class RecruiterSidebarComponent {
-  
-
+export class RecruiterSidebarComponent implements OnInit {
+  isMobile: boolean = false;
+  isExpanded: boolean = false;
 
   constructor(
-    private authService:AuthService,
+    private authService: AuthService,
     private store: Store,
     private router: Router
-  ) {}
+  ) {
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.checkScreenSize();
+  }
+
+  checkScreenSize() {
+    this.isMobile = window.innerWidth <= 768;
+    if (!this.isMobile) {
+      this.isExpanded = false;
+    }
+  }
+
+  toggleSidebar() {
+    this.isExpanded = !this.isExpanded;
+  }
+
+  ngOnInit() {
+    this.checkScreenSize();
+  }
 
   logout() {
     Swal.fire({
@@ -33,8 +56,7 @@ export class RecruiterSidebarComponent {
       confirmButtonText: 'Yes, log me out!'
     }).then((result) => {
       if (result.isConfirmed) {
-        
-        this.authService.clearRecruiterData(); 
+        this.authService.clearRecruiterData();
         this.store.dispatch(logoutRecruiter());
         Swal.fire({
           icon: 'success',
@@ -45,8 +67,6 @@ export class RecruiterSidebarComponent {
           timer: 3000,
           showConfirmButton: false,
         });
-
-        // Navigate to home or login page
         this.router.navigate(['/']);
       }
     });

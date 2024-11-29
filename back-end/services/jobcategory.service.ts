@@ -10,11 +10,11 @@ export class JobCategoryService implements IJobCategoryService {
     try {
       const newCategoryData = {
         name: data.name,
-        description: data.description,
+        description: data.description, 
         imageUrl: data.imageUrl,
       };
       return await this._jobCategoryRepository.create(newCategoryData);
-    } catch (error) {
+    } catch (error) {   
       if (error instanceof mongoose.Error.ValidationError) {
         throw new Error('Validation failed. Please check your input data.');
       }

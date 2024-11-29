@@ -1,0 +1,99 @@
+<div class="chat-container">
+  <!-- Chat Rooms List -->
+  <div class="chat-rooms-list">
+    <div class="search-box">
+      <input type="text" placeholder="Search chats..." />
+    </div>
+    
+    <div class="rooms">
+      <div 
+        *ngFor="let room of chatRooms" 
+        class="room-item"
+        [class.active]="selectedChatRoom?._id === room._id"
+        (click)="selectChatRoom(room)"
+      >
+        <div class="avatar">
+          <img 
+            [src]="getOtherUser(room).imageUrl || '/assets/default-avatar.png'" 
+            alt="User Avatar"
+          >
+          <!-- Online/Offline Indicator -->
+          <span 
+            class="online-status" 
+            [class.online]="isUserOnline(getOtherUser(room)._id)"
+          ></span>
+          
+          <!-- Unseen Message Count -->
+          <span *ngIf="room.unseenCount" class="unseen-badge">
+            {{ room.unseenCount }}
+          </span>
+        </div>
+        
+        <div class="room-details">
+          <h3>{{ getOtherUser(room).name }}</h3>
+          <!-- <p class="last-message">
+            {{ room.lastMessage?.text || 'No messages yet' }}
+          </p> -->
+          
+          <!-- Typing Indicator -->
+          <div *ngIf="room.isTyping" class="typing-indicator">
+            Typing...
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+
+  <!-- Chat Window -->
+  <div class="chat-window" *ngIf="selectedChatRoom">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <button class="btn btn-video" (click)="initiateVideoCall()">
+        <svg>...</svg>
+        Video Call
+      </button>
+      <div class="user-info">
+        <img 
+          [src]="getOtherUser(selectedChatRoom).imageUrl || '/assets/default-avatar.png'" 
+          alt="User Avatar"
+        >
+        <span>{{ getOtherUser(selectedChatRoom).name }}</span>
+      </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-container">
+      <div 
+        *ngFor="let message of messages" 
+        class="message"
+        [class.sent]="message.senderId === currentUserId"
+        [class.received]="message.senderId !== currentUserId"
+      >
+        <div class="message-content">
+          {{ message.text }}
+          <span class="timestamp">
+            {{ message.createdAt | date:'shortTime' }}
+          </span>
+          <span *ngIf="message.seen && message.senderId === currentUserId" class="seen-indicator">
+            Seen
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Input -->
+    <div class="message-input">
+      <input 
+        type="text" 
+        [(ngModel)]="newMessageText" 
+        (input)="onTyping()"
+        (keyup.enter)="sendMessage()"
+        placeholder="Type a message..."
+      >
+      <button (click)="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<div id="video-container"></div>

@@ -45,4 +45,6 @@ export const setCompanyDetails = createAction(
 );
 
 
+export const resetRecruiterState = createAction('[Recruiter] Reset State');
+
 export const userInitializeApp = createAction('[App] Initialize');

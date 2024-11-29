@@ -32,5 +32,8 @@ adminRouter.put('/job-category/:id',authenticateToken,authorizeRole('admin'),job
 adminRouter.delete('/job-category/:id',authenticateToken,authorizeRole('admin'),jobCategoryController.deleteJobCategory.bind(jobCategoryController));
 adminRouter.put('/recruiter-block',authenticateToken,authorizeRole('admin'), adminController.blockOrUnblockRecruiter.bind(adminController));
 adminRouter.put('/user-block',authenticateToken,authorizeRole('admin'), adminController.blockOrUnblockUser.bind(adminController));
-adminRouter.post('/generate-upload-url',authorizeRole('admin'), adminController.generatePredefinedUrl.bind(adminController));
+adminRouter.post('/generate-upload-url', adminController.generatePredefinedUrl.bind(adminController));
+adminRouter.get('/dashboard/statistics', authenticateToken, authorizeRole('admin'), adminController.getDashboardStatistics.bind(adminController));
+adminRouter.get('/recent-jobs',authenticateToken,authorizeRole('admin'), adminController.getRecentJobs.bind(adminController));
+adminRouter.get('/report',authenticateToken,authorizeRole('admin'), adminController.generateJobReport.bind(adminController));
 export default adminRouter;

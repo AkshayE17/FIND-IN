@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap } from 'rxjs/operators';
-import { UserService } from '../../services/userService';
+import { UserService } from '../../services/user.service';
 import * as UserActions from './user.action';
 import { IProfessionalDetails, LoginResponse } from './user.state';
 import { CookieService } from 'ngx-cookie-service'; 

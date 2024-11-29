@@ -11,4 +11,5 @@ export interface IAdminController {
   blockOrUnblockRecruiter(req: Request, res: Response): Promise<Response>;
   blockOrUnblockUser(req: Request, res: Response): Promise<Response>;
   generatePredefinedUrl(req: Request, res: Response): Promise<void>;
+  generateJobReport(req: Request, res: Response): Promise<Response>
 }

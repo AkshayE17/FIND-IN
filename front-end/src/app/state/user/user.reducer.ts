@@ -1,5 +1,5 @@
-import { Action, createReducer, on } from '@ngrx/store';
-import { initialUserState, UserState } from './user.state';
+import {  createReducer, on } from '@ngrx/store';
+import { initialUserState } from './user.state';
 import * as UserActions from './user.action';
 
 export const userReducer = createReducer(
@@ -48,5 +48,6 @@ export const userReducer = createReducer(
     ...state,
     loading: false,
     error,
-  }))
+  })),
+  on(UserActions.resetUserState, () => initialUserState)
 );

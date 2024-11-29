@@ -100,7 +100,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   onSearch(event: Event) {
     const searchTerm = (event.target as HTMLInputElement).value;
-    this.searchSubject.next(searchTerm); // Emit search term to searchSubject
+    this.searchSubject.next(searchTerm); 
   }
 
  

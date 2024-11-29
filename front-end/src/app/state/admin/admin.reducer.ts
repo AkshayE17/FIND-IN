@@ -1,6 +1,6 @@
 
 import { createReducer, on } from '@ngrx/store';
-import { loginAdmin, loginAdminSuccess, loginAdminFailure,logoutAdmin } from './admin.action';
+import { loginAdmin, loginAdminSuccess, loginAdminFailure,logoutAdmin, resetAdminState } from './admin.action';
 import { AdminState, initialAdminState } from './admin.state';
 
 export const adminReducer = createReducer(
@@ -21,5 +21,6 @@ export const adminReducer = createReducer(
     loading: false,
     error,
   })),
-  on(logoutAdmin, () => initialAdminState)
+  on(logoutAdmin, () => initialAdminState),
+  on(resetAdminState, () => initialAdminState)
 );

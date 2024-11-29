@@ -1,26 +1,28 @@
-<div class="shortlisted-candidates-container">
-  <header class="page-header">
-    <h1>Shortlisted Candidates</h1>
-  </header>
-
-  <div class="search-filter-container">
-    <input
-      type="text"
-      placeholder="Search jobs..."
+<div class="shortlisted-container">
+  <h1 class="page-title">Shortlisted Candidates</h1>
+  
+  <div class="controls-wrapper">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Search candidates..."
       [(ngModel)]="filters.searchTerm"
-      (input)="onSearchChange(filters.searchTerm)" 
-      class="search-input"
+      (ngModelChange)="onSearchChange($event)"
     >
-    <select [(ngModel)]="filters.jobType" (change)="loadJobs(1)" class="filter-select">
+    <select 
+      class="filter-select"
+      [(ngModel)]="filters.jobType"
+      (change)="loadJobs()"
+    >
       <option value="">All Job Types</option>
       <option *ngFor="let option of jobTypeOptions" [value]="option.value">
-        {{ option.label }}
+        {{option.label}}
       </option>
     </select>
   </div>
 
-  <div *ngIf="(jobs$ | async)?.length" class="table-container">
-    <table  class="jobs-table">
+  <div *ngIf="(jobs$ | async) as jobs; else noJobs" class="table-container">
+    <table class="candidates-table">
       <thead>
         <tr>
           <th>Job Title</th>
@@ -31,58 +33,61 @@
           <th>Expected Salary</th>
           <th>Applied Date</th>
           <th>Resume</th>
-          <th>Action</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let job of (jobs$ | async)">
-          <ng-container *ngFor="let applicant of job.applicants">
-            <td data-label="Job Title">{{ job.jobTitle }}</td>
-            <td data-label="Candidate Name">{{ applicant.userId.name }}</td>
-            <td data-label="Email">{{ applicant.userId.email }}</td>
-            <td data-label="Experience">{{ applicant.userId.professionalDetails?.experience || 'N/A' }} years</td>
-            <td data-label="Skills">{{ applicant.userId.professionalDetails?.skills?.join(', ') || 'N/A' }}</td>
-            <td data-label="Expected Salary">₹{{ applicant.userId.professionalDetails?.expectedSalary | number }}</td>
-            <td data-label="Applied Date">{{ applicant.appliedDate | date }}</td>
-            <td>
-              <a 
-                [href]="applicant.userId.professionalDetails?.resumeUrl"
-                target="_blank"
-                class="resume-link"
-              >
-                View Resume
-              </a>
-            </td>
-            <td>
-              <button class="video-call-btn" (click)="openChat(applicant._id)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 7l-7 5 7 5V7z"/>
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                </svg>
-               Message
-              </button>
-              
-              <button class="video-call-btn" (click)="joinVideoCall(applicant)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 7l-7 5 7 5V7z"/>
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-                </svg>
-                Meet
-              </button>
-            </td>
+        <ng-container *ngFor="let job of jobs">
+          <ng-container *ngIf="hasApplicants(job)">
+            <tr *ngFor="let applicant of job.applicants">
+              <td data-label="Job Title">{{job.jobTitle}}</td>
+              <td data-label="Candidate Name">{{applicant.userId.name || 'N/A'}}</td>
+              <td data-label="Email">{{applicant.userId.email || 'N/A'}}</td>
+              <td data-label="Experience">{{applicant.userId.professionalDetails?.experience || 'N/A'}} years</td>
+              <td data-label="Skills" class="skills-cell">
+                {{applicant.userId.professionalDetails?.skills?.join(', ') || 'N/A'}}
+              </td>
+              <td data-label="Expected Salary">₹{{applicant.userId.professionalDetails?.expectedSalary || 'N/A'}}</td>
+              <td data-label="Applied Date">{{applicant.appliedDate | date}}</td>
+              <td data-label="Resume">
+                <a 
+                  [href]="applicant.userId.professionalDetails?.resumeUrl || '#'" 
+                  target="_blank" 
+                  class="resume-link"
+                >
+                  View Resume
+                </a>
+              </td>
+              <td data-label="Actions">
+                <div class="action-buttons">
+                  <button class="btn btn-primary" (click)="openChat(applicant._id)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    Message
+                  </button>
+                  <button class="btn btn-success" (click)="joinVideoCall(applicant)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M23 7l-7 5 7 5V7z"/>
+                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                    </svg>
+                    Meet
+                  </button>
+                </div>
+              </td>
+            </tr>
           </ng-container>
-        </tr>
+        </ng-container>
       </tbody>
     </table>
   </div>
 
-  <div *ngIf="!(jobs$ | async)?.length" class="no-jobs-message">
-    <p>No shortlisted candidates found.</p>
-  </div>
-
-  <div *ngIf="totalJobs > pageSize" class="pagination-controls">
-    <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
-  </div>
+  <ng-template #noJobs>
+    <div class="no-jobs-message">
+      <p>No shortlisted candidates found.</p>
+    </div>
+  </ng-template>
 </div>
+
+
+<div id="video-container" ></div> 

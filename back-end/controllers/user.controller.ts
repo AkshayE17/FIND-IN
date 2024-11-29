@@ -73,7 +73,7 @@ async login(req: Request, res: Response): Promise<void> {
       res.status(HttpStatus.OK).json({
           accessToken,
           user: {
-              id: user._id,
+              _id: user._id,
               email: user.email,
               name: user.name,
               mobile: user.mobile,

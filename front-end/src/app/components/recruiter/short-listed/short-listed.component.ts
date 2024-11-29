@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Observable, of, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { JobService } from '../../../services/job.service';
 import { IJob } from '../../../state/job/job.state';
 import { AuthService } from '../../../services/auth.service';
-import { Router } from '@angular/router';
+import { ZegoVideoService } from '../../../services/zegoVideo.service';
+import { MatSnackBar } from '@angular/material/snack-bar'; // Assuming you're using Angular Material for notifications
 
 @Component({
   selector: 'app-short-listed',
@@ -42,7 +42,8 @@ export class ShortListedComponent implements OnInit, OnDestroy {
   constructor(
     private jobService: JobService,
     private authService: AuthService,
-    private router: Router
+    private zegoService: ZegoVideoService,
+    private snackBar: MatSnackBar // For showing notifications
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +72,7 @@ export class ShortListedComponent implements OnInit, OnDestroy {
         error: (error) => {
           this.loading = false;
           console.error('Error fetching jobs:', error);
+          this.snackBar.open('Failed to fetch jobs', 'Close', { duration: 3000 });
         },
       })
     );
@@ -82,7 +84,7 @@ export class ShortListedComponent implements OnInit, OnDestroy {
 
   loadJobs(page: number = 1) {
     if (!this.searchSubject.observed) {
-      this.loading = true;
+      this.loading = true;  
 
       const jobSubscription = this.jobService
         .getRecruiterShortlistedJobs(
@@ -94,15 +96,15 @@ export class ShortListedComponent implements OnInit, OnDestroy {
         )
         .subscribe({
           next: (data) => {
-            console.log("data:",data)
             this.jobs$ = of(data.jobs);
             this.totalJobs = data.total;
-            this.currentPage = page; 
+            this.currentPage = page;
             this.loading = false;
           },
           error: (error) => {
             this.loading = false;
             console.error('Error fetching jobs:', error);
+            this.snackBar.open('Failed to fetch jobs', 'Close', { duration: 3000 });
           },
         });
 
@@ -110,10 +112,15 @@ export class ShortListedComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSearchChange(searchTerm: string) {
+  hasApplicants(job: IJob | undefined): boolean {
+    return !!job?.applicants && job.applicants.length > 0;
+  }
+  
+  onSearchChange(target: HTMLInputElement) {
+    const searchTerm = target.value || '';
     this.searchSubject.next(searchTerm);
   }
-
+  
   get totalPages(): number {
     return Math.ceil(this.totalJobs / this.pageSize);
   }
@@ -126,15 +133,26 @@ export class ShortListedComponent implements OnInit, OnDestroy {
   }
 
   openChat(userId: string) {
-    // Navigate to chat component with both IDs
-    this.router.navigate(['/chat'], {
-      queryParams: {
-        recruiterId: this.authService.getRecruiterId(),
-        userId: userId
-      }
-    });
+    // Implement chat functionality
   }
+  
   joinVideoCall(applicant: any) {
-    // Handle the video call functionality here
+    const recruiterId = this.authService.getRecruiterId();
+    const roomId = `video_call_${recruiterId}_${applicant._id}`;
+    
+    // Start video call
+    this.subscriptions.add(
+      this.zegoService.joinCall(
+        roomId, 
+        recruiterId, 
+      'Recruiter'
+      ).pipe(
+        catchError(error => {
+          console.error('Video call error:', error);
+          this.snackBar.open('Failed to start video call', 'Close', { duration: 3000 });
+          return [];
+        })
+      ).subscribe()
+    );
   }
 }

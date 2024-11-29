@@ -25,5 +25,6 @@ export interface IJobRepository {
   applyForJob(jobId: string, userId: string):Promise<{ job: IJob | null, user: IUser | null }>;
   findJobsByIds(jobIds:Types.ObjectId[]): Promise<IJob[]> ;
   getApplicantsByJob(recruiterId: mongoose.Types.ObjectId): Promise<IJob[]> 
+  updateApplicationStatus(jobId: string, userId: string, status: string): Promise<IJob | null>
 }
   

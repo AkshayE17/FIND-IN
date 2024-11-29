@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IProfessionalDetails extends Document {
-  userId: mongoose.Types.ObjectId; // Reference to the User model
+  userId: mongoose.Types.ObjectId;
   title: string;
   skills: string[];
   experience: number;

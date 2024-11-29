@@ -90,9 +90,11 @@
           <span class="job-type">{{ job.jobType }}</span>
         </div>
         <div class="company-info">
-         
+          <div class="company-logo" *ngIf="job.companyId?.logo">
+            <img [src]="job.companyId?.logo" alt="Company Logo">
+          </div>
           <div>
-            <p class="company-name">{{ job.companyId }}</p>
+            <p class="company-name">{{ job.companyId?.companyName }}</p>
             <p class="location"><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
           </div>
         </div>

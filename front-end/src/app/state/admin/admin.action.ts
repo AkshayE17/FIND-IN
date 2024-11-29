@@ -18,6 +18,9 @@ export const loginAdminFailure = createAction(
 );
 
 
+
+export const resetAdminState = createAction('[Admin] Reset State');
+
 export const logoutAdmin = createAction('[Admin] Logout');
 
 export const adminInitializeApp = createAction('[App] Initialize');

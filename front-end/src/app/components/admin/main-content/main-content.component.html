@@ -1,1 +1,46 @@
-<h2>main content works</h2>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Admin Dashboard</h1>
+    <div class="quick-stats">
+      <div class="stat-card">
+        <h3>Total Jobs</h3>
+        <p>{{ totalJobs }}</p>
+      </div>
+      <div class="stat-card">
+        <h3>Total Applicants</h3>
+        <p>{{ totalApplicants }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="chart-section">
+      <div class="chart-container">
+        <canvas #jobCategoryChart></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas #applicantSkillChart></canvas>
+      </div>
+    </div>
+
+    <div class="recent-activity">
+      <h2>Recent Job Postings</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Job Title</th>
+            <th>Company</th>
+            <th>Created Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let job of recentJobs">
+            <td>{{ job.jobTitle }}</td>
+            <td>{{ job.companyId.companyName }}</td>
+            <td>{{ job.createdAt | date:'mediumDate' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { HttpInterceptorFn, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpHandlerFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpRequest, HttpEvent, HttpErrorResponse, HttpHandlerFn } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { Observable, throwError, of } from 'rxjs';
@@ -8,22 +8,28 @@ import { AppState } from '../state/app.state';
 import { selectUserAccessToken, selectUserRole } from '../state/user/user.selector';
 import { selectAdminAccessToken, selectAdminRole } from '../state/admin/admin.selector';
 import { selectRecruiterAccessToken, selectRecruiterRole } from '../state/recruiter/recruiter.selector';
+import { resetRecruiterState } from '../state/recruiter/recruiter.action';
 import Swal from 'sweetalert2';
+import { AuthService } from '../services/auth.service';
+import { resetAdminState } from '../state/admin/admin.action';
+import { resetUserState } from '../state/user/user.action';
 
-export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn): Observable<HttpEvent<any>> => {
-
-  // Inject dependencies in functional interceptors
+export const authInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<any>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<any>> => {
+  // Inject dependencies
   const store = inject(Store<AppState>);
   const router = inject(Router);
+  const authService = inject(AuthService);
 
   // Get token and role observables based on request URL
   const { token$, role$ } = getTokenAndRoleForRequest(req, store);
 
-  // Pipe token and role observables
   return token$.pipe(
     take(1),
     switchMap((accessToken) =>
-      role$.pipe(  
+      role$.pipe(
         take(1),
         switchMap((role) => {
           const authReq = accessToken
@@ -34,20 +40,49 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
               })
             : req;
 
-          // Handle the request and catch errors
           return next(authReq).pipe(
             catchError((error: HttpErrorResponse) => {
+              // Check for 403 Forbidden error
               if (error.status === 403) {
                 Swal.fire({
                   icon: 'error',
-                  title: 'Oops...',
-                  text: 'Your session has expired. Please log in again.',
-                })
+                  title: 'Forbidden',
+                  text: 'You do not have permission to access this resource.',
+                });
                 router.navigate(['/']);
-              } else if (error.status === 401) {
-                alert('Your session has expired. Please log in again.');
-                router.navigate(['/login']);
+              } 
+              else if (error.status === 401) {
+                
+                if (error.error && error.error.message && error.error.message.includes('expired')) {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Unauthorized',
+                    text: 'Your session has expired. Please login again.',
+                  });
+                } else {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Credentials',
+                    text: 'The credentials you entered are incorrect.',
+                  });
+                }
+
+                // Clear relevant session data
+                if (req.url.includes('/admin')) {
+                  authService.clearAdminData();
+                  store.dispatch(resetAdminState());
+                  router.navigate(['/admin/login']);
+                } else if (req.url.includes('/recruiter')) {
+                  authService.clearRecruiterData();
+                  store.dispatch(resetRecruiterState());
+                  router.navigate(['/recruiter/login']);
+                } else if (req.url.includes('/user')) {
+                  authService.clearUserData();
+                  store.dispatch(resetUserState());
+                  router.navigate(['/user/login']);
+                }
               }
+
               return throwError(() => error);
             })
           );
@@ -57,7 +92,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
   );
 };
 
-// Function to get token and role based on the request URL
+// Helper function to get token and role based on the request URL
 function getTokenAndRoleForRequest(req: HttpRequest<any>, store: Store<AppState>) {
   if (req.url.includes('/admin')) {
     return {

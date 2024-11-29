@@ -46,6 +46,11 @@ export class AuthService {
     return recruiterData ? JSON.parse(recruiterData) : null;
   }
 
+  getAdminData(): IAdmin | null {
+    const adminData = this.cookieService.get('admin');
+    return adminData ? JSON.parse(adminData) : null;
+  }
+
 
   clearRecruiterData() {
     this.cookieService.delete('recruiter', '/');
@@ -79,7 +84,7 @@ export class AuthService {
 
   getUserId(): string | null {
     const user = this.getUserData();
-    return user ? user.id : null;
+    return user ? user._id : null;
   }
 
 

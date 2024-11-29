@@ -1,11 +1,19 @@
 <header class="header">
   <nav class="nav-container">
     <div class="brand">
-      <a href="/" class="logo">
-        FINDY
-        <span class="hand-icon">✋</span>
+      <a routerLink="/" class="logo">
+        <img src="/assets/LOGO3.png" alt="Brand Logo" class="logo-image" />
       </a>
     </div>
+    
+    <!-- Add menu toggle button -->
+    <button class="menu-toggle" (click)="toggleMenu()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
 
     <ul [class.show]="isMenuOpen" class="nav-links">
       <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
@@ -23,7 +31,7 @@
 
       <!-- User Profile -->
       <li *ngIf="user$ | async" class="profile-item">
-        <a  class="user-icon">
+        <a class="user-icon">
           <img
             [src]="(user$ | async)?.imageUrl"
             alt="Job Seeker Profile Picture"
@@ -35,7 +43,7 @@
 
       <!-- Recruiter Profile -->
       <li *ngIf="recruiter$ | async" class="profile-item">
-        <a  class="user-icon">
+        <a class="user-icon">
           <img
             [src]="(recruiter$ | async)?.imageUrl"
             alt="Recruiter Profile Picture"

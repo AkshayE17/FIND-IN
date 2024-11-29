@@ -1,59 +1,51 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { loginRecruiter } from '../../../state/recruiter/recruiter.action';
 import { AppState } from '../../../state/app.state';
 import { selectRecruiterLoading, selectRecruiterError, selectRecruiter } from '../../../state/recruiter/recruiter.selector';
-import Swal from 'sweetalert2';
-import { CommonModule } from '@angular/common';
-import { IRecruiter } from '../../../state/recruiter/recruiter.state';
+import { BaseLoginComponent, LoginPageConfig } from '../../reusable/base-login/base-login.component';
 import { HeaderComponent } from '../../common/header/header.component';
 import { FooterComponent } from '../../common/footer/footer.component';
-import { takeUntil } from 'rxjs/operators';
+import Swal from 'sweetalert2';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-recruiter-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule, CommonModule, HeaderComponent, FooterComponent],
+  imports: [HeaderComponent, FooterComponent, BaseLoginComponent,CommonModule],
   templateUrl: './recruiter-login.component.html',
-  styleUrls: ['./recruiter-login.component.scss'],
+  styleUrl: './recruiter-login.component.scss'
 })
 export class RecruiterLoginComponent implements OnInit, OnDestroy {
-  loginForm: FormGroup;
-  loading$: Observable<boolean>;
+  loginConfig: LoginPageConfig = {
+    title: 'Recruiter Login',
+    subtitle: 'Please authenticate to continue',
+    welcomeTitle: 'Welcome Recruiter!',
+    welcomeMessage: 'Connect with top talent and build your dream team with our platform.',
+    brandIcon: '👩‍💼',
+    backgroundImage: '/assets/Recruiter.jpg',
+    signUpRoute: '/recruiter/register'
+  };
+
+  loading$: Observable<boolean|null>;
   error$: Observable<string | null>;
-  recruiter$: Observable<IRecruiter | null>;
-  private unsubscribe$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private formBuilder: FormBuilder,
     private store: Store<AppState>,
     private router: Router
   ) {
-    this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
-
     this.loading$ = this.store.select(selectRecruiterLoading);
-    this.error$ = this.store.select(selectRecruiterError);
-    this.recruiter$ = this.store.select(selectRecruiter);
+    this.error$ = this.store.select(selectRecruiterError);  
   }
 
   ngOnInit(): void {
-    this.error$
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((errorMessage) => {
-        if (errorMessage) {
-          this.showErrorAlert(errorMessage);
-        }
-      });
-
-    this.recruiter$
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((recruiter) => {
+    this.store.select(selectRecruiter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(recruiter => {
         if (recruiter) {
           this.showSuccessAlert();
           this.router.navigate(['/']);
@@ -61,22 +53,8 @@ export class RecruiterLoginComponent implements OnInit, OnDestroy {
       });
   }
 
-  onSubmit() {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-    } else {
-      const credentials = this.loginForm.value;
-      this.store.dispatch(loginRecruiter({ credentials }));
-    }
-  }
-
-  showErrorAlert(errorMessage: string) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Login Failed',
-      text: errorMessage,
-      confirmButtonText: 'Retry',
-    });
+  onSubmit(credentials: {email: string, password: string}) {
+    this.store.dispatch(loginRecruiter({ credentials }));
   }
 
   showSuccessAlert() {
@@ -92,8 +70,7 @@ export class RecruiterLoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Complete the observable to unsubscribe from all active subscriptions
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

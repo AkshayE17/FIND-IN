@@ -19,6 +19,164 @@
     </select>
   </div>
 
+  <!-- Job Update Modal -->
+  <div class="job-update-modal" *ngIf="isUpdateModalVisible">
+    <div class="modal-content">
+      <h2>Update Job Details</h2>
+      <form #jobUpdateForm="ngForm" (ngSubmit)="onJobUpdate(jobUpdateForm)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="jobTitle">Job Title</label>
+            <input 
+              type="text" 
+              id="jobTitle" 
+              name="jobTitle"
+              [(ngModel)]="currentJob.jobTitle"
+              required 
+              minlength="5" 
+              maxlength="100"
+              #jobTitle="ngModel"
+              [ngClass]="{'invalid': jobTitle.invalid && (jobTitle.dirty || jobTitle.touched)}"
+            >
+            <div *ngIf="jobTitle.invalid && (jobTitle.dirty || jobTitle.touched)" class="error-message">
+              <small *ngIf="jobTitle.errors?.['required']">Job title is required</small>
+              <small *ngIf="jobTitle.errors?.['minlength']">Job title must be at least 5 characters long</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="jobType">Job Type</label>
+            <select 
+              id="jobType" 
+              name="jobType"
+              [(ngModel)]="currentJob.jobType"
+              required
+              #jobType="ngModel"
+              [ngClass]="{'invalid': jobType.invalid && (jobType.dirty || jobType.touched)}"
+            >
+              <option value="">Select Job Type</option>
+              <option *ngFor="let option of jobTypeOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            <div *ngIf="jobType.invalid && (jobType.dirty || jobType.touched)" class="error-message">
+              <small *ngIf="jobType.errors?.['required']">Job type is required</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="jobCategory">Job Category</label>
+            <input 
+              type="text" 
+              id="jobCategory" 
+              name="jobCategory"
+              [(ngModel)]="currentJob.jobCategory"
+              required 
+              minlength="2" 
+              maxlength="50"
+              #jobCategory="ngModel"
+              [ngClass]="{'invalid': jobCategory.invalid && (jobCategory.dirty || jobCategory.touched)}"
+            >
+            <div *ngIf="jobCategory.invalid && (jobCategory.dirty || jobCategory.touched)" class="error-message">
+              <small *ngIf="jobCategory.errors?.['required']">Job category is required</small>
+              <small *ngIf="jobCategory.errors?.['minlength']">Job category must be at least 3 characters long</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input 
+              type="text" 
+              id="location" 
+              name="location"
+              [(ngModel)]="currentJob.location"
+              required 
+              minlength="3" 
+              maxlength="100"
+              #location="ngModel"
+              [ngClass]="{'invalid': location.invalid && (location.dirty || location.touched)}"
+            >
+            <div *ngIf="location.invalid && (location.dirty || location.touched)" class="error-message">
+              <small *ngIf="location.errors?.['required']">Location is required</small>
+              <small *ngIf="location.errors?.['minlength']">Location must be at least 3 characters long</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="experienceRequired">Experience (Years)</label>
+            <input 
+              type="number" 
+              id="experienceRequired" 
+              name="experienceRequired"
+              [(ngModel)]="currentJob.experienceRequired"
+              required 
+              min="0" 
+              max="30"
+              #experienceRequired="ngModel"
+              [ngClass]="{'invalid': experienceRequired.invalid && (experienceRequired.dirty || experienceRequired.touched)}"
+            >
+            <div *ngIf="experienceRequired.invalid && (experienceRequired.dirty || experienceRequired.touched)" class="error-message">
+              <small *ngIf="experienceRequired.errors?.['required']">Experience is required</small>
+              <small *ngIf="experienceRequired.errors?.['min']">Experience cannot be negative</small>
+              <small *ngIf="experienceRequired.errors?.['max']">Experience cannot exceed 30 years</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="salary">Salary (₹ per annum)</label>
+            <input 
+              type="number" 
+              id="salary" 
+              name="salary"
+              [(ngModel)]="currentJob.salary"
+              required 
+              min="0" 
+              max="10000000"
+              #salary="ngModel"
+              [ngClass]="{'invalid': salary.invalid && (salary.dirty || salary.touched)}"
+            >
+            <div *ngIf="salary.invalid && (salary.dirty || salary.touched)" class="error-message">
+              <small *ngIf="salary.errors?.['required']">Salary is required</small>
+              <small *ngIf="salary.errors?.['min']">Salary cannot be negative</small>
+              <small *ngIf="salary.errors?.['max']">Salary is too high</small>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="jobDescription">Job Description</label>
+            <textarea 
+              id="jobDescription" 
+              name="jobDescription"
+              [(ngModel)]="currentJob.jobDescription"
+              required 
+              minlength="50" 
+              maxlength="2000"
+              #jobDescription="ngModel"
+              [ngClass]="{'invalid': jobDescription.invalid && (jobDescription.dirty || jobDescription.touched)}"
+              rows="5"
+            ></textarea>
+            <div *ngIf="jobDescription.invalid && (jobDescription.dirty || jobDescription.touched)" class="error-message">
+              <small *ngIf="jobDescription.errors?.['required']">Job description is required</small>
+              <small *ngIf="jobDescription.errors?.['minlength']">Description must be at least 50 characters long</small>
+              <small *ngIf="jobDescription.errors?.['maxlength']">Description cannot exceed 2000 characters</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="cancelUpdate()">Cancel</button>
+          <button 
+            type="submit" 
+            class="btn btn-update" 
+            [disabled]="jobUpdateForm.invalid"
+          >
+            Update Job
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="table-container">
     <table *ngIf="(jobs$ | async)?.length" class="jobs-table">
       <thead>
@@ -70,9 +228,9 @@
   </div>
 </div>
 <app-applied-candidates
-*ngIf="isApplicantsModalVisible"
-[isVisible]="isApplicantsModalVisible"
-[jobId]="selectedJobId"
-[applicants]="selectedJobApplicants"
-(closeModal)="hideApplicantsModal()"
+  *ngIf="isApplicantsModalVisible"
+  [isVisible]="isApplicantsModalVisible"
+  [jobId]="selectedJobId"
+  [applicants]="selectedJobApplicants"
+  (closeModal)="hideApplicantsModal()"
 ></app-applied-candidates>

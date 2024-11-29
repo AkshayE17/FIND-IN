@@ -45,3 +45,6 @@ export const updateProfessionalDetailsFailure = createAction(
   '[User] Update Professional Details Failure',
   props<{ error: string }>()
 );
+export const resetUserState = createAction(
+  '[User] Reset State'
+);

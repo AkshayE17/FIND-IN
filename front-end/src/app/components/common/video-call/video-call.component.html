@@ -1,0 +1,5 @@
+<div class="video-container">
+  <video #localVideo [srcObject]="localStream" autoplay playsinline></video>
+  <video #remoteVideo [srcObject]="remoteStream" autoplay playsinline></video>
+  <button (click)="endCall()">End Call</button>
+</div>

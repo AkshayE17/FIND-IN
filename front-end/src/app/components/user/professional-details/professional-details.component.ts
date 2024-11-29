@@ -1,9 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { IProfessionalDetails } from '../../../state/user/user.state';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { 
+  FormBuilder, 
+  FormGroup, 
+  FormsModule, 
+  ReactiveFormsModule, 
+  Validators,
+  AbstractControl 
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UserService } from '../../../services/userService';
+import { UserService } from '../../../services/user.service';
 import { takeUntil } from 'rxjs/operators';
 import { AdminService } from '../../../services/admin.service';
 import Swal from 'sweetalert2';
@@ -41,6 +48,108 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private initForm() {
+    this.detailsForm = this.fb.group({
+      title: [
+        '', 
+        [
+          Validators.required, 
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern(/^[A-Za-z0-9\s\-]+$/)
+        ]
+      ],
+      skills: [
+        '', 
+        [
+          Validators.required, 
+          Validators.pattern(/^[A-Za-z0-9\s,]+$/),
+          this.validateSkills
+        ]
+      ],
+      experience: [
+        0, 
+        [
+          Validators.required, 
+          Validators.min(0), 
+          Validators.max(50),
+          this.validateExperience
+        ]
+      ],
+      currentLocation: [
+        '', 
+        [
+          Validators.required, 
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern(/^[A-Za-z\s]+$/)
+        ]
+      ],
+      expectedSalary: [
+        0, 
+        [
+          Validators.required, 
+          Validators.min(1000),
+          Validators.max(10000000),
+          this.validateSalary
+        ]
+      ],
+      about: [
+        '', 
+        [
+          Validators.required, 
+          Validators.minLength(10),
+          Validators.maxLength(500)
+        ]
+      ],
+      resume: [null]
+    });
+  }
+
+  // Custom validators
+  private validateSkills(control: AbstractControl): {[key: string]: any} | null {
+    if (!control.value) return null;
+    
+    const skills = control.value.split(',').map((skill: string) => skill.trim());
+    
+    if (skills.length > 10) {
+      return { 'maxSkills': true };
+    }
+    
+    const invalidSkills = skills.filter((skill: string) => 
+      skill.length < 2 || skill.length > 30
+    );
+    
+    return invalidSkills.length > 0 ? { 'invalidSkillLength': true } : null;
+  }
+
+  private validateExperience(control: AbstractControl): {[key: string]: any} | null {
+    const value = control.value;
+    
+    if (value === null || value === undefined) return null;
+    
+    if (value < 0) return { 'negativeExperience': true };
+    if (value > 50) return { 'excessiveExperience': true };
+    
+    // Ensure only 0.5 increments
+    if (!Number.isInteger(value * 2)) {
+      return { 'invalidExperienceIncrement': true };
+    }
+    
+    return null;
+  }
+
+  private validateSalary(control: AbstractControl): {[key: string]: any} | null {
+    const value = control.value;
+    
+    if (value === null || value === undefined) return null;
+    
+    if (value < 1000) return { 'belowMinimumSalary': true };
+    if (value > 10000000) return { 'excessiveSalary': true };
+    
+    return null;
+  }
+
   private loadProfessionalDetails() {
     this.isLoading.next(true);
     this.userService.getProfessionalDetails()
@@ -67,43 +176,16 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
         }
       });
   }
-  
-
-  private initForm() {
-    this.detailsForm = this.fb.group({
-      title: [
-        '', 
-        [Validators.required, Validators.pattern(/^[^\s]+(\s+[^\s]+)*$/)]
-      ],
-      skills: [
-        '', 
-        [Validators.required, Validators.pattern(/^[A-Za-z\s,]+$/)]
-      ],
-      experience: [
-        0, 
-        [Validators.required, Validators.min(0), Validators.max(100)]
-      ],
-      currentLocation: [
-        '', 
-        [Validators.required, Validators.pattern(/^[^\s]+(\s+[^\s]+)*$/)]
-      ],
-      expectedSalary: [
-        0, 
-        [Validators.required, Validators.min(1)]
-      ],
-      about: [
-        '', 
-        [Validators.required, Validators.maxLength(500)]
-      ],
-      resume: [null]
-    });
-  }
-  
 
   toggleEdit() {
     this.isEditing = !this.isEditing;
     if (this.isEditing && this.professionalDetails$.value) {
-      this.detailsForm.patchValue(this.professionalDetails$.value);
+      this.detailsForm.patchValue({
+        ...this.professionalDetails$.value,
+        skills: Array.isArray(this.professionalDetails$.value.skills) 
+          ? this.professionalDetails$.value.skills.join(', ') 
+          : this.professionalDetails$.value.skills
+      });
     }
   }
 
@@ -112,7 +194,13 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
     if (file && (file.type === 'application/pdf' || 
                  file.type === 'application/msword' || 
                  file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
-      this.selectedFile = file;
+      if (file.size <= 5242880) { // 5MB limit
+        this.selectedFile = file;
+        this.error = null;
+      } else {
+        this.error = 'File size exceeds 5MB limit.';
+        this.selectedFile = null;
+      }
     } else {
       this.error = 'Please upload a valid PDF or Word document (DOC/DOCX).';
       this.selectedFile = null;
@@ -120,37 +208,61 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
-    if (this.detailsForm.valid) {
-      let professionalDetails = this.detailsForm.value;
+    // Mark all fields as touched to trigger validation display
+    Object.keys(this.detailsForm.controls).forEach(field => {
+      const control = this.detailsForm.get(field);
+      control?.markAsTouched();
+    });
 
-      if (this.selectedFile) {
-        try {
-          const response = await this.adminService.getUploadUrl(this.selectedFile.name, this.selectedFile.type).toPromise();
-          if(response){
-            const uploadUrl = response.url;
-            
-            professionalDetails.resumeUrl = uploadUrl.split('?')[0];
-
-            await this.adminService.uploadFileToS3(uploadUrl, this.selectedFile);
-  
-          }
-          
-        } catch (error) {
-          console.error('File upload failed', error);
-          this.error = 'Failed to upload resume. Please try again later.';
-          Swal.fire('Error', 'Failed to upload resume. Please try again later.', 'error');
-          return;
-        }
-      }
-
-      this.saveProfessionalDetails(professionalDetails);
+    // Check form validity
+    if (this.detailsForm.invalid) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please correct the errors in the form before submitting.',
+        confirmButtonText: 'OK'
+      });
+      return;
     }
+
+    // Prepare professional details
+    let professionalDetails = {...this.detailsForm.value};
+    
+    // Convert skills to array
+    if (typeof professionalDetails.skills === 'string') {
+      professionalDetails.skills = professionalDetails.skills
+        .split(',')
+        .map((skill: string) => skill.trim())
+        .filter((skill: string) => skill);
+    }
+
+    // File upload handling
+    if (this.selectedFile) {
+      try {
+        const response = await this.adminService.getUploadUrl(this.selectedFile.name, this.selectedFile.type).toPromise();
+        if (response) {
+          const uploadUrl = response.url;
+          
+          professionalDetails.resumeUrl = uploadUrl.split('?')[0];
+
+          await this.adminService.uploadFileToS3(uploadUrl, this.selectedFile);
+        }
+      } catch (error) {
+        console.error('File upload failed', error);
+        this.error = 'Failed to upload resume. Please try again later.';
+        Swal.fire('Error', 'Failed to upload resume. Please try again later.', 'error');
+        return;
+      }
+    }
+
+    this.saveProfessionalDetails(professionalDetails);
   }
 
   private saveProfessionalDetails(professionalDetails: IProfessionalDetails) {
     this.isLoading.next(true);
 
     if (this.professionalDetails$.value) {
+      // Update existing professional details
       this.userService.updateProfessionalDetails(professionalDetails)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -168,6 +280,7 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
           }
         });
     } else {
+      // Create new professional details
       this.userService.createProfessionalDetails(professionalDetails)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -191,5 +304,7 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
     console.log('Start adding triggered');
     this.isEditing = true;
     this.detailsForm.reset();
+    this.selectedFile = null;
+    this.error = null;
   }
 }

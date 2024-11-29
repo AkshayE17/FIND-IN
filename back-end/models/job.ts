@@ -10,6 +10,22 @@ export interface IApplicant {
   _id?:ObjectId | undefined;
 }
 
+export interface JobStatistics {
+  totalJobs: number;
+  totalApplicants: number;
+  jobsByCategory: { category: string, count: number }[];
+  applicantsBySkill: { skill: string, count: number }[];
+}
+
+
+export interface JobReportData {
+  jobTitle: string;
+  companyName: string;
+  totalApplicants: number;
+  averageSalary: number;
+  topSkills: string[];
+}
+
 export interface IJob extends Document{
   companyId: Types.ObjectId; 
   recruiterId: Types.ObjectId; 
@@ -22,7 +38,6 @@ export interface IJob extends Document{
   salary: string;
   skills:string[];
   applicants: IApplicant[];
-  shortListed: IApplicant[];
   recruiter:IRecruiter;  
   company:ICompany;
 
@@ -45,7 +60,6 @@ const jobSchema = new Schema<IJob>({
   salary: { type: String, required: true },
   skills:{ type:[String],required:true},  
   applicants: { type: [applicantSchema], ref: 'User', default: [] },
-  shortListed:{ type: [applicantSchema], ref: 'User', default: [] },
 },{ timestamps: true });
 
 export const JobModel = model<IJob>('Job', jobSchema);

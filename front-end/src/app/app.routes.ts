@@ -1,12 +1,9 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/common/home/home.component';
-import { UserLoginComponent } from './components/user/user-login/user-login.component';
 import { UserRegisterComponent } from './components/user/user-register/user-register.component';
-import { RecruiterLoginComponent } from './components/recruiter/recruiter-login/recruiter-login.component';
 import { RecruiterRegisterComponent } from './components/recruiter/recruiter-register/recruiter-register.component';
 import { VerifiedsuccessComponent } from './components/user/verifiedsuccess/verifiedsuccess.component';
 import { ForgotpasswordComponent } from './components/common/forgotpassword/forgotpassword.component';
-import { LoginComponent } from './components/admin/login/login.component';
 import { AdminlayoutComponent } from './components/admin/adminlayout/adminlayout.component';
 import { MainContentComponent } from './components/admin/main-content/main-content.component';
 import { UsersComponent } from './components/admin/users/users.component';
@@ -29,7 +26,16 @@ import { JobsComponent } from './components/admin/jobs/jobs.component';
 import { ShortListedComponent } from './components/recruiter/short-listed/short-listed.component';
 import { AuthGuard } from './services/auth-guard.service';
 import { UnauthorizedComponent } from './components/common/unauthorized/unauthorized.component';
-import { ChatComponent } from './components/user/chat/chat.component';
+import { UserChatComponent } from './components/user/user-chat/user-chat.component';
+import { RecruiterChatComponent } from './components/recruiter/recruiter-chat/recruiter-chat.component';
+import { UserLoginComponent } from './components/user/user-login/user-login.component';
+import { RecruiterLoginComponent } from './components/recruiter/recruiter-login/recruiter-login.component';
+import { AdminLoginComponent } from './components/admin/admin-login/admin-login.component';
+import { ShortListComponent } from './components/user/short-list/short-list.component';
+import { AdminAuthGuard } from './services/admin-auth-gaurd.service';
+import { ChangePasswordComponent } from './components/recruiter/change-password/change-password.component';
+import { JobReportComponent } from './components/admin/job-report/job-report.component';
+
 export const routes: Routes = [
   {path:'',component:HomeComponent},
   {path:'user/login',component:UserLoginComponent},
@@ -41,13 +47,13 @@ export const routes: Routes = [
   {path:'forgot-password',component:ForgotpasswordComponent},
   {path:'user/jobs',component:JobComponent},
   {path:'user/job-details/:id',component:JobsDetailsComponent},
-  {path:'admin/login',component:LoginComponent},
+  {path:'admin/login',component:AdminLoginComponent},
   {path:'unauthorized',component:UnauthorizedComponent},
 
   {
     path: 'admin',
     component:AdminlayoutComponent, 
-    canActivate:[AuthGuard],
+    canActivate:[AdminAuthGuard],
     children: [
       {path:'',component:MainContentComponent},
       { path: 'dashboard', component:MainContentComponent},
@@ -55,7 +61,8 @@ export const routes: Routes = [
       { path: 'users', component:UsersComponent },
       { path: 'recruiters', component:RecruitersComponent},
       {path:'jobcategory',component:JobCategoryComponent},
-      {path:'jobs',component:JobsComponent}
+      {path:'jobs',component:JobsComponent},
+      {path:'report',component:JobReportComponent}
     ],
   },
   {
@@ -65,7 +72,8 @@ export const routes: Routes = [
       {path:"user-details",component:UserDetailsComponent},
       {path:"applied-jobs",component:AppliedJobsComponent},
       {path:"professional-details",component:ProfessionalDetailsComponent},
-      {path:"chat",component:ChatComponent},
+      {path:"chat",component:UserChatComponent},
+      {path:"short-list",component:ShortListComponent},
     ]
   },
   {
@@ -76,7 +84,9 @@ export const routes: Routes = [
       {path:"company-details",component:CompanyDetailsComponent},
       {path:"post-job",component:PostJobComponent},
       {path:"manage-jobs",component:ManageJobsComponent},
-      {path:"shortlisted",component:ShortListedComponent}
+      {path:"shortlisted",component:ShortListedComponent},
+      {path:"chat",component:RecruiterChatComponent},
+      {path:"change-password",component:ChangePasswordComponent}
     ]
   }
-];
+]

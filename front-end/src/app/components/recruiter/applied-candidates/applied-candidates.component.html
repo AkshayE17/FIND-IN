@@ -39,20 +39,20 @@
             </div>
             
             <div class="applicant-actions">
-              <button
-                *ngIf="applicant.applicationStatus === 'applied'"
-                class="btn shortlist-btn"
-                (click)="updateStatus(applicant._id, 'shortlisted')"
-              >
-                Shortlist
-              </button>
-              <button
-                *ngIf="applicant.applicationStatus === 'applied'"
-                class="btn reject-btn"
-                (click)="updateStatus(applicant._id, 'rejected')"
-              >
-                Reject
-              </button>
+              <ng-container *ngIf="applicant.applicationStatus === 'applied'">
+                <button
+                  class="btn shortlist-btn"
+                  (click)="updateStatus(applicant.userId._id, 'shortlisted')"
+                >
+                  Shortlist
+                </button>
+                <button
+                  class="btn reject-btn"
+                  (click)="updateStatus(applicant.userId._id, 'rejected')"
+                >
+                  Reject
+                </button>
+              </ng-container>
               <button
                 *ngIf="applicant.userId.professionalDetails?.resumeUrl"
                 class="btn view-resume-btn"
@@ -62,6 +62,7 @@
               </button>
             </div>
           </div>
+          
         </div>
       </div>
     </div>

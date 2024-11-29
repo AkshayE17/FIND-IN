@@ -1,3 +1,4 @@
+import { IUser } from "../user/user.state";
 
 export interface RecruiterState {  
   recruiter: IRecruiter | null; 
@@ -57,3 +58,28 @@ export interface LoginResponse {
   companyDetails:ICompany
 }
 
+
+export interface Message {
+  _id: string;  // Make sure _id is defined here
+  text: string;
+  senderId: string;
+  createdAt: Date;
+  seen: boolean;
+}
+
+export interface ChatRoom {
+  _id: string;  // Make sure _id is defined here
+  jobSeekerId: {
+    _id: string;
+    name: string;
+    imageUrl?: string;
+  };
+  recruiterId: {
+    _id: string;
+    name: string;
+    imageUrl?: string;
+  };
+  lastMessage?: Message;
+  unseenCount?: number;
+  isTyping?: boolean;
+}

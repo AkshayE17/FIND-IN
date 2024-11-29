@@ -5,6 +5,8 @@ import User, { IUser, UFilterOptions } from '../models/User';
 import { FilterOptions } from '../models/Recruiter';
 import { IAdminRepository } from '../interfaces/admin/IAdminRepository';
 import { BaseRepository } from './base.repository';
+import {IJob, JobModel, JobReportData, JobStatistics} from '../models/job';
+import { ProfessionalDetailsModel } from '../models/professionalDetails';
 
 class AdminRepository extends BaseRepository<IAdmin> implements IAdminRepository {
   constructor() {
@@ -191,6 +193,138 @@ class AdminRepository extends BaseRepository<IAdmin> implements IAdminRepository
       throw new Error(`Error toggling user block status: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+
+  // In adminRepository.ts, add this method:
+async getDashboardStatistics(): Promise<JobStatistics> {
+  try {
+    // Count total jobs
+    const totalJobs = await JobModel.countDocuments();
+
+    // Count total applicants
+    const totalApplicants = await JobModel.aggregate([
+      { $unwind: "$applicants" },
+      { $group: { _id: null, count: { $sum: 1 } } },
+      { $project: { _id: 0, count: 1 } }
+    ]);
+
+    // Jobs by category
+    const jobsByCategory = await JobModel.aggregate([
+      { $group: { 
+          _id: "$jobCategory", 
+          count: { $sum: 1 } 
+      }},
+      { $project: { 
+          jobCategory: "$_id", 
+          count: 1, 
+          _id: 0 
+      }}
+    ]);
+    
+
+    // Applicants by skill (from professional details)
+    const applicantsBySkill = await ProfessionalDetailsModel.aggregate([
+      { $unwind: "$skills" }, // Break skills array into individual documents
+      {
+        $group: {
+          _id: { $toLower: "$skills" }, // Normalize skills to lowercase
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          skill: "$_id",
+          count: 1,
+          _id: 0,
+        },
+      },
+      { $sort: { count: -1 } }, // Sort skills by frequency in descending order
+      { $limit: 10 }, // Limit to top 10 skills
+    ]);
+    
+
+    return {
+      totalJobs,
+      totalApplicants: totalApplicants[0]?.count || 0,
+      jobsByCategory: jobsByCategory.map(cat => ({
+        category: cat.jobCategory, // Correct field name
+        count: cat.count
+      })),
+      applicantsBySkill: applicantsBySkill.map(skill => ({
+        skill: skill.skill,
+        count: skill.count
+      }))
+    };
+    
+  } catch (error: unknown) {
+    throw new Error(`Error fetching dashboard statistics: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+
+async getRecentJobs(limit:number) : Promise<IJob[]>{
+  try {
+    return await JobModel.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .select('jobTitle companyName createdAt')
+      .populate('companyId')
+      .exec();
+    
+  } catch (error) {
+    console.error('Error in getRecentJobs:', error);
+    throw error;
+  }
+}
+
+
+async generateJobReport(category?: string): Promise<JobReportData[]> {
+  try {
+    const pipeline: any[] = [
+      {
+        $lookup: {
+          from: 'companies', 
+          localField: 'companyId',
+          foreignField: '_id',
+          as: 'company',
+        },
+      },
+      { $unwind: '$company' },
+      {
+        $project: {
+          jobTitle: 1,
+          companyName: '$company.name',
+          totalApplicants: { $size: '$applicants' },
+          averageSalary: { $toDouble: '$salary' },
+          topSkills: {
+            $reduce: {
+              input: '$skills',
+              initialValue: [],
+              in: {
+                $setUnion: ['$$value', { $split: ['$$this', ','] }],
+              },
+            },
+          },
+        },
+      },
+    ];
+
+    // Add category filter if provided
+    if (category) {
+      pipeline.unshift({
+        $match: { jobCategory: category },
+      });
+    }
+    pipeline.push({ $sort: { totalApplicants: -1 } });
+
+    // Limit to top 10 reports
+    pipeline.push({ $limit: 10 });
+
+    return await JobModel.aggregate(pipeline);
+  } catch (error: unknown) {
+    throw new Error(`Error generating job report: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
 }
 
 export default new AdminRepository();

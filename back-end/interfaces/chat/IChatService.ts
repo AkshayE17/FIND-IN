@@ -1,8 +1,10 @@
-import { IMessage } from "../../models/message";
-
+import { ChatRoom } from "../../models/chatRoom";
+import { Message } from "../../models/message";
 
 export interface IChatService {
-  sendMessage(messageData: IMessage): Promise<IMessage>;
-  getMessages(recruiterId: string, userId: string): Promise<IMessage[]>;
-  markMessagesAsRead(receiverId: string, senderId: string): Promise<void>;
+  createChatRoom(jobSeekerId: string, recruiterId: string): Promise<ChatRoom>;
+  sendMessage(chatRoomId: string, senderId: string, text: string,type:string): Promise<Message>;
+  getChatRoomMessages(chatRoomId: string): Promise<Message[]>;
+  markMessageSeen(messageId: string): Promise<Message | null>;
+  getUserChatRooms(userId: string): Promise<ChatRoom[]>
 }

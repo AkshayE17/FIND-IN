@@ -71,4 +71,28 @@ export class RecruiterController implements IRecruiterController {
       }
     }
   }
+
+  async changePassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const recruiterId = req.params.recruiterId;
+  
+      if (!currentPassword || !newPassword) {
+         res.status(HttpStatus.BAD_REQUEST).json({ message: 'Both old and new passwords are required.' });
+      }
+  
+      await this.recruiterService.changeRecruiterPassword(recruiterId, currentPassword, newPassword);
+  
+      res.status(HttpStatus.OK).json({ message: 'Password changed successfully.' });
+    } catch (error: unknown) {
+      console.error('Error in changing password:', error);
+      if (error instanceof Error) {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+      }
+    }
+  }
+  
 }
+

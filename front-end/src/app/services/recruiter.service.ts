@@ -86,4 +86,25 @@ export class RecruiterService {
 
 
 
+  changePassword(data: { currentPassword: string; newPassword: string; recruiterId: string; }) {
+    return this.http
+      .patch(`${this.apiUrl}/recruiter/change-password/${data.recruiterId}`, {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword
+      })
+      .pipe(
+        catchError((error) => {
+          let errorMessage = 'Failed to change password';
+          if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+  
+  
+
+
+
 }

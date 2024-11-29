@@ -2,6 +2,7 @@
   import { IRecruiter } from '../../models/Recruiter';
   import { IUser } from '../../models/User';
   import { FilterOptions } from '../../models/Recruiter';
+import { IJob, JobReportData, JobStatistics } from '../../models/job';
 
   export interface IAdminService {
     login(email: string, password: string): Promise<{ admin: IAdmin, accessToken: string, refreshToken: string }>;
@@ -13,4 +14,7 @@
     rejectRecruiter(email: string): Promise<IRecruiter | null>;
     blockOrUnblockRecruiter(email: string): Promise<IRecruiter | null>;
     blockOrUnblockUser(email: string): Promise<IUser | null>;
+    getDashboardStatistics(): Promise<JobStatistics> ;
+    getRecentJobs(limit: number) :Promise<IJob[]> ;
+    generateJobReport(category?: string): Promise<JobReportData[]> 
   }

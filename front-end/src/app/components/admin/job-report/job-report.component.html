@@ -1,0 +1,76 @@
+<div class="job-report-container">
+  <div class="report-header">
+    <h1>Job Market Insight</h1>
+    <div class="report-actions">
+      <div class="category-filter">
+        <label for="categorySelect">Filter by Category</label>
+        <select 
+          id="categorySelect" 
+          [(ngModel)]="selectedCategory" 
+          (change)="generateReport()"
+          class="form-select"
+        >
+          <option value="">All Categories</option>
+          <option *ngFor="let category of jobCategories" [value]="category">
+            {{ category }}
+          </option>
+        </select>
+      </div>
+      <div class="action-buttons">
+        <!-- <button 
+          (click)="generateReport()" 
+          class="btn btn-primary"
+        >
+          <i class="fas fa-sync"></i> Refresh Report
+        </button> -->
+        <button 
+          (click)="downloadPdfReport()" 
+          class="btn btn-secondary"
+        >
+          <i class="fas fa-download"></i> Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-table-container">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Job Title</th>
+          <th>Company</th>
+          <th>Total Applicants</th>
+          <th>Average Salary</th>
+          <th>Top Skills</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let report of jobReports" class="report-row">
+          <td>
+            <div class="job-title">{{ report.jobTitle }}</div>
+          </td>
+          <td>
+            <div class="company-name">{{ report.companyName }}</div>
+          </td>
+          <td>
+            <div class="applicant-count">{{ report.totalApplicants }}</div>
+          </td>
+          <td>
+            <div class="salary-info">₹{{ report.averageSalary | number:'1.0-0' }}</div>
+          </td>
+          <td>
+            <div class="skills-list">
+              <span *ngFor="let skill of report.topSkills" class="skill-tag">
+                {{ skill }}
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="jobReports.length === 0" class="no-data-message">
+      No job reports available. Please adjust your filters or refresh.
+    </div>
+  </div>
+</div>

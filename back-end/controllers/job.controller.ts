@@ -130,7 +130,7 @@ export class JobController implements IJobController {
         jobType
       );
 
-      console.log("recruiter jobs:", JSON.stringify(result, null, 2));
+      console.log("recruiter jobs in shortlisted:", JSON.stringify(result, null, 2));
 
 
       res.status(HttpStatus.OK).json(result);
@@ -226,6 +226,28 @@ export class JobController implements IJobController {
 }
 
 
+async shortListedJobs(req: Request<{ userId: string }>, res: Response): Promise<void> {
+  try {
+    const userId = req.params.userId;
+    const jobs = await this._jobService.getShortListedJobs(userId);
+
+    if (!jobs.length) {
+      res.status(HttpStatus.NOT_FOUND).json({ message: Messages.NO_APPLIED_JOBS_FOUND });
+      return;
+    }
+
+    res.status(HttpStatus.OK).json(jobs);
+  } catch (error: any) {
+    console.error("Error fetching applied jobs:", error);
+
+    // Check for the specific error message
+    if (error.message === 'You have already applied for this job.') {
+      res.status(HttpStatus.CONFLICT).json({ message: 'You have already applied for this job.' });
+    } else {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+    }
+  }
+}
 
   async getJobsWithApplicants(req: Request, res: Response): Promise<void> {
     try {
@@ -252,10 +274,14 @@ export class JobController implements IJobController {
   // In JobController
 async updateApplicationStatus(req: Request, res: Response): Promise<void> {
   try {
-    console.log('Updating application status...');
+    console.log('Updating application status in controlller...');
     const jobId = req.params.jobId;
     const userId = req.params.userId;
     const { status } = req.body; 
+
+    console.log("jobId:", jobId);
+    console.log("userId:", userId);
+    console.log("status:", status);
     
     if (!status) {
       res.status(HttpStatus.BAD_REQUEST).json({ message: 'Status is required' });
