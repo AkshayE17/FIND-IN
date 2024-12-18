@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component, EventEmitter, Inject, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, OnInit, OnDestroy, Output, AfterViewInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,24 +20,29 @@ export interface OtpDialogData {
   templateUrl: './otp-verify.component.html',
   styleUrls: ['./otp-verify.component.scss']
 })
-export class OtpVerifyComponent implements OnInit, OnDestroy {
-  [x: string]: any;
+export class OtpVerifyComponent implements OnInit, OnDestroy, AfterViewInit {
   otpForm: FormGroup;
   errorMessage: string = '';
   timeLeft: number = 120; 
   timerSubscription: Subscription | null = null;
+  showCloseConfirmation: boolean = false;
   
-  
+  @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
   @Output() close = new EventEmitter<void>();
   @Output() verify = new EventEmitter<string>();
-
+  
+  private data: any;
+  
   constructor(
     private fb: FormBuilder, 
     private http: HttpClient, 
-    @Inject(MAT_DIALOG_DATA) public data: OtpDialogData,
-  private dialogRef: MatDialogRef<OtpVerifyComponent>,
-    private router:Router
+    @Inject(MAT_DIALOG_DATA) public dialogData: OtpDialogData,
+    private dialogRef: MatDialogRef<OtpVerifyComponent>,
+    private router: Router
   ) {
+    // Prevent closing the dialog when clicking outside
+    dialogRef.disableClose = true;
+
     this.otpForm = this.fb.group({
       digit1: ['', [Validators.required, Validators.pattern(/^[0-9]$/)]],
       digit2: ['', [Validators.required, Validators.pattern(/^[0-9]$/)]],
@@ -47,15 +52,80 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
       digit6: ['', [Validators.required, Validators.pattern(/^[0-9]$/)]],
     });
   }
+  
+  // Method to handle incoming data
+  setData(data: any): void {
+    this.data = data;
+    console.log('Received data:', data);
+  }
 
   ngOnInit() {
     this.startTimer();
+    
+    // Override the default backdrop click behavior
+    this.dialogRef.backdropClick().subscribe(event => {
+      this.openCloseConfirmation();
+      event.preventDefault();
+      event.stopPropagation();
+    });
+  }
+
+  ngAfterViewInit() {
+    this.setupInputEventListeners();
   }
 
   ngOnDestroy() {
     if (this.timerSubscription) {
       this.timerSubscription.unsubscribe();
     }
+  }
+
+  openCloseConfirmation() {
+    this.showCloseConfirmation = true;
+  }
+
+  // Confirm closing the modal
+  confirmClose() {
+    this.dialogRef.close(false);
+  }
+
+  // Cancel closing the modal
+  cancelClose() {
+    this.showCloseConfirmation = false;
+  }
+
+  // Setup input event listeners for navigation and backspace
+  setupInputEventListeners() {
+    this.otpInputs.forEach((input, index) => {
+      const inputElement = input.nativeElement;
+      
+      // Handle input navigation
+      inputElement.addEventListener('input', (event: Event) => {
+        const value = (event.target as HTMLInputElement).value;
+        if (value && index < 5) {
+          this.otpInputs.toArray()[index + 1].nativeElement.focus();
+        }
+      });
+
+      // Handle backspace to move to previous input
+      inputElement.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key === 'Backspace') {
+          const inputElement = event.target as HTMLInputElement;
+          
+          // If current input is empty, move to previous input and clear its value
+          if (inputElement.value === '' && index > 0) {
+            const prevInput = this.otpInputs.toArray()[index - 1].nativeElement;
+            prevInput.value = '';
+            prevInput.focus();
+            
+            // Update form control value
+            const controlName = `digit${index}`;
+            const prevControlName = `digit${index + 1}`;
+            this.otpForm.get(prevControlName)?.setValue('');
+          }
+        }
+      });
+    });
   }
 
   startTimer() {
@@ -67,14 +137,6 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
           this.errorMessage = 'OTP has expired. Please request a new one.';
         }
       });
-  }
-
-  onInput(event: Event, digit: number) {
-    const input = event.target as HTMLInputElement;
-    if (input.value && digit < 6) {
-      const nextInput = input.nextElementSibling as HTMLInputElement;
-      nextInput?.focus();
-    }
   }
 
   async onSubmitOtp() {
@@ -98,11 +160,10 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
       this.errorMessage = 'OTP has expired. Please request a new one.';
     }
   }
-  
 
   onClose() {
-    this.dialogRef.close();
-}
+    this.dialogRef.close(false);
+  }
 
   resendOtp() {
     this.timeLeft = 120;
@@ -123,7 +184,6 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
         console.error('Error resending OTP', error);   
       });
   }
-  
 
   formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);

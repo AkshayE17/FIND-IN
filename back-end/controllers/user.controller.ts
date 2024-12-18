@@ -23,13 +23,36 @@ export class UserController implements IUserController {
     }
   }
 
+
+  //getUser
+  async getUser(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.params.userId;
+      const user = await this._userService.getUserById(userId);
+      console.log("User in user controller: ", user);
+      if (user) {
+        res.status(HttpStatus.OK).json({ message: Messages.USER_FOUND, user });
+      } else {
+        res.status(HttpStatus.NOT_FOUND).json({ message: Messages.USER_NOT_FOUND });
+      }
+    } catch (error) {
+      console.error('Error getting user:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+    }
+  }
   // Update an existing user
   async updateUser(req: Request, res: Response): Promise<void> {
-    const userId = req.params.id;
+   
     const updatedData = req.body;
+    console.log("updated data",updatedData);
+    const userId = updatedData._id;
+    console.log("user id",userId);
     try {
       const updatedUser = await this._userService.updateUser(userId, updatedData);
       if (updatedUser) {
+
+        
+      console.log("User in user controller: ", updatedUser);
         res.status(HttpStatus.OK).json({ message: Messages.USER_UPDATED, user: updatedUser });
       } else {
         res.status(HttpStatus.NOT_FOUND).json({ message: Messages.USER_NOT_FOUND });
@@ -70,17 +93,10 @@ async login(req: Request, res: Response): Promise<void> {
       });
 
 
+
       res.status(HttpStatus.OK).json({
           accessToken,
-          user: {
-              _id: user._id,
-              email: user.email,
-              name: user.name,
-              mobile: user.mobile,
-              gender: user.gender,
-              isVerified: user.isVerified,
-              imageUrl: user.imageUrl,
-          },
+          user
       });
   } catch (error) {
       console.error('Error during login:', error);
@@ -89,6 +105,7 @@ async login(req: Request, res: Response): Promise<void> {
       });
   }
 }
+
 
   // Refresh token
   async refreshToken(req: Request, res: Response): Promise<void> {
@@ -108,4 +125,44 @@ async login(req: Request, res: Response): Promise<void> {
       res.status(HttpStatus.OK).json({ accessToken: newAccessToken });
     });
   }
+
+
+  async changePassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.params.userId;
+  
+      if (!currentPassword || !newPassword) {
+         res.status(HttpStatus.BAD_REQUEST).json({ message: 'Both old and new passwords are required.' });
+      }
+  
+      await this._userService.changeUserPassword(userId, currentPassword, newPassword);
+  
+      res.status(HttpStatus.OK).json({ message: 'Password changed successfully.' });
+    } catch (error: unknown) {
+      console.error('Error in changing password:', error);
+      if (error instanceof Error) {
+        res.status(HttpStatus.BAD_REQUEST).json({ message: error.message });
+      } else {
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+      }
+    }
+  }
+  
+
+  async checkMobileExists(req: Request, res: Response): Promise<void> {
+    try {
+
+        const { mobile } = req.body;
+        const exists = await this._userService.checkMobileExists(mobile);
+        if (exists) {
+            res.status(400).json({ message: 'Mobile number already exists.' });
+        } else {
+            res.status(200).json({ message: 'Mobile number is unique.' });
+        }
+    } catch (error) {
+        console.error('Error in checkMobileExists:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+}
 }

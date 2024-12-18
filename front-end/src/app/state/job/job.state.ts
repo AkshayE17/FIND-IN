@@ -14,9 +14,9 @@ export interface IJob {
   jobTitle: string;
   jobType: string;
   jobCategory: string;
-  experienceRequired: string;
+  experienceRequired: number;
   location: string;
-  salary: string;
+  salary: number;
   skills: string[]; 
   jobDescription: string;
   recruiterId?: string;
@@ -58,9 +58,9 @@ export interface IJobResponse {
   jobTitle: string;
   jobType: string;
   jobCategory: string;
-  experienceRequired: string;
+  experienceRequired: number;
   location: string;
-  salary: string;
+  salary: number;
   skills: string[]; 
   jobDescription: string;
   recruiterId?: IRecruiter;
@@ -81,7 +81,7 @@ export interface JobState {
   jobs: IJob[]; 
   total: number;  
 }
-
+    
 
 export interface JobStatistics {
   totalJobs: number;

@@ -53,7 +53,6 @@ export class JobService implements IJobService {
     location?: string
   ): Promise<{ jobs: IJob[], total: number }> {
     try {
-      console.log("Search term in service:", search);
       return await this._jobRepository.getAllJobs(
         page, 
         pageSize,
@@ -124,7 +123,7 @@ export class JobService implements IJobService {
       throw new Error(`${Messages.UNKNOWN_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
-
+  
   // Get jobs applied by the user
   async getAppliedJobs(userId: string): Promise<IJob[]> {
     if (!mongoose.Types.ObjectId.isValid(userId)) {

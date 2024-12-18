@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../services/chat.service';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
-import { ZegoVideoService } from '../../../services/zegoVideo.service';
 
 interface ChatRoom {
   _id: string;
@@ -52,8 +51,7 @@ export class RecruiterChatComponent implements OnInit, OnDestroy {
 
   constructor(
     private chatService: ChatService,
-    private authService: AuthService,
-    private zegoService:ZegoVideoService
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -191,16 +189,6 @@ export class RecruiterChatComponent implements OnInit, OnDestroy {
   }
 
    initiateVideoCall() {
-    if (this.selectedChatRoom) {
-      const recruiterId = this.authService.getRecruiterId();
-      const roomId = `video_call_${recruiterId}_${this.getOtherUser(this.selectedChatRoom)._id}`;
-      
-      this.zegoService.joinCall(
-        roomId, 
-        recruiterId, 
-        'Recruiter Name' 
-      );
-    }
   }
 
 

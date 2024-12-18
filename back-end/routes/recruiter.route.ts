@@ -33,18 +33,20 @@ const recruiterRoute = Router();
 
 recruiterRoute.post('/register', recruiterController.register.bind(recruiterController));
 recruiterRoute.post('/login', recruiterController.login.bind(recruiterController));
+recruiterRoute.put('/profile',authenticateToken,authorizeRole('recruiter'), recruiterController.updateRecruiter.bind(recruiterController));
 recruiterRoute.post('/verify-otp', recruiterController.verifyOtp.bind(recruiterController));
 recruiterRoute.post('/company-details/:recruiterId',authenticateToken,authorizeRole('recruiter'), companyController.createOrUpdateCompany.bind(companyController));
 recruiterRoute.get('/company-details/:recruiterId',authenticateToken, authorizeRole('recruiter'), companyController.getCompanyByHrId.bind(companyController));
 recruiterRoute.post('/post-job',authenticateToken,authorizeRole('recruiter'),  jobController.createJob.bind(jobController));
 recruiterRoute.get('/jobs',authenticateToken,authorizeRole('recruiter'),  jobController.getRecruiterJob.bind(jobController));
 recruiterRoute.get('/shortlist-jobs',authenticateToken,authorizeRole('recruiter'),  jobController.getRecruiterShortListedJob.bind(jobController));
-recruiterRoute.delete('/job/:id',authenticateToken,authorizeRole('recruiter'),  jobController.deleteJob.bind(jobController));
+recruiterRoute.delete('/job/:id',jobController.deleteJob.bind(jobController));
 recruiterRoute.put('/job/:id',authenticateToken,authorizeRole('recruiter'),  jobController.updateJob.bind(jobController));
 recruiterRoute.get('/jobCategories', jobCategoryController.getAllJobCategories.bind(jobCategoryController));
 recruiterRoute.get('/jobs/applicants',authenticateToken,authorizeRole('recruiter'),  jobController.getJobsWithApplicants.bind(jobController));
 recruiterRoute.patch('/:jobId/applicants/:userId',authenticateToken,authorizeRole('recruiter'),  jobController.updateApplicationStatus.bind(jobController));
 recruiterRoute.patch('/change-password/:recruiterId', authenticateToken, authorizeRole('recruiter'), recruiterController.changePassword.bind(recruiterController));
+recruiterRoute.post('/check-mobile', recruiterController.checkMobileExists.bind(recruiterController));
 
 
 export default recruiterRoute;

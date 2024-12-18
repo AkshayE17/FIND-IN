@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { LoginResponse, IRecruiter, ICompany } from '../state/recruiter/recruiter.state';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecruiterService {
-  private apiUrl = 'http://localhost:8888';
+  private apiUrl = environment.backendUrl;
 
   constructor(private http: HttpClient, private authService: AuthService ) {}
 
@@ -33,6 +34,26 @@ export class RecruiterService {
     );
   }
 
+
+  updateRecruiterProfile(recruiterData: Partial<IRecruiter>) {
+    return this.http.put(`${this.apiUrl}/recruiter/profile`, recruiterData).pipe(
+      map(updatedRecruiter => {
+        return {
+          ...recruiterData, // Spread the updated fields
+          ...updatedRecruiter, // Spread the response to get any server-side modifications
+        };
+      })
+    );
+  }
+
+  
+  register(userData: { email: string; password: string }) {
+    return this.http.post<IRecruiter>(`${this.apiUrl}/recruiter/register`, userData).pipe(
+      map((response: IRecruiter) => {
+        return response;
+      })
+    );
+  }
 
   // Fetch company details for the recruiter
   getCompanyDetails(accessToken: string, recruiterId: string): Observable<ICompany> {

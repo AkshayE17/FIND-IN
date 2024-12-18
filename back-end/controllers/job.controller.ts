@@ -24,7 +24,7 @@ export class JobController implements IJobController {
 
       const jobData = { ...req.body };
       const job = await this._jobService.createJob(jobData);
-      res.status(HttpStatus.CREATED).json(job);
+      res.status(HttpStatus.CREATED).json(job); 
     } catch (error) {
       console.error("Error in createJob:", error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
@@ -42,7 +42,6 @@ export class JobController implements IJobController {
       const endSalary = req.query.endSalary as string;
       const location = req.query.location as string;
 
-      console.log("Search term:", search);
 
       const result = await this._jobService.getAllJobs(
         page,
@@ -123,7 +122,7 @@ export class JobController implements IJobController {
       const jobType = req.query.jobType as string;
 
       const result = await this._jobService.getRecruiterShortListedJobs(
-        recruiterId,
+        recruiterId,  
         page,
         pageSize,
         search,

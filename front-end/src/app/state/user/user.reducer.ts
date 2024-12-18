@@ -23,8 +23,21 @@ export const userReducer = createReducer(
     error,
   })),
   on(UserActions.logoutUser, () => initialUserState),
-  
-
+  on(UserActions.updateUserProfile, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(UserActions.updateUserProfileSuccess, (state, { user }) => ({
+    ...state,
+    user,
+    loading: false,
+  })),
+  on(UserActions.updateUserProfileFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
   on(UserActions.loadProfessionalDetails, (state) => ({
     ...state,
     loading: true,

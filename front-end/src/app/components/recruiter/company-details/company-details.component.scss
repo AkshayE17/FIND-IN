@@ -1,5 +1,8 @@
 .company-details-content {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 h2 {
@@ -48,7 +51,7 @@ h2 {
   font-weight: 600;
 }
 
-.industry {
+.contact {
   color: #666;
   font-size: 0.9rem;
   margin-top: 0.25rem;
@@ -128,33 +131,54 @@ h2 {
 }
 
 .edit-form {
-  display: grid;
-  gap: 1rem;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
 }
 
-.form-group {
+.edit-form .form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
-.form-group label {
+.edit-form .form-group label {
+  margin-bottom: 0.75rem;
+  color: #1a237e;
   font-weight: 600;
-  color: #1e2a3a;
+  font-size: 0.95rem;
 }
 
-.form-group input, .form-group textarea {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
+.edit-form .form-group input, 
+.edit-form .form-group textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+  transition: all 0.3s ease;
   font-size: 1rem;
+  background-color: white;
 }
 
-.button-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 1rem;
+.edit-form .form-group input:focus, 
+.edit-form .form-group textarea:focus {
+  outline: none;
+  border-color: #1a237e;
+  box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+}
+
+.edit-form .form-group small {
+  position: absolute;
+  bottom: -1.25rem;
+  left: 0;
+  color: #f44336;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 .no-details {
@@ -162,18 +186,90 @@ h2 {
   padding: 2rem;
 }
 
-.no-details p {
-  margin-bottom: 1rem;
-  color: #666;
+/* Responsive Grid Layout */
+@media (min-width: 768px) {
+  .edit-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .edit-form .form-group.full-width {
+    grid-column: span 2;
+  }
+
+  .edit-form .logo-upload {
+    grid-column: span 2;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  .edit-form {
+    padding: 1.5rem;
+  }
+
   .profile-header {
     flex-direction: column;
     text-align: center;
+    gap: 1rem;
   }
-  
+
   .profile-info {
     grid-template-columns: 1fr;
   }
+}
+
+.button-group {
+  grid-column: span 2;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+.logo-preview {
+  margin-left: 1.5rem;
+  max-width: 150px;
+}
+
+.logo-preview img {
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Enhanced error state */
+.form-group.error input,
+.form-group.error textarea {
+  border-color: #f44336;
+  background-color: #fff3f3;
+}
+
+.submit-button:disabled {
+  background-color: #a0a8c5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Additional improvements for accessibility and responsiveness */
+input[type="file"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+}
+
+a {
+  color: #1a237e;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #3b46b8;
+  text-decoration: underline;
 }

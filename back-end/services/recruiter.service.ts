@@ -26,7 +26,7 @@ export class RecruiterService implements IRecruiterService {
     }
   }
 
-  async verifyOtp(email: string, otp: number): Promise<IRecruiter | null> {
+  async verifyOtp(email: string): Promise<IRecruiter | null> {
     try {
       const recruiter = await this._recruiterRepository.findRecruiterByEmail(email);
       if (!recruiter) {
@@ -49,6 +49,10 @@ export class RecruiterService implements IRecruiterService {
         throw new Error('Recruiter not found.');
       }
 
+      if(!recruiter.isVerified) {
+        throw new Error('Recruiter is not verified.');
+      }
+
       const isMatch = await bcrypt.compare(password, recruiter.password);
 
       if (!isMatch) {
@@ -68,6 +72,20 @@ export class RecruiterService implements IRecruiterService {
     }
   }
 
+  async updateRecruiter(id: string, recruiterData: Partial<IRecruiter>): Promise<IRecruiter | null> {
+    try {
+        const updatedRecruiter = await this._recruiterRepository.updateRecruiter(id, recruiterData);
+        if (!updatedRecruiter) {
+            throw new Error('User not found');
+        }
+
+        return updatedRecruiter;
+    }catch (error: unknown) {
+        console.error("Error updating user:", error);
+        throw new Error(`Failed to update user with ID ${id}: ${(error as Error).message}`);
+    }
+}
+
   async changeRecruiterPassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
     try {
       const recruiter = await this._recruiterRepository.findById(id);
@@ -82,7 +100,7 @@ export class RecruiterService implements IRecruiterService {
   
       const isMatch = await bcrypt.compare(currentPassword, recruiter.password);
       if (!isMatch) {
-        console.log("Current password is incorrect.");
+        console.log("Current password is incorrect.");  
         throw new Error('Current password is incorrect.');
       }
   
@@ -91,6 +109,17 @@ export class RecruiterService implements IRecruiterService {
     } catch (error) {
       console.error('Error in changeRecruiterPassword service:', error);
       throw new Error(`Failed to change password: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+
+  async checkMobileExists(mobile: string): Promise<boolean> {
+    try {
+      const recruiter = await this._recruiterRepository.checkMobileExists(mobile);
+      return recruiter;
+    } catch (error) {
+      console.error('Error in checkEmailExists service:', error);
+      throw new Error(`Failed to check email: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
   

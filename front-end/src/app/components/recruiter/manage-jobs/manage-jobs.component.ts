@@ -41,9 +41,9 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
     jobCategory: '',
     jobDescription: '',
     location: '',
-    experienceRequired: '0', 
+    experienceRequired: 0, 
     skills: [],
-    salary: '0' 
+    salary: 0 
   };
   searchSubject = new Subject<string>();
 
@@ -63,15 +63,15 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadJobs();
-  
+    
     // Only add this subscription if it's not already observed
     if (!this.searchSubject.observed) {
       this.subscriptions.add(
         this.searchSubject.pipe(
           debounceTime(500),
           distinctUntilChanged(),
-          switchMap((searchTerm) => {
-            this.filters.searchTerm = searchTerm;
+          switchMap(() => {
+            // Now using both filters (searchTerm and jobType)
             return this.jobService.getRecruiterJobs(
               this.authService.getRecruiterId(),
               this.currentPage,
@@ -94,41 +94,38 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
       );
     }
   }
+  
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
   loadJobs(page: number = 1) {
-    if (!this.searchSubject.observed) {
-      this.loading = true;
-
-      const jobSubscription = this.jobService
-        .getRecruiterJobs(
-          this.authService.getRecruiterId(),
-          page,
-          this.pageSize,
-          this.filters.searchTerm,
-          this.filters.jobType
-        )
-        .subscribe({
-          next: (data) => {
-            console.log("data is :", data);
-            this.jobs$ = of(data.jobs);
-            this.totalJobs = data.total;
-            this.currentPage = page;
-            this.loading = false;
-          },
-          error: (error) => {
-            this.loading = false;
-            console.error('Error fetching jobs:', error);
-          },
-        });
-
-      this.subscriptions.add(jobSubscription);
-    }
+    this.loading = true; // Show loading spinner
+  
+    // Fetch jobs with both search term and job type
+    const jobSubscription = this.jobService.getRecruiterJobs(
+      this.authService.getRecruiterId(),
+      page,
+      this.pageSize,
+      this.filters.searchTerm,  // Include the search term
+      this.filters.jobType      // Include the job type filter
+    ).subscribe({
+      next: (data) => {
+        this.jobs$ = of(data.jobs);
+        this.totalJobs = data.total;
+        this.currentPage = page;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error fetching jobs:', error);
+      }
+    });
+  
+    this.subscriptions.add(jobSubscription);
   }
-
+  
   onSearchChange(searchTerm: string) {
     this.searchSubject.next(searchTerm);
   }
@@ -243,6 +240,14 @@ export class ManageJobsComponent implements OnInit, OnDestroy {
       Swal.fire('No Applicants', 'This job has no applicants yet.', 'info');
     }
   }
+  onJobTypeChange() {
+    console.log('Updated jobType:', this.filters.jobType);
+    this.currentPage = 1;
+    this.searchSubject.next(this.filters.searchTerm);
+    this.loadJobs(); // Trigger the job filter update
+  }
+  
+
 
   hideApplicantsModal() {
     this.isApplicantsModalVisible = false;

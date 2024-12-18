@@ -106,7 +106,6 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Custom validators
   private validateSkills(control: AbstractControl): {[key: string]: any} | null {
     if (!control.value) return null;
     
@@ -131,7 +130,6 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
     if (value < 0) return { 'negativeExperience': true };
     if (value > 50) return { 'excessiveExperience': true };
     
-    // Ensure only 0.5 increments
     if (!Number.isInteger(value * 2)) {
       return { 'invalidExperienceIncrement': true };
     }
@@ -152,25 +150,25 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
 
   private loadProfessionalDetails() {
     this.isLoading.next(true);
+    console.log("triggering the load professional details")
     this.userService.getProfessionalDetails()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (details) => {
-          if (Array.isArray(details) && details.length > 0) {
-            details = details[0];  // Assume we only need the first item if it's an array
+          console.log("professional details",details);
+          let normalizedDetails = null;
+          if (Array.isArray(details)) {
+            normalizedDetails = details.length > 0 ? details[0] : null;
+          } else if (details && Object.keys(details).length > 0) {
+            normalizedDetails = details;
           }
           
-          if (details && typeof details === 'object') {
-            console.log('Professional details loaded:', details);
-            this.professionalDetails$.next(details);
-          } else {
-            this.error = 'No professional details available';
-          }
-          
+          this.professionalDetails$.next(normalizedDetails);
           this.isLoading.next(false);
         },
         error: (err) => {
           console.error('Error loading professional details:', err);
+          this.professionalDetails$.next(null);
           this.error = 'Failed to load professional details. Please try again later.';
           this.isLoading.next(false);
         }
@@ -189,32 +187,33 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFileSelect(event: any) {
-    const file = event.target.files[0];
-    if (file && (file.type === 'application/pdf' || 
-                 file.type === 'application/msword' || 
-                 file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
-      if (file.size <= 5242880) { // 5MB limit
-        this.selectedFile = file;
-        this.error = null;
-      } else {
-        this.error = 'File size exceeds 5MB limit.';
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+  
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+  
+      if (!validTypes.includes(file.type)) {
+        this.error = 'Invalid file type. Only PDF, DOC, and DOCX are allowed.';
         this.selectedFile = null;
+      } else if (file.size > maxSize) {
+        this.error = 'File size exceeds the 5MB limit.';
+        this.selectedFile = null;
+      } else {
+        this.error = null;
+        this.selectedFile = file;
       }
-    } else {
-      this.error = 'Please upload a valid PDF or Word document (DOC/DOCX).';
-      this.selectedFile = null;
     }
   }
 
   async onSubmit() {
-    // Mark all fields as touched to trigger validation display
     Object.keys(this.detailsForm.controls).forEach(field => {
       const control = this.detailsForm.get(field);
       control?.markAsTouched();
     });
 
-    // Check form validity
     if (this.detailsForm.invalid) {
       Swal.fire({
         icon: 'error',
@@ -225,10 +224,8 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Prepare professional details
     let professionalDetails = {...this.detailsForm.value};
     
-    // Convert skills to array
     if (typeof professionalDetails.skills === 'string') {
       professionalDetails.skills = professionalDetails.skills
         .split(',')
@@ -236,7 +233,6 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
         .filter((skill: string) => skill);
     }
 
-    // File upload handling
     if (this.selectedFile) {
       try {
         const response = await this.adminService.getUploadUrl(this.selectedFile.name, this.selectedFile.type).toPromise();
@@ -253,16 +249,22 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
         Swal.fire('Error', 'Failed to upload resume. Please try again later.', 'error');
         return;
       }
-    }
+    } 
 
     this.saveProfessionalDetails(professionalDetails);
   }
 
+  getFileName(url: string | undefined): string | null {
+    if (!url) {
+      return null;
+    }
+    return url.split('/').pop() || null;
+  }
+  
   private saveProfessionalDetails(professionalDetails: IProfessionalDetails) {
     this.isLoading.next(true);
 
     if (this.professionalDetails$.value) {
-      // Update existing professional details
       this.userService.updateProfessionalDetails(professionalDetails)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -280,7 +282,6 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
           }
         });
     } else {
-      // Create new professional details
       this.userService.createProfessionalDetails(professionalDetails)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -301,9 +302,15 @@ export class ProfessionalDetailsComponent implements OnInit, OnDestroy {
   }
 
   startAdding() {
-    console.log('Start adding triggered');
-    this.isEditing = true;
-    this.detailsForm.reset();
+    this.isEditing = !this.isEditing;
+    this.detailsForm.reset({
+      title: '',
+      skills: '',
+      experience: 0,
+      currentLocation: '',
+      expectedSalary: 0,
+      about: ''
+    });
     this.selectedFile = null;
     this.error = null;
   }

@@ -62,6 +62,21 @@ export class UserEffects {
     )
   );
 
+
+  updateUserProfile$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(UserActions.updateUserProfile),
+      mergeMap(({ user }) =>
+        this.userService.updateUserProfile(user).pipe(
+          map(() => UserActions.updateUserProfileSuccess({ user })),
+          catchError((error) =>
+            of(UserActions.updateUserProfileFailure({ error: error.message || 'Failed to update user' }))
+          )
+        )
+      )
+    )
+  );
+
   loadProfessionalDetails$ = createEffect(() =>
     this.actions$.pipe(
       ofType(UserActions.loadProfessionalDetails),

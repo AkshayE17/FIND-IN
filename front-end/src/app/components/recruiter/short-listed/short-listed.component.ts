@@ -6,8 +6,8 @@ import { catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/
 import { JobService } from '../../../services/job.service';
 import { IJob } from '../../../state/job/job.state';
 import { AuthService } from '../../../services/auth.service';
-import { ZegoVideoService } from '../../../services/zegoVideo.service';
-import { MatSnackBar } from '@angular/material/snack-bar'; // Assuming you're using Angular Material for notifications
+import { MatSnackBar } from '@angular/material/snack-bar'; 
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-short-listed',
@@ -42,18 +42,20 @@ export class ShortListedComponent implements OnInit, OnDestroy {
   constructor(
     private jobService: JobService,
     private authService: AuthService,
-    private zegoService: ZegoVideoService,
-    private snackBar: MatSnackBar // For showing notifications
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadJobs();
-
+  
+    console.log('Setting up search subscription');
     this.subscriptions.add(
       this.searchSubject.pipe(
         debounceTime(500),
         distinctUntilChanged(),
         switchMap((searchTerm) => {
+          console.log('Search Subject Triggered:', searchTerm);
           this.filters.searchTerm = searchTerm;
           return this.jobService.getRecruiterShortlistedJobs(
             this.authService.getRecruiterId(),
@@ -65,15 +67,16 @@ export class ShortListedComponent implements OnInit, OnDestroy {
         })
       ).subscribe({
         next: (data) => {
+          console.log('Search API Response:', data);
           this.jobs$ = of(data.jobs);
           this.totalJobs = data.total;
           this.loading = false;
         },
         error: (error) => {
+          console.error('Search API Error:', error);
           this.loading = false;
-          console.error('Error fetching jobs:', error);
           this.snackBar.open('Failed to fetch jobs', 'Close', { duration: 3000 });
-        },
+        }
       })
     );
   }
@@ -83,41 +86,40 @@ export class ShortListedComponent implements OnInit, OnDestroy {
   }
 
   loadJobs(page: number = 1) {
-    if (!this.searchSubject.observed) {
-      this.loading = true;  
+    this.loading = true;  
 
-      const jobSubscription = this.jobService
-        .getRecruiterShortlistedJobs(
-          this.authService.getRecruiterId(),
-          page,
-          this.pageSize,
-          this.filters.searchTerm,
-          this.filters.jobType
-        )
-        .subscribe({
-          next: (data) => {
-            this.jobs$ = of(data.jobs);
-            this.totalJobs = data.total;
-            this.currentPage = page;
-            this.loading = false;
-          },
-          error: (error) => {
-            this.loading = false;
-            console.error('Error fetching jobs:', error);
-            this.snackBar.open('Failed to fetch jobs', 'Close', { duration: 3000 });
-          },
-        });
-
-      this.subscriptions.add(jobSubscription);
-    }
+    const jobSubscription = this.jobService
+      .getRecruiterShortlistedJobs(
+        this.authService.getRecruiterId(),
+        page,
+        this.pageSize,
+        this.filters.searchTerm,
+        this.filters.jobType
+      )
+      .subscribe({
+        next: (data) => {
+          this.jobs$ = of(data.jobs);3
+          this.totalJobs = data.total;
+          this.currentPage = page;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Detailed Error fetching jobs:', error);
+          this.loading = false;
+          this.snackBar.open('Failed to fetch jobs', 'Close', { duration: 3000 });
+        },
+      });
+  
+    this.subscriptions.add(jobSubscription);
   }
 
   hasApplicants(job: IJob | undefined): boolean {
     return !!job?.applicants && job.applicants.length > 0;
   }
   
-  onSearchChange(target: HTMLInputElement) {
-    const searchTerm = target.value || '';
+
+  onSearchChange(searchTerm: string) {
+    console.log('Search Term Changed:', searchTerm);
     this.searchSubject.next(searchTerm);
   }
   
@@ -133,26 +135,12 @@ export class ShortListedComponent implements OnInit, OnDestroy {
   }
 
   openChat(userId: string) {
-    // Implement chat functionality
+    this.router.navigate(['recruiter/dashboard/chat']);
   }
   
-  joinVideoCall(applicant: any) {
-    const recruiterId = this.authService.getRecruiterId();
-    const roomId = `video_call_${recruiterId}_${applicant._id}`;
-    
-    // Start video call
-    this.subscriptions.add(
-      this.zegoService.joinCall(
-        roomId, 
-        recruiterId, 
-      'Recruiter'
-      ).pipe(
-        catchError(error => {
-          console.error('Video call error:', error);
-          this.snackBar.open('Failed to start video call', 'Close', { duration: 3000 });
-          return [];
-        })
-      ).subscribe()
-    );
+
+  joinVideoCall() {
+    this.router.navigate(['recruiter/dashboard/video-call']);
   }
+   
 }

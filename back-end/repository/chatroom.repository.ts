@@ -11,7 +11,7 @@ class ChatRoomRepository implements IChatRoomRepository {
     return ChatRoomModel.findOne({ jobSeekerId, recruiterId });
   }
 
-// In ChatRoomRepository
+// In ChatRoomRepository   
 async getUserChatRooms(userId: string): Promise<ChatRoom[]> {
   return ChatRoomModel.find({
     $or: [{ jobSeekerId: userId }, { recruiterId: userId }],

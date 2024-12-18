@@ -10,6 +10,8 @@ import { HeaderComponent } from '../../common/header/header.component';
 import { FooterComponent } from '../../common/footer/footer.component';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { RecruiterService } from '../../../services/recruiter.service';
+import { mobileValidator } from '../../../interceptors/numberValidator';
 
 @Component({
   selector: 'app-recruiter-register',
@@ -24,13 +26,13 @@ export class RecruiterRegisterComponent implements OnDestroy {
   error$: Observable<string>;
   private unsubscribe$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private dialog: MatDialog) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private dialog: MatDialog,private recruiterService:RecruiterService) {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       officialEmail: ['', [Validators.required, Validators.email]],
       einNumber: ['', [Validators.required, Validators.pattern('^[0-9]{2}-[0-9]{7}$')]],
-      mobile: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+      mobile: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')],[mobileValidator(this.http,'recruiter')],this.noAllZerosValidator],
       companyName: ['', Validators.required],
       companyWebsite: ['', [Validators.required, Validators.pattern('https?://.+')]],
       jobTitle: ['', Validators.required],
@@ -69,19 +71,23 @@ export class RecruiterRegisterComponent implements OnDestroy {
       // Open the OTP verification modal immediately
       const dialogRef = this.openOtpVerificationModal();
 
-      this.http.post('http://localhost:8888/recruiter/register', recruiterData)
+      this.loading$.next(true);
+      
+      this.recruiterService.register(recruiterData)
         .pipe(takeUntil(this.unsubscribe$))
         .subscribe({
           next: (response) => {
             console.log('User registered successfully', response);
+            this.loading$.next(false);
             dialogRef.componentInstance['setData'](recruiterData);
           },
           error: (error: any) => {
             console.error('Error registering user', error);
             dialogRef.close();
-            if (error?.error?.message === 'Recruiter with this email already exists.') {
+            
+            if (error?.error?.message && error?.error?.message.includes('Recruiter with this email already exists')){
               this.showDuplicateEmailAlert();
-            } else {
+            } else {  
               this.showGenericErrorAlert();
             }
           }

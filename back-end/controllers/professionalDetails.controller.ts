@@ -9,10 +9,10 @@ export class ProfessionalDetailsController {
   async create(req: Request, res: Response): Promise<void> {
     try {
       console.log("Entering the professional details controller...");
-      const userId = req.params.id;
-      console.log("Type of user id is:", typeof userId);
+      const userId = req.params.userId;
+      console.log("user id is:", userId);
       const details = req.body;
-      console.log("User details are:", userId, details);
+      console.log("User details are:", details);
 
       const professionalDetail = await this._professionalDetailsService.create(userId, details);
       res.status(HttpStatus.CREATED).json(professionalDetail);
@@ -48,7 +48,9 @@ export class ProfessionalDetailsController {
 
   async getByUserId(req: Request, res: Response): Promise<void> {
     try {
+      console.log("Entering the professional details controller...");
       const userId = req.params.id;
+      console.log("User ID is:", userId);
       const professionalDetails = await this._professionalDetailsService.getByUserId(userId);
       res.status(HttpStatus.OK).json(professionalDetails);
     } catch (error: unknown) {
@@ -64,9 +66,7 @@ export class ProfessionalDetailsController {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const id = req.params.id;
-      console.log("Id is:", id);
       const updatedDetails = await this._professionalDetailsService.update(id, req.body);
-      console.log("Updated details are:", updatedDetails);
       if (updatedDetails) {
         res.status(HttpStatus.OK).json(updatedDetails);
       } else {

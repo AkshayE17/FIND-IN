@@ -6,4 +6,8 @@ export interface IRecruiterController {
   login(req: Request, res: Response): Promise<void>;
 
   verifyOtp(req: Request, res: Response): Promise<void>;
+
+  updateRecruiter(req: Request, res: Response): Promise<void>
+
+  
 }

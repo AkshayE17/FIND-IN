@@ -1,8 +1,64 @@
 <app-header></app-header>
-<div class="landing-container">
-  <app-banner></app-banner>
-  <div class="max-w-6xl mx-auto px-4">
-    <app-search (search)="handleSearch($event)"></app-search>
+<div class="home-container" [@pageAnimations]>
+  <!-- Hero Section with Enhanced Animation -->
+  <div class="hero-section relative overflow-hidden">
+    <div class="absolute inset-0 z-0 particles-bg"></div>
+    <div class="relative z-10 max-w-6xl mx-auto px-4 py-16 text-center">
+      <h1 class="text-5xl font-extrabold mb-4 text-primary-600 animate-advanced-fade">
+        Discover Your <span class="text-highlighted">Dream Career</span>
+      </h1>
+      <p class="text-lg mb-8 text-on-dark animate-advanced-fade delay-200">
+        Connecting <span class="text-highlighted">Talent</span> with <span class="text-highlighted">Opportunity</span>, Seamlessly
+      </p>
+      
+      <app-search 
+        [@categoryAnimations]
+        (search)="handleSearch($event)" 
+        class="max-w-2xl mx-auto block animate-advanced-fade delay-300"
+      ></app-search>
+    </div>
+  </div>
+
+  <!-- Job Categories Section -->
+  <div class="categories-section py-16">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-4xl font-semibold text-center mb-12 text-white tracking-wide animate-advanced-fade">
+        Explore Job Types
+      </h2>
+      <div [@categoryAnimations] class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div *ngFor="let category of jobCategories" 
+             class="category-card p-8 rounded-lg text-center hover-lift">
+          <div class="mb-4 flex justify-center">
+            <i [class]="category.icon" 
+               class="text-6xl opacity-80 transition-transform text-white"
+               [ngStyle]="{'color': category.color}"></i>
+          </div>
+          <h3 class="text-2xl font-semibold mb-2 text-gray-200">{{category.title}}</h3>
+          <p class="text-sm text-gray-400">{{category.description}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="features-section py-16">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-4xl font-semibold text-center mb-12 text-white tracking-wide animate-advanced-fade">
+        Platform Capabilities
+      </h2>
+      <div [@featureAnimations] class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div *ngFor="let feature of features"
+             class="feature-card p-8 rounded-lg text-center hover-lift">
+          <div class="mb-4 flex justify-center">
+            <i [class]="feature.icon" 
+               class="text-5xl opacity-80 transition-transform text-white"
+               [ngStyle]="{'color': feature.color}"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2 text-gray-200">{{feature.title}}</h3>
+          <p class="text-sm text-gray-400">{{feature.description}}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <app-footer></app-footer>

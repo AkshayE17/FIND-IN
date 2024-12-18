@@ -9,7 +9,7 @@ import { IJob, JobReportData, JobStatistics } from '../../models/job';
     createAdmin(email: string, password: string): Promise<IAdmin>;
     getPendingRecruiters(page: number, limit: number, search: string, filters: FilterOptions): Promise<{ recruiters: IRecruiter[], total: number }>;
     getRecruiters(page:number,limit:number,search:string,filters:FilterOptions): Promise<{recruiters:IRecruiter[],total:number}>;
-    getUsers(page:number,limit:number,search:string,filters:FilterOptions): Promise<{users:IUser[],total:number}>;
+    getUsers(page:number,limit:number,search:string,email:string,filters:FilterOptions): Promise<{users:IUser[],total:number}>;
     approveRecruiter(email: string): Promise<IRecruiter | null>;
     rejectRecruiter(email: string): Promise<IRecruiter | null>;
     blockOrUnblockRecruiter(email: string): Promise<IRecruiter | null>;

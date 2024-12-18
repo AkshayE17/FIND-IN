@@ -3,16 +3,17 @@ import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Message, ChatRoom } from '../state/recruiter/recruiter.state';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
-  private apiUrl = 'http://localhost:8888';
+  private apiUrl = environment.backendUrl;
   private socket: Socket;
 
   constructor(private http:HttpClient) {
-    this.socket = io('http://localhost:8888', {
+    this.socket = io(environment.backendUrl, {
       transports: ['websocket', 'polling'],
     });
   }

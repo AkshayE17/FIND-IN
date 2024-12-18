@@ -27,9 +27,10 @@ export class BaseLoginComponent {
   @Input() config!: LoginPageConfig;
   @Input() loading: boolean = false;
   @Input() error: string | null = null;
-  @Output() submitForm = new EventEmitter<{email: string, password: string}>();
+  @Output() submitForm = new EventEmitter<{ email: string; password: string }>();
 
   loginForm: FormGroup;
+  passwordFieldType: string = 'password'; // Default type is 'password'
 
   constructor(private formBuilder: FormBuilder) {
     this.loginForm = this.formBuilder.group({
@@ -44,5 +45,10 @@ export class BaseLoginComponent {
       return;
     }
     this.submitForm.emit(this.loginForm.value);
+  }
+
+  togglePasswordVisibility() {
+    this.passwordFieldType =
+      this.passwordFieldType === 'password' ? 'text' : 'password';
   }
 }

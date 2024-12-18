@@ -6,5 +6,6 @@ export interface IRecruiterRepository {
   findRecruiterByEmail(email: string): Promise<IRecruiter | null>;
   updateRecruiter(id: string, updateData: Partial<IRecruiter>): Promise<IRecruiter | null>;
   updateRecruiterPassword(id: string, hashedPassword: string): Promise<IRecruiter | null>
-  findById(id: string): Promise<IRecruiter | null> 
+  findById(id: string): Promise<IRecruiter | null> ;
+  checkMobileExists(mobile: string): Promise<boolean> ;
 }

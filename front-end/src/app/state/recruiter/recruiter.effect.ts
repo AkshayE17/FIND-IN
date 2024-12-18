@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { RecruiterService } from '../../services/recruiter.service';
-import { loginRecruiter, loginRecruiterSuccess, loginRecruiterFailure, addOrUpdateCompanyDetails, addOrUpdateCompanyDetailsSuccess, addOrUpdateCompanyDetailsFailure, loadCompanyDetails } from './recruiter.action';
+import { loginRecruiter, loginRecruiterSuccess, loginRecruiterFailure, addOrUpdateCompanyDetails, addOrUpdateCompanyDetailsSuccess, addOrUpdateCompanyDetailsFailure, loadCompanyDetails, updateRecruiterProfile, updateRecruiterProfileSuccess, updateRecruiterProfileFailure } from './recruiter.action';
 import { LoginResponse } from './recruiter.state';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from '../../services/auth.service';
@@ -55,6 +55,20 @@ export class RecruiterEffects {
           return { type: '[Recruiter] No Action' };
         }
       })
+    )
+  );
+
+  updateRecruiterProfile$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateRecruiterProfile),
+      mergeMap(({ recruiter }) =>
+        this.recruiterService.updateRecruiterProfile(recruiter).pipe(
+          map(() => updateRecruiterProfileSuccess({ recruiter })),
+          catchError((error) =>
+            of(updateRecruiterProfileFailure({ error: error.message || 'Failed to update user' }))
+          )
+        )
+      )
     )
   );
 

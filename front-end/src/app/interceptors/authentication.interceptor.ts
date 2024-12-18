@@ -23,7 +23,6 @@ export const authInterceptor: HttpInterceptorFn = (
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  // Get token and role observables based on request URL
   const { token$, role$ } = getTokenAndRoleForRequest(req, store);
 
   return token$.pipe(
@@ -42,17 +41,30 @@ export const authInterceptor: HttpInterceptorFn = (
 
           return next(authReq).pipe(
             catchError((error: HttpErrorResponse) => {
-              // Check for 403 Forbidden error
               if (error.status === 403) {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Forbidden',
-                  text: 'You do not have permission to access this resource.',
-                });
-                router.navigate(['/']);
-              } 
-              else if (error.status === 401) {
-                
+                if (error.error && error.error.message === 'User account is blocked' || error.error.message === 'Recruiter account is blocked') {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Account Blocked',
+                    text: 'Your account has been blocked. Please contact support for assistance.',
+                  });
+  
+                  authService.clearRecruiterData();
+                  store.dispatch(resetRecruiterState());
+                  authService.clearUserData();
+                  store.dispatch(resetUserState());
+                  
+                  router.navigate(['/']);
+                } else {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Forbidden',
+                    text: 'You do not have permission to access this resource.',
+                  });
+                  router.navigate(['/']);
+                }
+              } else if (error.status === 401) {
+                // Handle 401 errors
                 if (error.error && error.error.message && error.error.message.includes('expired')) {
                   Swal.fire({
                     icon: 'error',
@@ -66,8 +78,8 @@ export const authInterceptor: HttpInterceptorFn = (
                     text: 'The credentials you entered are incorrect.',
                   });
                 }
-
-                // Clear relevant session data
+ 
+                // Clear session data based on the role
                 if (req.url.includes('/admin')) {
                   authService.clearAdminData();
                   store.dispatch(resetAdminState());

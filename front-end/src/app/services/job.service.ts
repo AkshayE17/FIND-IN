@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { IJob, IJobCategory, IJobResponse, JobReport, JobStatistics } from '../state/job/job.state'; 
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class JobService {
-  private apiUrl = 'http://localhost:8888';
+  private apiUrl = environment.backendUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -74,6 +75,40 @@ export class JobService {
       })
     );
   }
+
+
+  getAllAdminJobs(
+    page: number,
+    pageSize: number,
+    search?: string,
+    jobType?: string,
+    category?: string,
+    startSalary?: string,
+    endSalary?: string,
+    location?: string,
+    isAdmin?: boolean // New parameter
+  ): Observable<{ jobs: IJob[], total: number }> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+  
+    if (search) params = params.set('search', search);
+    if (jobType) params = params.set('jobType', jobType);
+    if (category) params = params.set('category', category);
+    if (startSalary) params = params.set('startSalary', startSalary);
+    if (endSalary) params = params.set('endSalary', endSalary);
+    if (location) params = params.set('location', location);
+  
+    const endpoint = isAdmin ? `${this.apiUrl}/admin/jobs` : `${this.apiUrl}/user/jobs`;
+  
+    return this.http.get<{ jobs: IJob[], total: number }>(endpoint, { params }).pipe(
+      catchError((error) => {
+        console.error('Error fetching jobs:', error);
+        return throwError(error);
+      })
+    );
+  }
+  
 
   applyForJob(jobId: string, userId: string | null): Observable<any> {
     console.log("entering the apply job");
@@ -155,7 +190,6 @@ export class JobService {
   deleteJob(jobId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/recruiter/job/${jobId}`);
   }
-
 
   //getJocCategories
   getJobCategories():Observable<IJobCategory[]>{

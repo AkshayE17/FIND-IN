@@ -35,6 +35,11 @@ import { ShortListComponent } from './components/user/short-list/short-list.comp
 import { AdminAuthGuard } from './services/admin-auth-gaurd.service';
 import { ChangePasswordComponent } from './components/recruiter/change-password/change-password.component';
 import { JobReportComponent } from './components/admin/job-report/job-report.component';
+import { RoomIdComponent } from './components/recruiter/room-id/room-id.component';
+import { VideoCallComponent } from './components/recruiter/video-call/video-call.component';
+import { UserChangePasswordComponent } from './components/user/user-change-password/user-change-password.component';
+import { RoomComponent } from './components/user/room/room.component';
+import { VideoComponent } from './components/user/video/video.component';
 
 export const routes: Routes = [
   {path:'',component:HomeComponent},
@@ -49,6 +54,12 @@ export const routes: Routes = [
   {path:'user/job-details/:id',component:JobsDetailsComponent},
   {path:'admin/login',component:AdminLoginComponent},
   {path:'unauthorized',component:UnauthorizedComponent},
+  {path:'recruiter/room/:roomId',canActivate:[AuthGuard],component:RoomIdComponent},
+  {path:'user/room/:roomId',canActivate:[AuthGuard],component:RoomComponent},
+
+
+
+
 
   {
     path: 'admin',
@@ -62,7 +73,8 @@ export const routes: Routes = [
       { path: 'recruiters', component:RecruitersComponent},
       {path:'jobcategory',component:JobCategoryComponent},
       {path:'jobs',component:JobsComponent},
-      {path:'report',component:JobReportComponent}
+      {path:'report',component:JobReportComponent},
+ 
     ],
   },
   {
@@ -74,6 +86,9 @@ export const routes: Routes = [
       {path:"professional-details",component:ProfessionalDetailsComponent},
       {path:"chat",component:UserChatComponent},
       {path:"short-list",component:ShortListComponent},
+      {path:"change-password",component:UserChangePasswordComponent},
+      {path:'video-call',component:VideoComponent},
+    
     ]
   },
   {
@@ -86,7 +101,8 @@ export const routes: Routes = [
       {path:"manage-jobs",component:ManageJobsComponent},
       {path:"shortlisted",component:ShortListedComponent},
       {path:"chat",component:RecruiterChatComponent},
-      {path:"change-password",component:ChangePasswordComponent}
+      {path:"change-password",component:ChangePasswordComponent},
+      {path:"video-call",component:VideoCallComponent},
     ]
   }
 ]

@@ -15,6 +15,8 @@ import { loadCompanyDetails } from '../../../state/recruiter/recruiter.action';
 import { AuthService } from '../../../services/auth.service';
 import { RecruiterService } from '../../../services/recruiter.service';
 
+
+
 @Component({
   selector: 'app-post-job',
   standalone: true,
@@ -37,15 +39,22 @@ export class PostJobComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.jobForm = this.fb.group({
-      jobTitle: ['', Validators.required],
+      jobTitle: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s\-]+$/)]],
       jobType: ['', Validators.required],
       jobCategory: ['', Validators.required],
-      skills: ['', Validators.required],
-      experienceRequired: ['', Validators.required],
-      location: ['', Validators.required],
-      salary: ['', Validators.required],
-      jobDescription: ['', Validators.required],
+      skills: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s,]+$/)]],
+      experienceRequired: [
+        '',
+        [Validators.required, Validators.pattern(/^\d+$/), Validators.min(0)],
+      ],
+      location: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s\-]+$/)]],
+      salary: [
+        '',
+        [Validators.required, Validators.pattern(/^\d+$/), Validators.min(0)],
+      ],
+      jobDescription: ['', [Validators.required, Validators.minLength(10)]],
     });
+    
   }
 
   ngOnInit(): void {

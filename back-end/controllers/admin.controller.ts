@@ -125,6 +125,7 @@ export class AdminController implements IAdminController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.pageSize as string) || 10;
       const search = req.query.search as string || '';
+      const email = req.query.email as string || '';
       const isBlocked = req.query.isBlocked === 'true' ? true : req.query.isBlocked === 'false' ? false : undefined;
       const filters = {
         gender: req.query.gender as string,
@@ -134,7 +135,7 @@ export class AdminController implements IAdminController {
       };
 
       console.log('Filters being sent to service:', filters);
-      const { users, total } = await this._adminService.getUsers(page, limit, search, filters);
+      const { users, total } = await this._adminService.getUsers(page, limit, search, email, filters);
 
       return res.status(HttpStatus.OK).json({
         users,

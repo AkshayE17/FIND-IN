@@ -1,61 +1,235 @@
 <div class="recruiter-details-content" *ngIf="recruiter$ | async as recruiter">
   <h2>Recruiter Profile</h2>
   <div class="profile-card">
-    <div class="profile-header">
-      <div class="avatar-container">
-        <img [src]="recruiter.imageUrl || '/assets/user (2).png'" alt="Recruiter avatar" class="avatar">
+    <!-- View Mode -->
+    <ng-container *ngIf="!isEditing">
+      <div class="profile-header">
+        <div class="avatar-container">
+          <img [src]="recruiter.imageUrl || '/assets/user (2).png'" alt="Recruiter avatar" class="avatar">
+        </div>
+        <div class="recruiter-info">
+          <h3>{{ recruiter.name }}</h3>
+          <span class="job-title">{{ recruiter.jobTitle }}</span>
+        </div>
       </div>
-      <div class="recruiter-info">
-        <h3>{{ recruiter.name }}</h3>
-        <span class="job-title">{{ recruiter.jobTitle }}</span>
+      <div class="profile-info">
+        <div class="info-item">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <label>Personal Email</label>
+            <p>{{ recruiter.email }}</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <label>Official Email</label>
+            <p>{{ recruiter.officialEmail }}</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-phone"></i>
+          <div>
+            <label>Phone</label>
+            <p>{{ recruiter.mobile }}</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-venus-mars"></i>
+          <div>
+            <label>Gender</label>
+            <p>{{ recruiter.gender }}</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-building"></i>
+          <div>
+            <label>Company</label>
+            <p>{{ recruiter.companyName }}</p>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-globe"></i>
+          <div>
+            <label>Company Website</label>
+            <p>{{ recruiter.companyWebsite }}</p>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="profile-info">
-      <div class="info-item">
-        <i class="fas fa-envelope"></i>
-        <div>
+      
+      <button class="edit-button" (click)="toggleEdit()">
+        <i class="fas fa-edit"></i> Edit Profile
+      </button>
+    </ng-container>
+
+    <!-- Edit Mode -->
+    <ng-container *ngIf="isEditing">
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+        <div class="edit-profile-header">
+          <div class="avatar-edit-container">
+            <img [src]="imagePreview || '/assets/user (2).png'" alt="Recruiter avatar" class="avatar">
+            <input 
+              type="file" 
+              #imageUpload 
+              (change)="onImageSelected($event)" 
+              accept=".jpg,.jpeg,.png,.gif" 
+              class="image-upload-input"
+            >
+            <button type="button" class="upload-button" (click)="imageUpload.click()">
+              <i class="fas fa-camera"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Name</label>
+          <input 
+            type="text" 
+            formControlName="name" 
+            class="form-control" 
+            [ngClass]="{'is-invalid': name?.invalid && (name?.dirty || name?.touched)}"
+          >
+          <div *ngIf="name?.invalid && (name?.dirty || name?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.name">
+              <small *ngIf="name?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Job Title</label>
+          <input 
+            type="text" 
+            formControlName="jobTitle" 
+            class="form-control" 
+            [ngClass]="{'is-invalid': jobTitle?.invalid && (jobTitle?.dirty || jobTitle?.touched)}"
+          >
+          <div *ngIf="jobTitle?.invalid && (jobTitle?.dirty || jobTitle?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.jobTitle">
+              <small *ngIf="jobTitle?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label>Personal Email</label>
-          <p>{{ recruiter.email }}</p>
+          <input 
+            type="email" 
+            formControlName="email" 
+            class="form-control"
+            [ngClass]="{'is-invalid': email?.invalid && (email?.dirty || email?.touched)}"
+          >
+          <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.email">
+              <small *ngIf="email?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <i class="fas fa-envelope"></i>
-        <div>
+
+        <div class="form-group">
           <label>Official Email</label>
-          <p>{{ recruiter.officialEmail }}</p>
+          <input 
+            type="email" 
+            formControlName="officialEmail" 
+            class="form-control"
+            [ngClass]="{'is-invalid': officialEmail?.invalid && (officialEmail?.dirty || officialEmail?.touched)}"
+          >
+          <div *ngIf="officialEmail?.invalid && (officialEmail?.dirty || officialEmail?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.officialEmail">
+              <small *ngIf="officialEmail?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <i class="fas fa-phone"></i>
-        <div>
-          <label>Phone</label>
-          <p>{{ recruiter.mobile }}</p>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input 
+            type="text" 
+            formControlName="mobile" 
+            class="form-control"
+            [ngClass]="{'is-invalid': mobile?.invalid && (mobile?.dirty || mobile?.touched)}"
+          >
+          <div *ngIf="mobile?.invalid && (mobile?.dirty || mobile?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.mobile">
+              <small *ngIf="mobile?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <i class="fas fa-venus-mars"></i>
-        <div>
+
+        <div class="form-group">
           <label>Gender</label>
-          <p>{{ recruiter.gender }}</p>
+          <select 
+            formControlName="gender" 
+            class="form-control"
+            [ngClass]="{'is-invalid': gender?.invalid && (gender?.dirty || gender?.touched)}"
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <div *ngIf="gender?.invalid && (gender?.dirty || gender?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.gender">
+              <small *ngIf="gender?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <i class="fas fa-building"></i>
-        <div>
-          <label>Company</label>
-          <p>{{ recruiter.companyName }}</p>
+
+        <div class="form-group">
+          <label>Company Name</label>
+          <input 
+            type="text" 
+            formControlName="companyName" 
+            class="form-control"
+            [ngClass]="{'is-invalid': companyName?.invalid && (companyName?.dirty || companyName?.touched)}"
+          >
+          <div *ngIf="companyName?.invalid && (companyName?.dirty || companyName?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.companyName">
+              <small *ngIf="companyName?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="info-item">
-        <i class="fas fa-globe"></i>
-        <div>
+
+        <div class="form-group">
           <label>Company Website</label>
-          <p>{{ recruiter.companyWebsite }}</p>
+          <input 
+            type="text" 
+            formControlName="companyWebsite" 
+            class="form-control"
+            [ngClass]="{'is-invalid': companyWebsite?.invalid && (companyWebsite?.dirty || companyWebsite?.touched)}"
+          >
+          <div *ngIf="companyWebsite?.invalid && (companyWebsite?.dirty || companyWebsite?.touched)" class="invalid-feedback">
+            <div *ngFor="let msg of validationMessages.companyWebsite">
+              <small *ngIf="companyWebsite?.hasError(msg.type)" class="text-danger">
+                {{ msg.message }}
+              </small>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <button class="edit-button">
-      <i class="fas fa-edit"></i> Edit Profile
-    </button>
+
+        <div class="edit-buttons">
+          <button type="button" class="btn btn-secondary" (click)="toggleEdit()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </ng-container>
   </div>
 </div>

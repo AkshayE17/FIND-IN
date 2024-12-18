@@ -8,7 +8,7 @@ import { Store } from '@ngrx/store';
 import { IJob, IJobResponse, JobState } from '../../../state/job/job.state';
 import { JobService } from '../../../services/job.service';
 import { Observable, of, Subject } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators';
 import { UserService } from '../../../services/user.service';
 import Swal from 'sweetalert2';
@@ -26,6 +26,7 @@ export class JobComponent implements OnInit, OnDestroy {
   pageSize: number = 5;
   currentPage: number = 1;
   loading = false;
+  salaryError: string | null = null;
 
   filters = {
     jobType: '',
@@ -37,13 +38,14 @@ export class JobComponent implements OnInit, OnDestroy {
   };
 
   jobTypes = ['Full-time', 'Part-time', 'Remote', 'Hybrid'];
-  categories = ['Technology', 'Marketing', 'Sales', 'Design', 'Finance', 'Other'];
+  categories: string[] = [];
+
   isFiltersVisible = false;
 
   private unsubscribe$ = new Subject<void>();
   private searchSubject = new Subject<string>();
 
-  constructor(private store: Store<JobState>, private router: Router, private jobService: JobService, private userService: UserService) {
+  constructor(private store: Store<JobState>, private router: Router, private jobService: JobService, private userService: UserService,private route:ActivatedRoute) {
     this.jobs$ = this.store.select(selectAllJobs).pipe(
       map((jobs: IJob[]) =>
         jobs.map((job) => ({
@@ -57,7 +59,13 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadJobs();
+    this.route.queryParams.subscribe((params) => {
+      if (params['search']) {
+        this.filters.search = params['search'];
+      }
+      this.loadJobs();
+    });
+    this.loadCategories();
      this.searchSubject.pipe(
       debounceTime(300), 
       distinctUntilChanged(), 
@@ -67,6 +75,19 @@ export class JobComponent implements OnInit, OnDestroy {
       this.loadJobs(1); 
     });
   }
+
+
+  loadCategories(): void {
+    this.userService.getJobCategories().subscribe({
+      next: (categories: any[]) => { // Assuming the backend returns an array of objects
+        this.categories = categories.map(category => category.name); // Extract only the 'name'
+      },
+      error: (err) => {
+        console.error('Failed to load categories', err);
+      }
+    });
+  }
+  
 
   loadJobs(page: number = 1): void {
     this.loading = true;
@@ -106,6 +127,7 @@ export class JobComponent implements OnInit, OnDestroy {
         },
       });
   }
+  
   toggleFilters() {
     this.isFiltersVisible = !this.isFiltersVisible;
   }
@@ -114,12 +136,31 @@ export class JobComponent implements OnInit, OnDestroy {
     this.searchSubject.next(searchValue); 
   }
 
-
-  applyFilters() {
-    this.currentPage = 1;
-    this.loadJobs(1);
+  validateSalaryRange(): void {
+    const startSalary = Number(this.filters.startSalary);
+    const endSalary = Number(this.filters.endSalary);
+  
+    if (startSalary && endSalary && endSalary <= startSalary) {
+      this.salaryError = "Maximum salary must be greater than minimum salary.";
+    } else {
+      this.salaryError = null;
+    }
   }
-
+  
+  applyFilters(): void {
+    this.validateSalaryRange();
+    if (!this.salaryError) {
+      this.currentPage = 1;
+      this.loadJobs(1);
+    } else {
+      Swal.fire({
+        title: 'Invalid Salary Range',
+        text: 'Please ensure the maximum salary is greater than the minimum salary.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    }
+  }
   resetFilters() {
     this.filters = {
       jobType: '',

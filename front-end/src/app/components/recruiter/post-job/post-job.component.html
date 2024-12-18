@@ -47,7 +47,15 @@
       <div class="form-group">
         <label for="experienceRequired">Experience Required</label>
         <input type="text" id="experienceRequired" formControlName="experienceRequired" required>
-        <small *ngIf="jobForm.get('experienceRequired')?.errors?.['required'] && jobForm.get('experienceRequired')?.touched">Experience is required.</small>
+        <small *ngIf="jobForm.get('experienceRequired')?.errors?.['required'] && jobForm.get('experienceRequired')?.touched">
+          Experience is required.
+        </small>
+        <small *ngIf="jobForm.get('experienceRequired')?.errors?.['pattern'] && jobForm.get('experienceRequired')?.touched">
+          Experience must be a valid number.
+        </small>
+        <small *ngIf="jobForm.get('experienceRequired')?.errors?.['min'] && jobForm.get('experienceRequired')?.touched">
+          Experience cannot be negative.
+        </small>
       </div>
 
       <div class="form-group">
@@ -63,9 +71,17 @@
       </div>
       
       <div class="form-group">
-        <label for="salary">Salary</label>
+        <label for="salary">Salary per Year</label>
         <input type="text" id="salary" formControlName="salary" required>
-        <small *ngIf="jobForm.get('salary')?.errors?.['required'] && jobForm.get('salary')?.touched">Salary is required.</small>
+        <small *ngIf="jobForm.get('salary')?.errors?.['required'] && jobForm.get('salary')?.touched">
+          Salary is required.
+        </small>
+        <small *ngIf="jobForm.get('salary')?.errors?.['pattern'] && jobForm.get('salary')?.touched">
+          Salary must be a valid number.
+        </small>
+        <small *ngIf="jobForm.get('salary')?.errors?.['min'] && jobForm.get('salary')?.touched">
+          Salary cannot be negative.
+        </small>
       </div>
     </div>
 

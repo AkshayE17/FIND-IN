@@ -11,12 +11,16 @@
       (input)="onSearchChange(filters.searchTerm)" 
       class="search-input"
     >
-    <select [(ngModel)]="filters.jobType" (change)="loadJobs(1)" class="filter-select">
-      <option value="">All Job Types</option>
-      <option *ngFor="let option of jobTypeOptions" [value]="option.value">
-        {{ option.label }}
-      </option>
-    </select>
+    <select 
+    [(ngModel)]="filters.jobType" 
+    (change)="onJobTypeChange()" 
+    class="filter-select"
+  >
+    <option value="">All Job Types</option>
+    <option *ngFor="let option of jobTypeOptions" [value]="option.value">
+      {{ option.label }}
+    </option>
+  </select>
   </div>
 
   <!-- Job Update Modal -->

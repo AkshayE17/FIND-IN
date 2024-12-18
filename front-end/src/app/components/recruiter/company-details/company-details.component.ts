@@ -60,15 +60,53 @@ constructor(private fb: FormBuilder, private store: Store, private authService:A
 
   initForm() {
     this.companyForm = this.fb.group({
-      companyName: ['', Validators.required],
-      companyWebsite: ['', [Validators.required, Validators.pattern('https?://.+')]],
-      contactNumber: ['', Validators.required],
-      city: ['', Validators.required],
-      country: ['', Validators.required],
-      about: ['', [Validators.required, Validators.minLength(50)]],
-      logo: [null]
+      companyName: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^(?!\s+$)[a-zA-Z0-9\s\-]+$/), // No empty or all-space values
+        ],
+      ],
+      companyWebsite: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^https?:\/\/[^\s/$.?#].[^\s]*$/), // Valid URL pattern
+        ],
+      ],
+      contactNumber: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^\+?[0-9\s\-()]+$/), // Allows numbers, spaces, hyphens, parentheses
+        ],
+      ],
+      city: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^(?!\s+$)[a-zA-Z\s\-]+$/), // No empty or all-space values
+        ],
+      ],
+      country: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^(?!\s+$)[a-zA-Z\s\-]+$/), // No empty or all-space values
+        ],
+      ],
+      about: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(50), // At least 50 characters
+          Validators.pattern(/^(?!\s+$).+/), // No empty or all-space values
+        ],
+      ],
+      logo: [null], // File input, no additional validation needed
     });
   }
+  
 
   startEditing() {
     this.isEditing = true;
@@ -119,10 +157,13 @@ constructor(private fb: FormBuilder, private store: Store, private authService:A
   private async uploadLogoToS3(url: string, file: File): Promise<void> {
     try {
       await this.adminService.uploadFileToS3(url, file);
+      const cleanedUrl = url.split('?')[0];
+      this.companyForm.patchValue({ logo: cleanedUrl }); // Update logo field
     } catch (error) {
       throw new Error('Upload to S3 failed');
     }
   }
+  
   
   cancelEditing() {
     Swal.fire({

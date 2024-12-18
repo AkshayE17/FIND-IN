@@ -23,6 +23,8 @@ export class JobCategoryRepository implements IJobCategoryRepository {
     const jobCategories=await JobCategory.find();
     return jobCategories;
   }
+
+
     
 
   async getById(id: string): Promise<IJobCategory | null> {

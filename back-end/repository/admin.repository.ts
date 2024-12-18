@@ -131,6 +131,7 @@ class AdminRepository extends BaseRepository<IAdmin> implements IAdminRepository
     offset: number,
     limit: number,
     search: string,
+    email: string,
     filters: UFilterOptions
   ): Promise<{ users: IUser[], total: number }> {
     try {
@@ -141,6 +142,8 @@ class AdminRepository extends BaseRepository<IAdmin> implements IAdminRepository
           { email: { $regex: search, $options: 'i' } },
         ];
       }
+
+      if(email) baseQuery.email = { $regex: email, $options: 'i' };
       if (filters.gender) baseQuery.gender = { $regex: filters.gender, $options: 'i' };
       if (filters.startDate || filters.endDate) {
         baseQuery.createdAt = {};
@@ -156,7 +159,7 @@ class AdminRepository extends BaseRepository<IAdmin> implements IAdminRepository
       const total = await User.countDocuments(baseQuery);
       const users = await User.find(baseQuery)
         .skip(offset)
-        .limit(limit)
+        .limit(limit)   
         .sort({ createdAt: -1 })
         .exec();
 
@@ -224,10 +227,10 @@ async getDashboardStatistics(): Promise<JobStatistics> {
 
     // Applicants by skill (from professional details)
     const applicantsBySkill = await ProfessionalDetailsModel.aggregate([
-      { $unwind: "$skills" }, // Break skills array into individual documents
+      { $unwind: "$skills" },
       {
         $group: {
-          _id: { $toLower: "$skills" }, // Normalize skills to lowercase
+          _id: { $toLower: "$skills" }, 
           count: { $sum: 1 },
         },
       },

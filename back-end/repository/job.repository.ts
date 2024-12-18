@@ -29,13 +29,16 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
     const query: any = {};
     
     if (search) {
-      console.log("Search term in repository:", search);
       query.jobTitle = { $regex: search, $options: 'i' }; 
     }
+
   
     if (jobType) query.jobType = jobType;
-    if (category) query.category = category;
-    if (location) query.location = location;
+    if (category) query.jobCategory = category;
+
+    if (location) {
+        query.location = { $regex: location, $options: 'i' };
+      }
   
     if (startSalary || endSalary) {
       query.salary = {};
@@ -64,8 +67,11 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
     jobType?: string
   ): Promise<{ jobs: IJob[], total: number }> {
     const query: any = { recruiterId };
+
+    console.log("Search term in repository:", search);
+    console.log("Job type in repository:", jobType);
   
-    if (search) {
+    if (search || '') {
       query.jobTitle = { $regex: search, $options: 'i' };
     }
     if (jobType) {
@@ -95,8 +101,6 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
   }
   
 
-
-  //SHORTLISTED JOBS
   async getRecruiterShortListedJobs(
     recruiterId: ObjectId,
     page: number,
@@ -104,11 +108,21 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
     search?: string,
     jobType?: string
   ): Promise<{ jobs: IJob[], total: number }> {
-    const query: any = { recruiterId };
+    const query: any = { 
+      recruiterId,
+      'applicants.applicationStatus': 'shortlisted' 
+    };
   
+    // Enhanced search to cover multiple fields
     if (search) {
-      query.jobTitle = { $regex: search, $options: 'i' };
+      query.$or = [
+        { jobTitle: { $regex: search, $options: 'i' } },
+        { 'applicants.userId.name': { $regex: search, $options: 'i' } },
+        { 'applicants.userId.email': { $regex: search, $options: 'i' } },
+        { 'applicants.userId.professionalDetails.skills': { $regex: search, $options: 'i' } }
+      ];
     }
+  
     if (jobType) {
       query.jobType = jobType;
     }
@@ -136,7 +150,7 @@ class JobRepository extends BaseRepository<IJob> implements IJobRepository {
   
     console.log("Filtered Jobs in repository:", filteredJobs);
   
-    return { jobs: filteredJobs, total };
+    return { jobs: filteredJobs, total: filteredJobs.length };
   }
   
   

@@ -27,7 +27,7 @@
           <div class="form-group">
             <label for="name">Full Name</label>
             <div class="input-wrapper">
-              <i class="far fa-user input-icon"></i>
+              <i class="fas fa-user input-icon"></i>
               <input 
                 type="text" 
                 id="name" 
@@ -44,7 +44,7 @@
           <div class="form-group">
             <label for="email">Personal Email</label>
             <div class="input-wrapper">
-              <i class="far fa-envelope input-icon"></i>
+              <i class="fas fa-envelope input-icon"></i>
               <input 
                 type="email" 
                 id="email" 
@@ -62,7 +62,7 @@
           <div class="form-group">
             <label for="officialEmail">Company Email</label>
             <div class="input-wrapper">
-              <i class="far fa-envelope input-icon"></i>
+              <i class="fas fa-envelope input-icon"></i>
               <input 
                 type="email" 
                 id="officialEmail" 
@@ -80,7 +80,7 @@
           <div class="form-group">
             <label for="mobile">Mobile Number</label>
             <div class="input-wrapper">
-              <i class="far fa-phone input-icon"></i>
+              <i class="fas fa-phone input-icon"></i>
               <input 
                 type="tel" 
                 id="mobile" 
@@ -92,13 +92,15 @@
               <i class="fas fa-exclamation-circle"></i>
               <span *ngIf="registerForm.get('mobile')?.errors?.['required']">Mobile number is required.</span>
               <span *ngIf="registerForm.get('mobile')?.errors?.['pattern']">Please enter a valid mobile number.</span>
-            </div>
+              <span *ngIf="registerForm.get('mobile')?.errors?.['mobileExists']">Mobile number already exists. Please enter a unique number.</span>
+          </div>
+          
           </div>
 
           <div class="form-group">
             <label for="companyName">Company Name</label>
             <div class="input-wrapper">
-              <i class="far fa-building input-icon"></i>
+              <i class="fas fa-building input-icon"></i> 
               <input 
                 type="text" 
                 id="companyName" 
@@ -115,7 +117,7 @@
           <div class="form-group">
             <label for="einNumber">EIN Number</label>
             <div class="input-wrapper">
-              <i class="far fa-id-card input-icon"></i>
+              <i class="fas fa-id-card input-icon"></i>        
               <input 
                 type="text" 
                 id="einNumber" 
@@ -133,7 +135,7 @@
           <div class="form-group">
             <label for="companyWebsite">Company Website</label>
             <div class="input-wrapper">
-              <i class="far fa-globe input-icon"></i>
+              <i class="fas fa-globe input-icon"></i>  
               <input 
                 type="url" 
                 id="companyWebsite" 
@@ -151,7 +153,7 @@
           <div class="form-group">
             <label for="jobTitle">Job Title</label>
             <div class="input-wrapper">
-              <i class="far fa-briefcase input-icon"></i>
+              <i class="fas fa-briefcase input-icon"></i>
               <input 
                 type="text" 
                 id="jobTitle" 
@@ -168,7 +170,7 @@
           <div class="form-group">
             <label for="gender">Gender</label>
             <div class="input-wrapper">
-              <i class="far fa-user input-icon"></i>
+              <i class="fas fa-user input-icon"></i>
               <select 
                 id="gender" 
                 formControlName="gender" 
@@ -188,7 +190,7 @@
           <div class="form-group">
             <label for="password">Password</label>
             <div class="input-wrapper">
-              <i class="far fa-lock input-icon"></i>
+              <i class="fas fa-lock input-icon"></i> 
               <input 
                 type="password" 
                 id="password" 
@@ -206,7 +208,7 @@
           <div class="form-group">
             <label for="confirmPassword">Confirm Password</label>
             <div class="input-wrapper">
-              <i class="far fa-lock input-icon"></i>
+              <i class="fas fa-lock input-icon"></i> 
               <input 
                 type="password" 
                 id="confirmPassword" 

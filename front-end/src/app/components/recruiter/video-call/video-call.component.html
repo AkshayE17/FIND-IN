@@ -1,0 +1,16 @@
+<div class="room-id-container">
+  <h2>One-to-One Video Call</h2>
+
+  <input
+    type="text"
+    placeholder="Enter Room ID"
+    [(ngModel)]="roomId"
+    class="room-input"
+  />
+
+  <!-- Generate Room ID Button -->
+  <button (click)="generateRoomId()" class="generate-btn">Generate Room ID</button>
+
+  <!-- Join Room Button -->
+  <button (click)="joinRoom()" class="join-btn">Join Room</button>
+</div>

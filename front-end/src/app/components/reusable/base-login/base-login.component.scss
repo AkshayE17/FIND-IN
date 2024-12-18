@@ -233,3 +233,23 @@
 .sign-up-prompt {
   text-align: center;
 }
+
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 1rem;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:hover {
+    color: #1a237e;
+  }
+}

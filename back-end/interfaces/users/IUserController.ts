@@ -6,4 +6,5 @@ export interface IUserController {
   verifyOtp(req: Request, res: Response): Promise<void>;
   login(req: Request, res: Response): Promise<void>;
   refreshToken(req: Request, res: Response): Promise<void>;
+  checkMobileExists(req: Request, res: Response): Promise<void>
 }

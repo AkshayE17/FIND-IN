@@ -6,4 +6,6 @@ export interface IUserRepository {
     createUser(userData: IUser): Promise<IUser>;
     updateUser(id: string, userData: Partial<IUser>): Promise<IUser | null>;
     findAllUsers(): Promise<IUser[]>;
+    updateUserPassword(id: string, hashedPassword: string): Promise<IUser | null>;
+    checkMobileExists(mobile: string): Promise<boolean> ;
 }

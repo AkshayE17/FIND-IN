@@ -5,7 +5,7 @@ export interface IJobCategoryRepository {
   update(id: string, categoryData: Partial<IJobCategory>): Promise<IJobCategory | null>;
   delete(id: string): Promise<boolean>;
   getJobCategories(page: number, limit: number, searchTerm: string): Promise<{ categories: IJobCategory[]; total: number }>; 
-  getAllJobCategories():Promise<IJobCategory[]>
-  findCategoryById(id: string): Promise<IJobCategory | null> 
-  findCategoryByName(name: string): Promise<IJobCategory | null> 
+  getAllJobCategories():Promise<IJobCategory[]>;
+  findCategoryById(id: string): Promise<IJobCategory | null> ;
+  findCategoryByName(name: string): Promise<IJobCategory | null> ;
 }

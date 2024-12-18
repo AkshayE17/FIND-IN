@@ -54,53 +54,86 @@
   </ng-template>
 
   <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" *ngIf="isEditing" class="edit-form">
-    <div class="form-group">
+    <div class="form-group" [class.error]="companyForm.get('companyName')?.invalid && companyForm.get('companyName')?.touched">
       <label for="companyName">Company Name</label>
-      <input type="text" id="companyName" formControlName="companyName" required>
-      <small *ngIf="companyForm.get('companyName')?.errors?.['required'] && companyForm.get('companyName')?.touched">Company Name is required.</small>
+      <input type="text" id="companyName" formControlName="companyName" placeholder="Enter company name">
+      <small *ngIf="companyForm.get('companyName')?.errors?.['required'] && companyForm.get('companyName')?.touched">
+        Company Name is required.
+      </small>
+      <small *ngIf="companyForm.get('companyName')?.errors?.['pattern'] && companyForm.get('companyName')?.touched">
+        Company Name cannot be empty or contain only spaces.
+      </small>
+      
     </div>
-
-    <div class="form-group">
+  
+    <div class="form-group" [class.error]="companyForm.get('companyWebsite')?.invalid && companyForm.get('companyWebsite')?.touched">
       <label for="companyWebsite">Website</label>
-      <input type="url" id="companyWebsite" formControlName="companyWebsite" required>
-      <small *ngIf="companyForm.get('companyWebsite')?.errors?.['required'] && companyForm.get('companyWebsite')?.touched">Website is required.</small>
-      <small *ngIf="companyForm.get('companyWebsite')?.errors?.['pattern']">Please enter a valid URL.</small>
+      <input type="url" id="companyWebsite" formControlName="companyWebsite" placeholder="https://www.example.com">
+      <small *ngIf="companyForm.get('companyWebsite')?.errors?.['required'] && companyForm.get('companyWebsite')?.touched">
+        Website is required.
+      </small>
+      <small *ngIf="companyForm.get('companyWebsite')?.errors?.['pattern'] && companyForm.get('companyWebsite')?.touched">
+        Please enter a valid URL (e.g., https://www.example.com).
+      </small>
+      
     </div>
-
-    <div class="form-group">
+  
+    <div class="form-group" [class.error]="companyForm.get('contactNumber')?.invalid && companyForm.get('contactNumber')?.touched">
       <label for="contactNumber">Contact Number</label>
-      <input type="text" id="contactNumber" formControlName="contactNumber" required>
-      <small *ngIf="companyForm.get('contactNumber')?.errors?.['required'] && companyForm.get('contactNumber')?.touched">Contact Number is required.</small>
+      <input type="text" id="contactNumber" formControlName="contactNumber" placeholder="+1 (123) 456-7890">
+      <small *ngIf="companyForm.get('contactNumber')?.errors?.['required'] && companyForm.get('contactNumber')?.touched">
+        Contact Number is required
+      </small>
     </div>
-
-    <div class="form-group">
+  
+    <div class="form-group" [class.error]="companyForm.get('city')?.invalid && companyForm.get('city')?.touched">
       <label for="city">City</label>
-      <input type="text" id="city" formControlName="city" required>
-      <small *ngIf="companyForm.get('city')?.errors?.['required'] && companyForm.get('city')?.touched">City is required.</small>
+      <input type="text" id="city" formControlName="city" placeholder="Enter city">
+      <small *ngIf="companyForm.get('city')?.errors?.['required'] && companyForm.get('city')?.touched">
+        City is required
+      </small>
     </div>
-
-    <div class="form-group">
+  
+    <div class="form-group" [class.error]="companyForm.get('country')?.invalid && companyForm.get('country')?.touched">
       <label for="country">Country</label>
-      <input type="text" id="country" formControlName="country" required>
-      <small *ngIf="companyForm.get('country')?.errors?.['required'] && companyForm.get('country')?.touched">Country is required.</small>
+      <input type="text" id="country" formControlName="country" placeholder="Enter country">
+      <small *ngIf="companyForm.get('country')?.errors?.['required'] && companyForm.get('country')?.touched">
+        Country is required
+      </small>
     </div>
-
-    <div class="form-group">
+  
+    <div class="form-group full-width" [class.error]="companyForm.get('about')?.invalid && companyForm.get('about')?.touched">
       <label for="about">Company Description</label>
-      <textarea id="about" formControlName="about" rows="4" required></textarea>
-      <small *ngIf="companyForm.get('about')?.errors?.['required'] && companyForm.get('about')?.touched">Description is required.</small>
-      <small *ngIf="companyForm.get('about')?.errors?.['minlength']">Description must be at least 50 characters.</small>
+      <textarea id="about" formControlName="about" rows="4" placeholder="Tell us about your company..."></textarea>
+      <small *ngIf="companyForm.get('about')?.errors?.['required'] && companyForm.get('about')?.touched">
+        Description is required.
+      </small>
+      <small *ngIf="companyForm.get('about')?.errors?.['minlength'] && companyForm.get('about')?.touched">
+        Description must be at least 50 characters long.
+      </small>
+      <small *ngIf="companyForm.get('about')?.errors?.['pattern'] && companyForm.get('about')?.touched">
+        Description cannot be empty or contain only spaces.
+      </small>
+         
     </div>
-
- <div class="form-group">
-  <label for="logo">Company Logo</label>
-  <input type="file" id="logo" (change)="onLogoChange($event)">
-</div>
-
+  
+    <div class="form-group logo-upload full-width">
+      <div>
+        <label for="logo">Company Logo</label>
+        <input type="file" id="logo" (change)="onLogoChange($event)">
+      </div>
+      <div *ngIf="companyForm.get('logo')?.value" class="logo-preview">
+        <img [src]="companyForm.get('logo')?.value" alt="Logo Preview" />
+      </div>
+    </div>
   
     <div class="button-group">
-      <button type="submit" class="submit-button" [disabled]="companyForm.invalid">Save Changes</button>
-      <button type="button" class="cancel-button" (click)="cancelEditing()">Cancel</button>
+      <button type="submit" class="submit-button" [disabled]="companyForm.invalid">
+        Save Changes
+      </button>
+      <button type="button" class="cancel-button" (click)="cancelEditing()">
+        Cancel
+      </button>
     </div>
   </form>
 </div>

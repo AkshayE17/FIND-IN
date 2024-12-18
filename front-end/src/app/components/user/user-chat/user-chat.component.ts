@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../services/chat.service';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
-import { ZegoVideoService } from '../../../services/zegoVideo.service';
+import { Router } from '@angular/router';
 
 interface ChatRoom {
   _id: string;
@@ -47,15 +47,16 @@ export class UserChatComponent implements OnInit, OnDestroy {
   messages: Message[] = [];
   newMessageText: string = '';
   type: string = 'User';
-  isMobileView: boolean = false;
+isMobileView = window.innerWidth <= 768;
   isRoomListVisible: boolean = true;
+
 
   private subscriptions: Subscription[] = [];
 
   constructor(
     private chatService: ChatService,
     private authService: AuthService,
-    private zegoService:ZegoVideoService
+    private router: Router
   ) {
     this.checkMobileView();
     window.addEventListener('resize', this.checkMobileView.bind(this));
@@ -180,15 +181,6 @@ export class UserChatComponent implements OnInit, OnDestroy {
 
 
   initiateVideoCall() {
-    if (this.selectedChatRoom) {
-      const userId = this.authService.getUserId();
-      const roomId = `video_call_${userId}_${this.getOtherUser(this.selectedChatRoom)._id}`;
-      
-      this.zegoService.joinCall(
-        roomId, 
-        userId, 
-        'Job Seeker Name' 
-      );
-    }
+    this.router.navigate(['user/dashboard/video-call']);
   }
 }

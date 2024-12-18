@@ -16,6 +16,20 @@ export const loginUserFailure = createAction(
   props<{ error: string }>()
 );
 
+export const updateUserProfile = createAction(
+  '[User] Update Profile',
+  props<{ user: IUser }>()
+);
+
+export const updateUserProfileSuccess = createAction(
+  '[User] Update Profile Success',
+  props<{ user: IUser }>()
+)
+
+export const updateUserProfileFailure = createAction(
+  '[User] Update Profile Failure',
+  props<{ error: string }>()
+)
 export const logoutUser = createAction('[User] Logout');
 
 export const resetJustLoggedIn = createAction('[User] Reset Just Logged In');

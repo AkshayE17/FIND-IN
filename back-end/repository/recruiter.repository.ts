@@ -55,7 +55,22 @@ class RecruiterRepository extends BaseRepository<IRecruiter> implements IRecruit
       throw new Error(`Error updating password for recruiter with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+
+  async checkMobileExists(mobile: string): Promise<boolean> {
+    try {
+        const recruiter = await this.findOne({ mobile });
+        return recruiter ? true : false; // Returns true if mobile exists
+    }catch (error: unknown) {
+      console.error('Error in checkMobileExists:', error);
+      if (error instanceof Error) {
+        throw new Error(`Error checking mobile: ${error.message}`);
+      } else {
+        throw new Error(`Error checking mobile: ${String(error)}`);
+      }
+    }
+
   
+}
 }
 
 export default new RecruiterRepository();

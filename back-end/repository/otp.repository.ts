@@ -10,8 +10,8 @@ class OtpRepository {
       console.error(`Error creating OTP for email: ${email}`, error);
       throw new Error("Error creating OTP");
     }
-  }  
-
+  }      
+           
   // Find OTP entry for a given email and OTP value
   async findOtp(email: string, otp: number): Promise<IOtp | null> {
     try {
@@ -34,3 +34,4 @@ class OtpRepository {
 }
 
 export default new OtpRepository();
+     

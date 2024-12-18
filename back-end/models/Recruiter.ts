@@ -28,7 +28,7 @@ const recruiterSchema = new Schema<IRecruiter>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   officialEmail: { type: String, required: true},
-  mobile: { type: Number, required: true },
+  mobile: { type: Number, required: true,unique: true },
   gender: { type: String, required: true },
   companyName: { type: String, required: true },
   companyWebsite: { type: String, required: true },

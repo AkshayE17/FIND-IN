@@ -27,7 +27,8 @@ class ProfessionalDetailsRepository implements IProfessionalDetailsRepository {
   // Find professional details by user ID
   async findByUserId(userId: string): Promise<IProfessionalDetails[]> {
     try {
-      return await ProfessionalDetailsModel.find({ userId }).populate('userId');
+      const result=await ProfessionalDetailsModel.find({ userId }).populate('userId');
+      return result
     } catch (error) {
       console.error(`Error finding professional details for user ID: ${userId}`, error);
       throw new Error("Error finding professional details by user ID");
@@ -37,8 +38,7 @@ class ProfessionalDetailsRepository implements IProfessionalDetailsRepository {
   // Update professional details by ID
   async update(id: string, details: Partial<IProfessionalDetails>): Promise<IProfessionalDetails | null> {
     try {
-      console.log("Updating professional details for ID: ", id);
-      console.log("Updated details: ", details);
+
       const result= await ProfessionalDetailsModel.findOneAndUpdate({ userId: id }, details, { new: true });
       console.log("Result: ", result);
       return result;

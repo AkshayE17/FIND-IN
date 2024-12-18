@@ -115,12 +115,13 @@ export class AdminService implements IAdminService {
     page: number,
     limit: number,
     search: string,
-    filters: UFilterOptions
+    email: string,
+    filters: FilterOptions
   ): Promise<{ users: IUser[], total: number }> {
     try {
       console.log('Fetching users...');
       const offset = (page - 1) * limit;
-      return await this._adminRepository.findUsers(offset, limit, search, filters);
+      return await this._adminRepository.findUsers(offset, limit, search, email, filters);
     } catch (error) {
       console.error('Error fetching users:', error);
       throw new Error(error instanceof Error ? error.message : Messages.UNKNOWN_ERROR);

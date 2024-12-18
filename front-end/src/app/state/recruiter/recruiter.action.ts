@@ -17,6 +17,22 @@ export const loginRecruiterFailure = createAction(
   props<{ error: string }>()
 );
 
+export const updateRecruiterProfile = createAction(
+  '[Recruiter] Update Profile',
+  props<{ recruiter: IRecruiter }>()
+);
+
+
+export const updateRecruiterProfileSuccess = createAction(
+  '[Recruiter] Update Profile Success',
+  props<{ recruiter: IRecruiter }>()
+)
+
+export const updateRecruiterProfileFailure = createAction(
+  '[Recruiter] Update Profile Failure',
+  props<{ error: string }>()
+)
+
 export const logoutRecruiter = createAction('[Recruiter] Logout');
 
 export const loadCompanyDetails = createAction(

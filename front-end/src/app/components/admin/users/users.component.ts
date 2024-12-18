@@ -31,6 +31,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     startDate: '',
     endDate: '',
     searchTerm: '',
+    email:'',
     isBlocked: null as boolean | null
   };
 
@@ -81,7 +82,8 @@ export class UsersComponent implements OnInit, OnDestroy {
       this.filters.gender,
       this.filters.startDate,
       this.filters.endDate,
-      this.filters.isBlocked
+      this.filters.isBlocked,
+      this.filters.email,
     ).subscribe({
       next: (data) => {
         this.users$ = of(data.users);
@@ -102,7 +104,11 @@ export class UsersComponent implements OnInit, OnDestroy {
     const searchTerm = (event.target as HTMLInputElement).value;
     this.searchSubject.next(searchTerm); 
   }
-
+  onSearchEmail(event: Event) {
+    const email = (event.target as HTMLInputElement).value.trim();
+    this.filters.email = email;
+    this.loadUsers(1); // Reload users with updated email filter
+  }
  
 
   onGenderChange(event: Event) {
@@ -137,11 +143,11 @@ export class UsersComponent implements OnInit, OnDestroy {
       startDate: '',
       endDate: '',
       searchTerm: '',
-      isBlocked: null
+      isBlocked: null,
+      email: ''
     };
     this.loadUsers(1);
   }
-
 
 
   get totalPages(): number {

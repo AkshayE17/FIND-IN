@@ -33,9 +33,9 @@ export interface IJob extends Document{
   jobType: string;
   jobCategory: string; 
   jobDescription: string; 
-  experienceRequired: string; 
+  experienceRequired: number; 
   location: string; 
-  salary: string;
+  salary: number;
   skills:string[];
   applicants: IApplicant[];
   recruiter:IRecruiter;  
@@ -55,9 +55,9 @@ const jobSchema = new Schema<IJob>({
   jobType: { type: String, required: true },
   jobCategory: { type: String, required: true },
   jobDescription: { type: String, required: true },
-  experienceRequired: { type: String, required: true },
+  experienceRequired: { type: Number, required: true },
   location: { type: String, required: true },
-  salary: { type: String, required: true },
+  salary: { type: Number, required: true },
   skills:{ type:[String],required:true},  
   applicants: { type: [applicantSchema], ref: 'User', default: [] },
 },{ timestamps: true });

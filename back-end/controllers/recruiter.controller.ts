@@ -7,14 +7,14 @@ import { IRecruiterController } from '../interfaces/recruiters/IRecruiterControl
 
 export class RecruiterController implements IRecruiterController {
   constructor(
-    private recruiterService: IRecruiterService,
-    private otpService: IOtpService
+    private _recruiterService: IRecruiterService,
+    private _otpService: IOtpService
   ) {}
 
   async register(req: Request, res: Response): Promise<void> {
     try {
-      const recruiter = await this.recruiterService.registerRecruiter(req.body);
-      await this.otpService.sendOtpToEmail(req.body.email);
+      const recruiter = await this._recruiterService.registerRecruiter(req.body);
+      await this._otpService.sendOtpToEmail(req.body.email);
       
       res.status(HttpStatus.CREATED).json({
         message: Messages.RECRUITER_CREATED,
@@ -33,7 +33,7 @@ export class RecruiterController implements IRecruiterController {
   async login(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-      const { recruiter, accessToken, refreshToken } = await this.recruiterService.loginRecruiter(email, password);
+      const { recruiter, accessToken, refreshToken } = await this._recruiterService.loginRecruiter(email, password);
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -55,10 +55,27 @@ export class RecruiterController implements IRecruiterController {
     }
   }
 
+  async updateRecruiter(req: Request, res: Response): Promise<void> {
+   console.log(" entering to update recruiter controller");
+    const updatedData = req.body;
+    const recruiterId = updatedData._id;
+    try {
+      const updatedRecruiter = await this._recruiterService.updateRecruiter(recruiterId, updatedData);
+      if (updatedRecruiter) {
+        res.status(HttpStatus.OK).json({ message: Messages.USER_UPDATED, recruiter: updatedRecruiter });
+      } else {
+        res.status(HttpStatus.NOT_FOUND).json({ message: Messages.RECRUITER_NOT_FOUND });
+      }
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.UNKNOWN_ERROR });
+    }
+  }
+
   async verifyOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email, otp } = req.body;
-      await this.recruiterService.verifyOtp(email, otp);
+      await this._otpService.verifyOtp(email, otp);
+      await this._recruiterService.verifyOtp(email);
       
       res.status(HttpStatus.OK).json({ message: Messages.EMAIL_VERIFIED });
     } catch (error: unknown) {
@@ -81,7 +98,7 @@ export class RecruiterController implements IRecruiterController {
          res.status(HttpStatus.BAD_REQUEST).json({ message: 'Both old and new passwords are required.' });
       }
   
-      await this.recruiterService.changeRecruiterPassword(recruiterId, currentPassword, newPassword);
+      await this._recruiterService.changeRecruiterPassword(recruiterId, currentPassword, newPassword);
   
       res.status(HttpStatus.OK).json({ message: 'Password changed successfully.' });
     } catch (error: unknown) {
@@ -93,6 +110,20 @@ export class RecruiterController implements IRecruiterController {
       }
     }
   }
-  
+  async checkMobileExists(req: Request, res: Response): Promise<void> {
+    try {
+
+        const { mobile } = req.body;
+        const exists = await this._recruiterService.checkMobileExists(mobile);
+        if (exists) {
+            res.status(400).json({ message: 'Mobile number already exists.' });
+        } else {
+            res.status(200).json({ message: 'Mobile number is unique.' });
+        }
+    } catch (error) {
+        console.error('Error in checkMobileExists:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
 }
 
+}

@@ -10,6 +10,8 @@ import { HeaderComponent } from '../../common/header/header.component';
 import { FooterComponent } from '../../common/footer/footer.component';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { UserService } from '../../../services/user.service';
+import { mobileValidator } from '../../../interceptors/numberValidator';
 
 @Component({
   selector: 'app-user-register',
@@ -22,18 +24,22 @@ export class UserRegisterComponent implements OnDestroy {
   loginForm: FormGroup;
   loading$ = new BehaviorSubject<boolean>(false);
   error$: Observable<string>;
+  
+  // New properties for password visibility
+  showPassword = false;
+  showConfirmPassword = false;
 
-  private destroy$ = new Subject<void>(); // Subject to manage unsubscription
+  private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder, private http: HttpClient, private dialog: MatDialog) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private dialog: MatDialog,private userService: UserService) {
     this.loginForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      mobile: ['', [Validators.required, Validators.pattern("^[0-9]{10}$"), this.noAllZerosValidator]],
+      mobile: ['', [Validators.required, Validators.pattern("^[0-9]{10}$"), this.noAllZerosValidator],[mobileValidator(this.http,'user')]],
       password: ['', [
         Validators.required, 
-        Validators.minLength(8),  // Minimum length set to 8 characters
-        Validators.pattern('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$')  // Strong password pattern
+        Validators.minLength(8),
+        Validators.pattern('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$')
       ]],
       confirmPassword: ['', Validators.required],
       gender: ['', Validators.required]
@@ -42,17 +48,25 @@ export class UserRegisterComponent implements OnDestroy {
     this.error$ = of('');
   }
 
+  // Toggle password visibility methods
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
   ngOnDestroy(): void {
-    // Cleanup all subscriptions when the component is destroyed
     this.destroy$.next();
     this.destroy$.complete();
   }
+
   passwordMatchValidator(group: FormGroup) {
     const password = group.get('password')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
     return password === confirmPassword ? null : { passwordsDoNotMatch: true };
   }
-  
 
   noAllZerosValidator(control: AbstractControl) {
     const mobile = control.value;
@@ -66,12 +80,13 @@ export class UserRegisterComponent implements OnDestroy {
     if (this.loginForm.valid) {
       const userData = this.loginForm.value;
       console.log("data is :", userData);
-
+  
       const dialogRef = this.openOtpVerificationModal();
-
-      // Make HTTP request and subscribe with unsubscription using takeUntil
-      this.http.post('http://localhost:8888/user/register', userData).pipe(
-        takeUntil(this.destroy$) // Ensure unsubscription
+  
+      this.loading$.next(true);
+      
+      this.userService.register(userData).pipe(
+        takeUntil(this.destroy$)
       ).subscribe({
         next: (response) => {
           console.log('User registered successfully', response);
@@ -82,17 +97,22 @@ export class UserRegisterComponent implements OnDestroy {
           console.error('Error registering user', error);
           this.loading$.next(false);
           dialogRef.close();
-          if (error?.error?.message === 'User with this email already exists.') {
+        
+          const errorMessage = error?.error?.message || error?.message;
+        
+          if (errorMessage && errorMessage.includes('User with this email already exists')) {
             this.showDuplicateEmailAlert();
           } else {
             this.showGenericErrorAlert();
           }
         }
+        
       });
     } else {
       this.loginForm.markAllAsTouched();
     }
   }
+  
 
   showDuplicateEmailAlert() {
     Swal.fire({

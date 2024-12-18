@@ -7,12 +7,13 @@ import { IJobCategory } from '../state/job/job.state';
 import { IUser } from '../state/user/user.state';
 import { LoginResponse } from '../state/admin/admin.state';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
-  private apiUrl = 'http://localhost:8888';
+  private apiUrl = environment.backendUrl;
 
   constructor(private http: HttpClient,private  authService:AuthService) {}
 
@@ -87,7 +88,8 @@ getAllUsers(
   gender?: string,
   startDate?: string,
   endDate?: string,
-  isBlocked?:boolean | null
+  isBlocked?:boolean | null,
+  email?: string
 ): Observable<{ users: IUser[], total: number }> {
   let params = new HttpParams()
     .set('page', page.toString())
@@ -97,6 +99,7 @@ getAllUsers(
   if(gender) params = params.set('gender',gender)
   if (startDate) params = params.set('startDate', startDate);
   if (endDate) params = params.set('endDate', endDate);
+  if (email) params = params.set('email', email);
   if (isBlocked !== null && isBlocked !== undefined) {
     params = params.set('isBlocked', isBlocked.toString());
 }

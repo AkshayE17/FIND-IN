@@ -9,7 +9,10 @@ import {
   addOrUpdateCompanyDetailsSuccess,
   addOrUpdateCompanyDetailsFailure,
   setCompanyDetails,
-  resetRecruiterState
+  resetRecruiterState,
+  updateRecruiterProfile,
+  updateRecruiterProfileSuccess,
+  updateRecruiterProfileFailure
 } from './recruiter.action';
 import { RecruiterState, initialRecruiterState } from './recruiter.state';
 
@@ -46,7 +49,21 @@ export const recruiterReducer = createReducer(
     loading: true,
     error: null,
   })),
-
+  on(updateRecruiterProfile, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+  on(updateRecruiterProfileSuccess, (state, { recruiter }) => ({
+    ...state,
+    recruiter,
+    loading: false,
+  })),
+  on(updateRecruiterProfileFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error
+  })),
   on(addOrUpdateCompanyDetails, (state) => ({
     ...state,
     loading: true,

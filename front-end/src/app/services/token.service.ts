@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TokenService {
 
-  private apiUrl = 'http://localhost:8888';
+  private apiUrl = environment.backendUrl;
   constructor(private http: HttpClient, private cookieService: CookieService) {}
 
   refreshToken(): Observable<any> {

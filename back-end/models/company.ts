@@ -13,7 +13,7 @@ export interface ICompany extends Document {
 
 const CompanySchema: Schema = new Schema(
   {
-    hrId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Recruiter' }, // Use ObjectId and reference the Recruiter model
+    hrId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Recruiter' }, 
     logo: { type: String, required: true },
     companyName: { type: String, required: true },
     contactNumber: { type: String, required: true },
