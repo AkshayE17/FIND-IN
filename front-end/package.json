@@ -29,6 +29,7 @@
     "beasties": "^0.2.0",
     "chart.js": "^4.4.6",
     "glob": "^11.0.0",
+    "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "ngx-cookie-service": "^18.0.0",
     "rxjs": "^7.8.0",

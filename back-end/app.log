@@ -14164,3 +14164,5 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"304\",\"responseTime\":\"169.573\"}","timestamp":"2024-12-18T05:02:18.165Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"304\",\"responseTime\":\"185.574\"}","timestamp":"2024-12-18T05:02:20.639Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"304\",\"responseTime\":\"380.583\"}","timestamp":"2024-12-18T05:02:20.831Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on http://localhost:8888","timestamp":"2024-12-18T07:33:17.848Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Database connected successfully","timestamp":"2024-12-18T07:33:18.745Z"}

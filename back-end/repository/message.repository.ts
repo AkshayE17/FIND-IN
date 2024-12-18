@@ -8,14 +8,14 @@ class MessageRepository implements IMessageRepository {
   }
 
   async getMessagesByChatRoom(chatRoomId: string): Promise<Message[]> {
-    return MessageModel.find({ chatRoomId }).sort({ createdAt: 1 }); // Sort by creation time
+    return MessageModel.find({ chatRoomId }).sort({ createdAt: 1 }); 
   }
 
   async markMessageAsSeen(messageId: string): Promise<Message | null> {
     return MessageModel.findByIdAndUpdate(
       messageId,
       { seen: true },
-      { new: true } // Return up
+      { new: true } 
     );
   }
 
