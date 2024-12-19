@@ -14200,3 +14200,19 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"281.286\"}","timestamp":"2024-12-19T04:38:28.181Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"64.025\"}","timestamp":"2024-12-19T04:38:31.360Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"192.863\"}","timestamp":"2024-12-19T04:38:31.485Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on http://localhost:8888","timestamp":"2024-12-19T05:09:20.239Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Database connected successfully","timestamp":"2024-12-19T05:09:21.885Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on http://localhost:8888","timestamp":"2024-12-19T05:09:44.781Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Database connected successfully","timestamp":"2024-12-19T05:09:46.519Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"276.419\"}","timestamp":"2024-12-19T05:28:40.838Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"730.869\"}","timestamp":"2024-12-19T05:28:41.137Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/recruiter/login\",\"status\":\"200\",\"responseTime\":\"288.084\"}","timestamp":"2024-12-19T06:08:39.274Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/chat/user-rooms/66fcfbb76d92ea731ea71cf6\",\"status\":\"200\",\"responseTime\":\"193.086\"}","timestamp":"2024-12-19T06:08:45.657Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/chat/messages/6745d265083a7b8ecd78715a\",\"status\":\"200\",\"responseTime\":\"68.018\"}","timestamp":"2024-12-19T06:08:47.303Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/chat/messages/675af240ff5c11276d13d36c\",\"status\":\"200\",\"responseTime\":\"51.283\"}","timestamp":"2024-12-19T06:08:48.243Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/chat/messages/6745ed6a9271f54a7b2fd198\",\"status\":\"200\",\"responseTime\":\"57.654\"}","timestamp":"2024-12-19T06:08:49.617Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/company-details/66fcfbb76d92ea731ea71cf6\",\"status\":\"200\",\"responseTime\":\"292.929\"}","timestamp":"2024-12-19T08:20:34.117Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/jobCategories\",\"status\":\"200\",\"responseTime\":\"60.474\"}","timestamp":"2024-12-19T08:20:34.917Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/company-details/66fcfbb76d92ea731ea71cf6\",\"status\":\"304\",\"responseTime\":\"105.339\"}","timestamp":"2024-12-19T08:20:34.954Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/jobs?recruiterId=66fcfbb76d92ea731ea71cf6&page=1&pageSize=3\",\"status\":\"200\",\"responseTime\":\"317.473\"}","timestamp":"2024-12-19T08:20:37.084Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/shortlist-jobs?recruiterId=66fcfbb76d92ea731ea71cf6&page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"2642.740\"}","timestamp":"2024-12-19T08:20:40.770Z"}

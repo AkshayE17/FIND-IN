@@ -14,6 +14,7 @@ h2 {
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .profile-header {
@@ -21,6 +22,7 @@ h2 {
   align-items: center;
   gap: 2rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap; /* Adjust layout for responsiveness */
 }
 
 .avatar-container {
@@ -39,6 +41,7 @@ h2 {
 .recruiter-info {
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Prevent flex child from overflowing */
 }
 
 .recruiter-info h3 {
@@ -46,6 +49,7 @@ h2 {
   color: #1e2a3a;
   font-size: 1.5rem;
   font-weight: 600;
+  word-wrap: break-word; /* Break long words */
 }
 
 .job-title {
@@ -65,6 +69,7 @@ h2 {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
+  word-wrap: break-word; /* Ensure text wraps inside container */
 }
 
 .info-item i {
@@ -83,7 +88,9 @@ h2 {
 
 .info-item p {
   margin: 0;
-  color: #333;
+  color: #555;
+  word-wrap: break-word; /* Break text within the paragraph */
+  overflow-wrap: break-word;
 }
 
 .edit-button {
@@ -93,29 +100,24 @@ h2 {
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
 }
 
 .edit-button:hover {
-  background-color: #3b46b8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #283593;
 }
 
 @media (max-width: 768px) {
   .profile-header {
-    flex-direction: column;
-    text-align: center;
+    flex-direction: column; /* Stack elements on smaller screens */
+    align-items: center;
   }
-  
-  .profile-info {
-    grid-template-columns: 1fr;
+
+  .recruiter-info h3 {
+    font-size: 1.2rem;
+  }
+
+  .job-title {
+    font-size: 0.8rem;
   }
 }
