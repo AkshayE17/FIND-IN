@@ -148,9 +148,9 @@ h2 {
 
 @media (max-width: 768px) {
   .form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Stacks all fields in one column */
   }
-  
+
   .form-group input,
   .form-group textarea,
   .form-group select {
