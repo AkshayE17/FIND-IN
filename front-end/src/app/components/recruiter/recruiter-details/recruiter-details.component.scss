@@ -250,6 +250,7 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+/* Add these new styles to your existing CSS */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -257,11 +258,11 @@ h2 {
   margin-bottom: 2rem;
 }
 
-.full-width {
+.span-full {
   grid-column: 1 / -1;
 }
 
-/* Update media queries for responsive design */
+/* Update the media query for responsive design */
 @media (max-width: 1200px) {
   .form-grid {
     grid-template-columns: repeat(2, 1fr);
