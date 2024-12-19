@@ -92,7 +92,7 @@ async login(req: Request, res: Response): Promise<void> {
           sameSite: 'strict',
       });
 
-
+    
 
       res.status(HttpStatus.OK).json({
           accessToken,

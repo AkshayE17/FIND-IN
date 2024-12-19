@@ -14174,3 +14174,21 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"185.811\"}","timestamp":"2024-12-18T10:57:07.861Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"51.046\"}","timestamp":"2024-12-18T10:57:10.756Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"154.385\"}","timestamp":"2024-12-18T10:57:10.858Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on http://localhost:8888","timestamp":"2024-12-19T04:18:07.719Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Database connected successfully","timestamp":"2024-12-19T04:18:08.758Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"72.510\"}","timestamp":"2024-12-19T04:19:48.003Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"230.846\"}","timestamp":"2024-12-19T04:19:48.144Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"55.912\"}","timestamp":"2024-12-19T04:19:51.927Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"172.309\"}","timestamp":"2024-12-19T04:19:52.038Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"54.699\"}","timestamp":"2024-12-19T04:20:53.066Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"173.233\"}","timestamp":"2024-12-19T04:20:53.172Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on http://localhost:8888","timestamp":"2024-12-19T04:21:11.075Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Database connected successfully","timestamp":"2024-12-19T04:21:12.321Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"105.105\"}","timestamp":"2024-12-19T04:21:17.373Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"319.516\"}","timestamp":"2024-12-19T04:21:17.573Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on http://localhost:8888","timestamp":"2024-12-19T04:23:16.104Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Database connected successfully","timestamp":"2024-12-19T04:23:17.102Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"67.663\"}","timestamp":"2024-12-19T04:23:27.691Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"208.809\"}","timestamp":"2024-12-19T04:23:27.811Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"54.905\"}","timestamp":"2024-12-19T04:24:19.389Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"208.444\"}","timestamp":"2024-12-19T04:24:19.537Z"}

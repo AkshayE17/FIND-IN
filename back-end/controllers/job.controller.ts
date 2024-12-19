@@ -53,7 +53,7 @@ export class JobController implements IJobController {
         endSalary,
         location
       );
-
+      console.log("result in getAllJobs:", JSON.stringify(result, null, 2));
       res.status(HttpStatus.OK).json(result);
     } catch (error) {
       console.error("Error in getAllJobs:", error);

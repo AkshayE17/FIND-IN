@@ -30,7 +30,7 @@ class App {
   public server: http.Server;
   public io: Server;
   private readonly port: string | number;
-  private readonly clientUrl: string = 'http://localhost:4200';
+  private readonly clientUrl: string | undefined = process.env.FRONTEND_URL;
 
   constructor() {
     this.app = express();
