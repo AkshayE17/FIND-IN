@@ -46,7 +46,7 @@ class App {
         allowedHeaders: ['Content-Type', 'Authorization']
       },
       allowEIO3: true, 
-      transports: ['websocket', 'polling'] 
+      transports: ['websocket'] 
     });
 
     this.initializeMiddlewares();
