@@ -14216,3 +14216,5 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/company-details/66fcfbb76d92ea731ea71cf6\",\"status\":\"304\",\"responseTime\":\"105.339\"}","timestamp":"2024-12-19T08:20:34.954Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/jobs?recruiterId=66fcfbb76d92ea731ea71cf6&page=1&pageSize=3\",\"status\":\"200\",\"responseTime\":\"317.473\"}","timestamp":"2024-12-19T08:20:37.084Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/recruiter/shortlist-jobs?recruiterId=66fcfbb76d92ea731ea71cf6&page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"2642.740\"}","timestamp":"2024-12-19T08:20:40.770Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Server running on http://localhost:8888","timestamp":"2024-12-19T09:56:21.500Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"Database connected successfully","timestamp":"2024-12-19T09:56:24.384Z"}

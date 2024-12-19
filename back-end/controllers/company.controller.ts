@@ -14,7 +14,7 @@ export class CompanyController implements ICompanyController {
       const recruiterId = req.params.recruiterId;
       const companyData = req.body;
 
-      console.log("recruiter id:", recruiterId);
+      console.log("recruiter id:", recruiterId);  
 
       const result = await this._companyService.createOrUpdateCompany(recruiterId, companyData);
       if (result) {   
