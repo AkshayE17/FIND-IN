@@ -2,3 +2,4 @@
 /back-end/dist
 /front-end/node_modules
 /back-end/.env
+/back-end/app.log
