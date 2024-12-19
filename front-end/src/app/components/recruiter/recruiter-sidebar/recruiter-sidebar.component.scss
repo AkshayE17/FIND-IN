@@ -1,3 +1,16 @@
+@media (max-width: 768px) {
+  .dashboard-content {
+    flex-direction: row; /* Change back to row to keep sidebar on the side */
+  }
+
+  .dashboard-sidebar {
+    width: auto; /* Allow width to be determined by content */
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+}
+
 .sidebar {
   background-color: #ffffff;
   border-radius: 1rem;
@@ -8,6 +21,26 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Add media query for mobile sidebar */
+@media (max-width: 768px) {
+  .sidebar {
+    padding: 1rem 0.5rem;
+  }
+
+  .sidebar-item {
+    padding: 0.75rem;
+    justify-content: center;
+  }
+
+  .sidebar-item span {
+    display: none; /* Hide text on mobile */
+  }
+
+  .sidebar-item i {
+    font-size: 1.5rem; /* Make icons slightly larger */
+    margin: 0; /* Remove any margin */
+  }
+}
 .sidebar-item {
   background-color: transparent;
   border: none;
