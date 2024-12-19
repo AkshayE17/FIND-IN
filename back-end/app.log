@@ -14192,3 +14192,7 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"208.809\"}","timestamp":"2024-12-19T04:23:27.811Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"54.905\"}","timestamp":"2024-12-19T04:24:19.389Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"208.444\"}","timestamp":"2024-12-19T04:24:19.537Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"67.426\"}","timestamp":"2024-12-19T04:32:48.644Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"217.196\"}","timestamp":"2024-12-19T04:32:48.776Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobCategories\",\"status\":\"200\",\"responseTime\":\"68.189\"}","timestamp":"2024-12-19T04:32:54.465Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"GET\",\"url\":\"/user/jobs?page=1&pageSize=5\",\"status\":\"200\",\"responseTime\":\"248.998\"}","timestamp":"2024-12-19T04:32:54.632Z"}
