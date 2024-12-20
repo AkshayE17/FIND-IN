@@ -16,7 +16,12 @@
       <div class="form-group">
         <label for="jobTitle">Job Title</label>
         <input type="text" id="jobTitle" formControlName="jobTitle" required>
-        <small *ngIf="jobForm.get('jobTitle')?.errors?.['required'] && jobForm.get('jobTitle')?.touched">Job Title is required.</small>
+        <small *ngIf="jobForm.get('jobTitle')?.hasError('required') && jobForm.get('jobTitle')?.touched">
+          Job Title is required.
+        </small>
+        <small *ngIf="jobForm.get('jobTitle')?.hasError('pattern') && jobForm.get('jobTitle')?.touched">
+          Invalid Job Title. Avoid extra spaces or special characters.
+        </small>
       </div>
       
       <div class="form-group">
@@ -61,13 +66,23 @@
       <div class="form-group">
         <label for="skills">Skills Required</label>
         <input type="text" id="skills" formControlName="skills" required>
-        <small *ngIf="jobForm.get('skills')?.errors?.['required'] && jobForm.get('skills')?.touched">Skills are required.</small>
+        <small *ngIf="jobForm.get('skills')?.hasError('required') && jobForm.get('skills')?.touched">
+          Skills are required.
+        </small>
+        <small *ngIf="jobForm.get('skills')?.hasError('pattern') && jobForm.get('skills')?.touched">
+          Invalid format. Separate skills with commas (e.g., JavaScript, Angular).
+        </small>
       </div>
     
       <div class="form-group">
         <label for="location">Location</label>
         <input type="text" id="location" formControlName="location" required>
-        <small *ngIf="jobForm.get('location')?.errors?.['required'] && jobForm.get('location')?.touched">Location is required.</small>
+        <small *ngIf="jobForm.get('location')?.hasError('required') && jobForm.get('location')?.touched">
+          Location is required.
+        </small>
+        <small *ngIf="jobForm.get('location')?.hasError('pattern') && jobForm.get('location')?.touched">
+          Invalid location format. Only letters, spaces, and hyphens are allowed.
+        </small>
       </div>
       
       <div class="form-group">

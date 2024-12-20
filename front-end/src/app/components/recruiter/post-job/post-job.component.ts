@@ -39,21 +39,51 @@ export class PostJobComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.jobForm = this.fb.group({
-      jobTitle: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s\-]+$/)]],
+      jobTitle: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[a-zA-Z0-9]+(?:[\s\-][a-zA-Z0-9]+)*$/), // Letters, numbers, spaces, and hyphens
+        ],
+      ],
       jobType: ['', Validators.required],
       jobCategory: ['', Validators.required],
-      skills: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s,]+$/)]],
+      skills: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[a-zA-Z0-9]+(?:,\s?[a-zA-Z0-9]+)*$/), // Letters, numbers, and commas
+        ],
+      ],
       experienceRequired: [
         '',
-        [Validators.required, Validators.pattern(/^\d+$/), Validators.min(0)],
+        [
+          Validators.required,
+          Validators.pattern(/^\d+$/), // Positive integers only
+          Validators.min(0),
+        ],
       ],
-      location: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s\-]+$/)]],
+      location: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[a-zA-Z]+(?:[\s\-][a-zA-Z]+)*$/), // Letters, spaces, and hyphens
+        ],
+      ],
       salary: [
         '',
-        [Validators.required, Validators.pattern(/^\d+$/), Validators.min(0)],
+        [
+          Validators.required,
+          Validators.pattern(/^\d+$/), // Positive numbers only
+          Validators.min(0),
+        ],
       ],
-      jobDescription: ['', [Validators.required, Validators.minLength(10)]],
+      jobDescription: [
+        '',
+        [Validators.required, Validators.minLength(10)], // Minimum length 10
+      ],
     });
+    
     
   }
 
