@@ -21,16 +21,15 @@ jobs:
         run: |
           ssh -T -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             # Navigate to the correct directory on the EC2 instance (adjust if needed)
-            cd /home/ubuntu/your-backend-app  # VERY IMPORTANT: Replace with your actual path!
+            cd FINDY  # VERY IMPORTANT: Replace with your actual path!
 
-            # Navigate to the findy directory
-            cd findy
+           
 
             # Pull latest code for the entire repository
             git pull origin main
 
             # Navigate to the backend directory
-            cd backend
+            cd back-end
 
             # Install dependencies (only if package.json has changed)
             if [[ ! -d "node_modules" || $(git diff --name-only origin/main | grep package.json) ]]; then
