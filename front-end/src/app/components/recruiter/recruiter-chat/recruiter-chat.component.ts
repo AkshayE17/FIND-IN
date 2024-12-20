@@ -46,6 +46,8 @@ export class RecruiterChatComponent implements OnInit, OnDestroy {
   newMessageText: string = '';
   type:string='Recruiter';
   userStatuses: { [userId: string]: string } = {};
+  searchQuery: string = '';
+filteredChatRooms: ChatRoom[] = [];
 
   private subscriptions: Subscription[] = [];
 
@@ -58,6 +60,7 @@ export class RecruiterChatComponent implements OnInit, OnDestroy {
     this.currentUserId = this.authService.getRecruiterId();
     this.loadChatRooms();
     this.setupSocketListeners();
+    this.filteredChatRooms=this.chatRooms;
   }
 
   ngOnDestroy() {
@@ -74,11 +77,27 @@ export class RecruiterChatComponent implements OnInit, OnDestroy {
               isTyping: false,
               unseenCount: this.calculateUnseenCount(room)
             }));
+            this.filteredChatRooms = this.chatRooms;
           },
           error: (err) => console.error('Error loading chat rooms', err)
         });
     }
   }
+
+
+filterChatRooms() {
+  if (!this.searchQuery.trim()) {
+    this.filteredChatRooms = this.chatRooms;
+    return;
+  }
+
+  const query = this.searchQuery.toLowerCase().trim();
+  this.filteredChatRooms = this.chatRooms.filter(room => {
+    const otherUser = this.getOtherUser(room);
+    return otherUser.name.toLowerCase().includes(query);
+  });
+}
+
 
   selectChatRoom(room: ChatRoom) {
     this.selectedChatRoom = room;
