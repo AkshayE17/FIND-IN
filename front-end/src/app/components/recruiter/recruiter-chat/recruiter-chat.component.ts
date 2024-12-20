@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../services/chat.service';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 interface ChatRoom {
   _id: string;
@@ -53,7 +54,8 @@ filteredChatRooms: ChatRoom[] = [];
 
   constructor(
     private chatService: ChatService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router:Router
   ) {}
 
   ngOnInit() {
@@ -208,6 +210,7 @@ filterChatRooms() {
   }
 
    initiateVideoCall() {
+    this.router.navigate(['recruiter/dashboard/video-call']);
   }
 
 
