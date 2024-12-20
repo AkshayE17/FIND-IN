@@ -9,23 +9,31 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Set up SSH
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      # Step 3: Debug the SSH Key
+      - name: Debug SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > key.pem
+          chmod 600 key.pem
+          ssh-keygen -lf key.pem
+
+      # Step 4: Deploy to EC2 instance
       - name: Deploy to EC2 instance
         run: |
           ssh -T -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             # Navigate to the correct directory on the EC2 instance (adjust if needed)
             cd FINDY  # VERY IMPORTANT: Replace with your actual path!
 
-           
-
-            # Pull latest code for the entire repository
+            # Pull the latest code for the entire repository
             git pull origin main
 
             # Navigate to the backend directory
