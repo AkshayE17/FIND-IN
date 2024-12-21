@@ -3,6 +3,7 @@ import { IAdminService } from '../interfaces/admin/IAdminService';
 import { HttpStatus } from '../constants/http.constants';
 import { IAdminController } from '../interfaces/admin/IAdminController';
 import { generatePresignedUrl } from '../services/s3.service';
+import { Messages } from '../constants/message.constants';
 
 export class AdminController implements IAdminController {
   constructor(private _adminService: IAdminService) {}
@@ -61,7 +62,7 @@ export class AdminController implements IAdminController {
       });
     } catch (error: unknown) {
       console.error("Error fetching pending recruiters:", error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'An unknown error occurred' });
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: Messages.UNKNOWN_ERROR });
     }
   }
 
