@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { Subscription, timer } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 export interface OtpDialogData {
   email: string;
@@ -21,6 +22,7 @@ export interface OtpDialogData {
   styleUrls: ['./otp-verify.component.scss']
 })
 export class OtpVerifyComponent implements OnInit, OnDestroy {
+  private backendapi=environment.backendUrl;
   [x: string]: any;
   otpForm: FormGroup;
   errorMessage: string = '';
@@ -83,7 +85,7 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
       const email = this.data.email; 
   
       try {
-        const response = await this.http.post<string>('http://localhost:8888/user/verify-otp', { email, otp }).toPromise();
+        const response = await this.http.post<string>(`${this.backendapi}/user/verify-otp`, { email, otp }).toPromise();
         
         this.verify.emit(response); 
         
@@ -114,7 +116,7 @@ export class OtpVerifyComponent implements OnInit, OnDestroy {
     this.otpForm.reset();
     this.errorMessage = '';
   
-    this.http.post('http://localhost:8888/user/resend-otp', { email: this.data.email })
+    this.http.post(`${this.backendapi}/user/resend-otp`, { email: this.data.email })
       .toPromise()
       .then(response => {
         console.log('OTP resent successfully', response);
