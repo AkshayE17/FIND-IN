@@ -57,10 +57,6 @@ export const routes: Routes = [
   {path:'recruiter/room/:roomId',canActivate:[AuthGuard],component:RoomIdComponent},
   {path:'user/room/:roomId',canActivate:[AuthGuard],component:RoomComponent},
 
-
-
-
-
   {
     path: 'admin',
     component:AdminlayoutComponent, 

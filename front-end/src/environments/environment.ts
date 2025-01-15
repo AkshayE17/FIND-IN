@@ -1,7 +1,10 @@
 export const environment = {
   production: false,
-  backendUrl: 'https://akshaye.online',
-  frontendUrl: 'https://findy-job.vercel.app',
-  ZEGO_APP_ID: 798461473, 
-  ZEGO_SERVER_SECRET: '5f44ce6f6b0921ab0d8fc24ea57c3936'
+  // backendUrl: 'https://akshaye.online',
+  // frontendUrl: 'https://findy-job.vercel.app',
+  backendUrl: 'http://localhost:8888',
+  frontendUrl: 'http://localhost:4200',
+  ZEGO_APP_ID: 1634351379, 
+  ZEGO_SERVER_SECRET:'d3a4ab3241a29e86eefead0fd6b69ae7'
 };
+  

@@ -123,7 +123,7 @@ getAllUsers(
 
 
   approveRecruiter(email: string): Observable<IRecruiter> {
-    return this.http.put<IRecruiter>(`${this.apiUrl}/admin/recruiter-approve`, { email });
+    return this.http.put<IRecruiter>(`${this.apiUrl}/admin/approve`, { email });
   }
 
   rejectRecruiter(email: string): Observable<IRecruiter> {

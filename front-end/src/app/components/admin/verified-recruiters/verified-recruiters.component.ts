@@ -161,7 +161,7 @@ export class VerifyRecruitersComponent implements OnInit, OnDestroy {
     Swal.fire({
       title: 'Approve Recruiter',
       text: `Are you sure you want to approve ${recruiter.email}?`,
-      icon: 'question',
+      icon: 'question',  
       showCancelButton: true,
       confirmButtonText: 'Yes, approve',
       cancelButtonText: 'Cancel',

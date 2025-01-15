@@ -36,7 +36,7 @@ recruiterRoute.post('/login', recruiterController.login.bind(recruiterController
 recruiterRoute.put('/profile',authenticateToken,authorizeRole('recruiter'), recruiterController.updateRecruiter.bind(recruiterController));
 recruiterRoute.post('/verify-otp', recruiterController.verifyOtp.bind(recruiterController));
 recruiterRoute.post('/company-details/:recruiterId',authenticateToken,authorizeRole('recruiter'), companyController.createOrUpdateCompany.bind(companyController));
-recruiterRoute.get('/company-details/:recruiterId',authenticateToken, authorizeRole('recruiter'), companyController.getCompanyByHrId.bind(companyController));
+recruiterRoute.get('/company-details/:recruiterId',authenticateToken, authorizeRole('recruiter'), companyController.getCompanyByHrId.bind(companyController));     
 recruiterRoute.post('/post-job',authenticateToken,authorizeRole('recruiter'),  jobController.createJob.bind(jobController));
 recruiterRoute.get('/jobs',authenticateToken,authorizeRole('recruiter'),  jobController.getRecruiterJob.bind(jobController));
 recruiterRoute.get('/shortlist-jobs',authenticateToken,authorizeRole('recruiter'),  jobController.getRecruiterShortListedJob.bind(jobController));

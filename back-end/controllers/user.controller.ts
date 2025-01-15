@@ -133,7 +133,7 @@ async login(req: Request, res: Response): Promise<void> {
       const userId = req.params.userId;
   
       if (!currentPassword || !newPassword) {
-         res.status(HttpStatus.BAD_REQUEST).json({ message: 'Both old and new passwords are required.' });
+         res.status(HttpStatus.BAD_REQUEST).json({ message:  Messages.MESSAGES_REQUIRED });
       }
   
       await this._userService.changeUserPassword(userId, currentPassword, newPassword);
